@@ -15,6 +15,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  // до покупки домена OG-ссылки резолвятся от localhost; заменить на прод-домен
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Колибри — новогодние подарки, которые говорят о заботе",
   description:
     "Торговая компания «Колибри» — корпоративные новогодние подарки для сотрудников и их детей. Вы дарите не подарок — вы дарите заботу и признание.",

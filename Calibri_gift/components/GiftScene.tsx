@@ -99,8 +99,9 @@ function Frame({ index, progress }: { index: number; progress: MotionValue<numbe
       src={`/gift/frame-0${index + 1}.webp`}
       alt=""
       style={{ opacity, scale }}
-      className="absolute inset-0 h-full w-full object-cover will-change-transform"
-      loading={index === 0 ? "eager" : "lazy"}
+      className="absolute inset-0 h-full w-full object-cover"
+      // весь сет ~470 КБ: грузим сразу, чтобы диссолвы не ждали сеть
+      loading="eager"
       decoding="async"
       draggable={false}
     />

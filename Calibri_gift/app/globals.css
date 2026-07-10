@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  /* Палитра «зимняя ночь + тепло свечи» — бренд Колибри */
+  --color-night: #0e1526;
+  --color-night-deep: #090e1a;
+  --color-night-soft: #16203a;
+  --color-bordeaux: #7a2438;
+  --color-bordeaux-deep: #521626;
+  --color-bordeaux-bright: #a03049;
+  --color-gold: #e8b968;
+  --color-gold-soft: #f3d9a4;
+  --color-cream: #f7f3ec;
+  --color-muted: #9ba3b5;
+
+  --font-display: var(--font-playfair), "Playfair Display", serif;
+  --font-body: var(--font-manrope), "Manrope", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-night-deep);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* Тёплое свечение для акцентных слов */
+.glow-gold {
+  color: var(--color-gold);
+  text-shadow:
+    0 0 18px rgba(232, 185, 104, 0.45),
+    0 0 60px rgba(232, 185, 104, 0.18);
+}
+
+/* Градиентная «свеча» пробегает по слову */
+.candle-sweep {
+  background: linear-gradient(
+    100deg,
+    var(--color-gold) 0%,
+    var(--color-gold-soft) 45%,
+    #fff8e7 50%,
+    var(--color-gold-soft) 55%,
+    var(--color-gold) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: candle-sweep 5s ease-in-out infinite;
+}
+
+@keyframes candle-sweep {
+  0%, 100% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
+}
+
+/* Мягкая виньетка секций */
+.section-vignette {
+  background:
+    radial-gradient(1200px 600px at 50% 0%, rgba(122, 36, 56, 0.14), transparent 65%),
+    radial-gradient(900px 500px at 50% 100%, rgba(232, 185, 104, 0.05), transparent 60%);
+}
+
+::selection {
+  background: rgba(232, 185, 104, 0.35);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .candle-sweep {
+    animation: none;
+  }
+}

@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform, type MotionValue } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
+import Snow from "./Snow";
 
 /**
- * Надёжный прогресс pinned-сцены: 0 когда верх обёртки коснулся верха вьюпорта,
- * 1 когда обёртка доскроллена до конца. Считаем сами через getBoundingClientRect —
- * без сюрпризов измерения sticky-контента.
+ * Pinned scroll-storytelling на фотореалистичной секвенции (Nano Banana 2).
+ *
+ * Против эффекта «нарезки картинок» работают три приёма:
+ * 1) useSpring поверх прогресса — скролл получает инерцию (аналог scrub: 1),
+ *    рывки колеса сглаживаются в непрерывное движение;
+ * 2) каждый кадр, пока виден, медленно «наезжает» (scale 1 → 1.07) — камера
+ *    всё время движется вперёд, статики нет ни в один момент;
+ * 3) широкие диссолвы (~70% длины сегмента) + постоянные элементы поверх
+ *    кадров (снег, тёплое свечение) сшивают склейки в одну сцену.
  */
+
 function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionValue<number> {
   const progress = useMotionValue(0);
 
@@ -39,11 +53,103 @@ function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionVa
   return progress;
 }
 
-/**
- * Pinned scroll-storytelling: скролл развязывает ленту, открывает крышку,
- * из коробки вырывается тёплый свет и «разлетаются» три смысла подарка.
- * Высота обёртки 320vh задаёт длительность сцены; внутренний экран sticky.
- */
+/* ————— раскадровка ————— */
+
+// «центры» кадров по прогрессу сцены
+const CENTERS = [0.03, 0.12, 0.21, 0.3, 0.4, 0.51, 0.64, 0.8];
+const LAST = CENTERS.length - 1;
+// какая доля расстояния между кадрами занята диссолвом
+const DISSOLVE = 0.7;
+
+function frameTiming(i: number) {
+  const inMid = i === 0 ? 0 : (CENTERS[i - 1] + CENTERS[i]) / 2;
+  const outMid = i === LAST ? 1 : (CENTERS[i] + CENTERS[i + 1]) / 2;
+  const inW = i === 0 ? 0 : DISSOLVE * (CENTERS[i] - CENTERS[i - 1]);
+  const outW = i === LAST ? 0 : DISSOLVE * (CENTERS[i + 1] - CENTERS[i]);
+  return {
+    visStart: inMid - inW / 2,
+    fullStart: inMid + inW / 2,
+    fullEnd: outMid - outW / 2,
+    visEnd: outMid + outW / 2,
+  };
+}
+
+function Frame({ index, progress }: { index: number; progress: MotionValue<number> }) {
+  const { visStart, fullStart, fullEnd, visEnd } = frameTiming(index);
+
+  const opacity = useTransform(
+    progress,
+    index === 0
+      ? [0, fullEnd, visEnd]
+      : index === LAST
+        ? [visStart, fullStart, 1]
+        : [visStart, fullStart, fullEnd, visEnd],
+    index === 0 ? [1, 1, 0] : index === LAST ? [0, 1, 1] : [0, 1, 1, 0],
+  );
+
+  // непрерывный «наезд камеры»: кадр всё время движения слегка приближается
+  const scale = useTransform(
+    progress,
+    [Math.max(visStart, 0), Math.min(visEnd === 1 ? 1 : visEnd, 1)],
+    [1, 1.07],
+  );
+
+  return (
+    <motion.img
+      src={`/gift/frame-0${index + 1}.webp`}
+      alt=""
+      style={{ opacity, scale }}
+      className="absolute inset-0 h-full w-full object-cover will-change-transform"
+      loading={index === 0 ? "eager" : "lazy"}
+      decoding="async"
+      draggable={false}
+    />
+  );
+}
+
+/* ————— сторителлинг ————— */
+
+const storyLines = [
+  {
+    text: "Как сказать команде «спасибо» — по-настоящему?",
+    window: [0.04, 0.17] as const,
+  },
+  {
+    text: "Забота не бывает громкой. Она — в тепле, которое можно взять в руки.",
+    window: [0.21, 0.35] as const,
+  },
+  {
+    text: "Внутри — больше, чем подарок.",
+    window: [0.41, 0.58] as const,
+  },
+];
+
+function StoryLine({
+  text,
+  window: [a, b],
+  progress,
+  as: Tag = "p",
+}: {
+  text: string;
+  window: readonly [number, number];
+  progress: MotionValue<number>;
+  as?: "h2" | "p";
+}) {
+  const fade = Math.min(0.05, (b - a) / 3);
+  const opacity = useTransform(progress, [a, a + fade, b - fade, b], [0, 1, 1, 0]);
+  const y = useTransform(progress, [a, b], [36, -28]);
+
+  return (
+    <motion.div
+      style={{ opacity, y }}
+      className="absolute inset-x-0 top-[10vh] z-20 px-6 text-center md:top-[12vh]"
+    >
+      <Tag className="mx-auto max-w-3xl font-display text-2xl leading-snug text-cream [text-shadow:0_2px_28px_rgba(9,14,26,0.95),0_0_60px_rgba(9,14,26,0.6)] md:text-4xl">
+        {text}
+      </Tag>
+    </motion.div>
+  );
+}
 
 const cards = [
   {
@@ -62,206 +168,80 @@ const cards = [
 
 export default function GiftScene() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const p = useSceneProgress(wrapRef);
+  const raw = useSceneProgress(wrapRef);
+  // инерция скраба: скролл догоняется пружиной, рывки сглаживаются
+  const p = useSpring(raw, { stiffness: 70, damping: 22, mass: 0.6, restDelta: 0.0004 });
 
-  // — заголовок сцены
-  const titleOpacity = useTransform(p, [0.02, 0.1, 0.9, 1], [0, 1, 1, 0]);
-  const titleY = useTransform(p, [0.02, 0.1], [40, 0]);
-
-  // — бант и ленты (развязываются)
-  const bowScale = useTransform(p, [0.06, 0.2], [1, 0]);
-  const strandLeftX = useTransform(p, [0.08, 0.24], [0, -110]);
-  const strandRightX = useTransform(p, [0.08, 0.24], [0, 110]);
-  const strandOpacity = useTransform(p, [0.08, 0.24], [1, 0]);
-  const ribbonOpacity = useTransform(p, [0.16, 0.3], [1, 0]);
-
-  // — крышка открывается
-  const lidRotate = useTransform(p, [0.26, 0.46], [0, -26]);
-  const lidY = useTransform(p, [0.26, 0.46], [0, -110]);
-  const lidX = useTransform(p, [0.26, 0.46], [0, -46]);
-
-  // — свет из коробки
-  const glowScale = useTransform(p, [0.3, 0.56], [0.2, 1.5]);
-  const glowOpacity = useTransform(p, [0.3, 0.5, 0.85], [0, 0.95, 0.7]);
-
-  // — коробка отступает, выходят карточки
-  const boxScale = useTransform(p, [0.52, 0.72], [1, 0.88]);
-  const boxOpacity = useTransform(p, [0.52, 0.72], [1, 0.28]);
-  const boxY = useTransform(p, [0.52, 0.72], [0, 60]);
+  // постоянное тёплое свечение — «клей» между кадрами
+  const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.55, 0.4, 0.28]);
 
   const cardsProgress = [
-    useTransform(p, [0.52, 0.66], [0, 1]),
-    useTransform(p, [0.58, 0.72], [0, 1]),
-    useTransform(p, [0.64, 0.78], [0, 1]),
+    useTransform(p, [0.62, 0.76], [0, 1]),
+    useTransform(p, [0.68, 0.82], [0, 1]),
+    useTransform(p, [0.74, 0.88], [0, 1]),
   ];
 
   return (
-    <div ref={wrapRef} id="story" className="relative h-[320vh]">
-      <div className="section-vignette sticky top-0 flex h-screen flex-col items-center overflow-hidden">
-        {/* заголовок */}
-        <motion.h2
-          style={{ opacity: titleOpacity, y: titleY }}
-          className="z-20 mt-[9vh] px-6 text-center font-display text-3xl md:mt-[11vh] md:text-5xl"
-        >
-          Внутри — больше, <span className="glow-gold">чем подарок</span>
-        </motion.h2>
-
-        {/* карточки-смыслы */}
-        <div className="pointer-events-none absolute inset-x-0 top-[24%] z-20 flex flex-col items-center justify-center gap-3 px-6 md:top-[30%] md:flex-row md:gap-8">
-          {cards.map((c, i) => {
-            const cp = cardsProgress[i];
-            return (
-              <CardOut key={c.title} progress={cp} index={i}>
-                <h3 className="mb-2 font-display text-xl text-gold md:text-2xl">
-                  {c.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-cream/80">{c.text}</p>
-              </CardOut>
-            );
-          })}
+    <div ref={wrapRef} id="story" className="relative h-[420vh]">
+      <div className="sticky top-0 flex h-screen flex-col items-center overflow-hidden bg-night-deep">
+        {/* фото-секвенция */}
+        <div className="absolute inset-0">
+          {CENTERS.map((_, i) => (
+            <Frame key={i} index={i} progress={p} />
+          ))}
         </div>
 
-        {/* сцена с коробкой */}
+        {/* постоянное свечение по центру — сшивает склейки */}
         <motion.div
-          style={{ scale: boxScale, opacity: boxOpacity, y: boxY }}
-          className="absolute bottom-[6vh] left-1/2 h-[360px] w-[320px] -translate-x-1/2"
+          style={{ opacity: glowOpacity }}
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/3 rounded-full"
+          aria-hidden
         >
-          {/* свет из коробки */}
-          <motion.div
-            style={{ scale: glowScale, opacity: glowOpacity }}
-            className="absolute bottom-[140px] left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full"
-            aria-hidden
-          >
-            <div
-              className="h-full w-full rounded-full"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(255,243,214,0.9) 0%, rgba(243,217,164,0.5) 30%, rgba(232,185,104,0.22) 50%, transparent 72%)",
-              }}
-            />
-          </motion.div>
-
-          {/* корпус коробки */}
           <div
-            className="absolute bottom-0 left-[20px] h-[170px] w-[280px] rounded-2xl"
+            className="h-full w-full rounded-full"
             style={{
-              background: "linear-gradient(160deg, #8c2a41 0%, #7a2438 45%, #521626 100%)",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+              background:
+                "radial-gradient(circle, rgba(255,243,214,0.28) 0%, rgba(232,185,104,0.12) 40%, transparent 70%)",
             }}
           />
-          {/* вертикальная лента на корпусе */}
-          <motion.div
-            style={{ opacity: ribbonOpacity }}
-            className="absolute bottom-0 left-[148px] h-[170px] w-[24px]"
-          >
-            <div
-              className="h-full w-full"
-              style={{
-                background: "linear-gradient(90deg, #c99a4e, #f3d9a4 50%, #c99a4e)",
-              }}
-            />
-          </motion.div>
-
-          {/* крышка */}
-          <motion.div
-            style={{
-              rotate: lidRotate,
-              y: lidY,
-              x: lidX,
-              transformOrigin: "12% 100%",
-            }}
-            className="absolute bottom-[164px] left-0 h-[54px] w-[320px] rounded-xl"
-          >
-            <div
-              className="h-full w-full rounded-xl"
-              style={{
-                background: "linear-gradient(160deg, #a03049 0%, #7a2438 60%, #5c1a2e 100%)",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)",
-              }}
-            />
-            <motion.div
-              style={{ opacity: ribbonOpacity }}
-              className="absolute inset-y-0 left-[148px] w-[24px]"
-            >
-              <div
-                className="h-full w-full"
-                style={{
-                  background: "linear-gradient(90deg, #c99a4e, #f3d9a4 50%, #c99a4e)",
-                }}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* бант */}
-          <motion.svg
-            style={{ scale: bowScale }}
-            viewBox="0 0 120 70"
-            className="absolute bottom-[206px] left-[100px] w-[120px] origin-bottom"
-            aria-hidden
-          >
-            <path
-              d="M60 52 C38 20 10 18 8 38 C6 56 36 58 60 52 Z"
-              fill="#e8b968"
-              opacity={0.95}
-            />
-            <path
-              d="M60 52 C82 20 110 18 112 38 C114 56 84 58 60 52 Z"
-              fill="#e8b968"
-              opacity={0.95}
-            />
-            <circle cx="60" cy="52" r="10" fill="#f3d9a4" />
-          </motion.svg>
-
-          {/* развязанные концы ленты */}
-          <motion.svg
-            style={{ x: strandLeftX, opacity: strandOpacity }}
-            viewBox="0 0 100 120"
-            className="absolute bottom-[120px] left-[40px] w-[90px]"
-            aria-hidden
-          >
-            <path
-              d="M90 8 C50 30 30 70 12 112"
-              stroke="#e8b968"
-              strokeWidth="14"
-              strokeLinecap="round"
-              fill="none"
-              opacity={0.9}
-            />
-          </motion.svg>
-          <motion.svg
-            style={{ x: strandRightX, opacity: strandOpacity }}
-            viewBox="0 0 100 120"
-            className="absolute bottom-[120px] right-[40px] w-[90px]"
-            aria-hidden
-          >
-            <path
-              d="M10 8 C50 30 70 70 88 112"
-              stroke="#e8b968"
-              strokeWidth="14"
-              strokeLinecap="round"
-              fill="none"
-              opacity={0.9}
-            />
-          </motion.svg>
-
-          {/* поднимающиеся искры */}
-          <motion.div style={{ opacity: glowOpacity }} className="absolute inset-0" aria-hidden>
-            {[38, 92, 150, 205, 258].map((left, i) => (
-              <motion.span
-                key={i}
-                className="absolute bottom-[170px] block h-[5px] w-[5px] rounded-full bg-gold-soft"
-                style={{ left }}
-                animate={{ y: [-10, -150 - i * 22], opacity: [0, 1, 0] }}
-                transition={{
-                  duration: 2.6 + i * 0.5,
-                  repeat: Infinity,
-                  delay: i * 0.55,
-                  ease: "easeOut",
-                }}
-              />
-            ))}
-          </motion.div>
         </motion.div>
+
+        {/* живой снег поверх кадров — непрерывность движения */}
+        <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+          <Snow density={0.45} />
+        </div>
+
+        {/* сшивка с фоном страницы */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-36"
+          style={{ background: "linear-gradient(to bottom, #090e1a, transparent)" }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-36"
+          style={{ background: "linear-gradient(to top, #090e1a, transparent)" }}
+          aria-hidden
+        />
+
+        {/* сторителлинг: строки сменяют друг друга по мере открытия */}
+        <StoryLine
+          text={storyLines[0].text}
+          window={storyLines[0].window}
+          progress={p}
+          as="h2"
+        />
+        <StoryLine text={storyLines[1].text} window={storyLines[1].window} progress={p} />
+        <StoryLine text={storyLines[2].text} window={storyLines[2].window} progress={p} />
+
+        {/* карточки-смыслы поверх кадров 7–8 */}
+        <div className="pointer-events-none absolute inset-x-0 top-[22%] z-20 flex flex-col items-center justify-center gap-3 px-6 md:top-[28%] md:flex-row md:gap-8">
+          {cards.map((c, i) => (
+            <CardOut key={c.title} progress={cardsProgress[i]} index={i}>
+              <h3 className="mb-2 font-display text-xl text-gold md:text-2xl">{c.title}</h3>
+              <p className="text-sm leading-relaxed text-cream/85">{c.text}</p>
+            </CardOut>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -272,7 +252,7 @@ function CardOut({
   index,
   children,
 }: {
-  progress: ReturnType<typeof useTransform<number, number>>;
+  progress: MotionValue<number>;
   index: number;
   children: React.ReactNode;
 }) {
@@ -282,7 +262,7 @@ function CardOut({
   return (
     <motion.div
       style={{ opacity: progress, y, rotate }}
-      className="w-full max-w-[300px] rounded-2xl border border-gold/20 bg-night-soft/80 p-5 backdrop-blur-sm md:p-7"
+      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(9,14,26,0.55)] backdrop-blur-md md:p-7"
     >
       {children}
     </motion.div>

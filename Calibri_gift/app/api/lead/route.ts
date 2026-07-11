@@ -13,12 +13,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "missing fields" }, { status: 400 });
     }
 
+    const s = (v: unknown, max = 200) => String(v ?? "").slice(0, max);
     const payload = {
-      name: String(data.name).slice(0, 200),
-      company: String(data.company).slice(0, 200),
-      email: String(data.email).slice(0, 200),
-      phone: String(data.phone ?? "").slice(0, 100),
-      teamSize: String(data.teamSize ?? "").slice(0, 100),
+      name: s(data.name),
+      company: s(data.company),
+      email: s(data.email),
+      phone: s(data.phone, 100),
+      employees: s(data.employees, 100),
+      kids: s(data.kids, 100),
+      budget: s(data.budget, 100),
+      packaging: s(data.packaging, 100),
+      personalization: s(data.personalization, 100),
       source: "сайт",
     };
 

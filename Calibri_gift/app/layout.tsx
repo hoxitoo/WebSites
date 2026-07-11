@@ -35,7 +35,22 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" className={`${playfair.variable} ${manrope.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Торговая компания «Колибри»",
+              description:
+                "Корпоративные новогодние подарки для сотрудников и их детей. 11 лет на рынке, 1000+ компаний-клиентов.",
+              slogan: "Вы дарите не подарок. Вы дарите заботу.",
+            }),
+          }}
+        />
+      </body>
     </html>
   );
 }

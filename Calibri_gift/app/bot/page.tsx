@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false }, // вход по QR из каталога, в поиске не нужна
 };
 
-const TG_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/";
+const TG_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/kolibri_care_bot";
 const MAX_URL = process.env.NEXT_PUBLIC_MAX_BOT_URL ?? "https://max.ru/";
 
 export default function BotPage() {

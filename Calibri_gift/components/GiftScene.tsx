@@ -59,8 +59,8 @@ function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionVa
 // «центры» кадров по прогрессу сцены
 const CENTERS = [0.03, 0.12, 0.21, 0.3, 0.4, 0.51, 0.64, 0.8];
 const LAST = CENTERS.length - 1;
-// какая доля расстояния между кадрами занята диссолвом
-const DISSOLVE = 0.7;
+// какая доля расстояния между кадрами занята диссолвом (шире = мягче склейка)
+const DISSOLVE = 0.78;
 
 function frameTiming(i: number) {
   const inMid = i === 0 ? 0 : (CENTERS[i - 1] + CENTERS[i]) / 2;
@@ -114,15 +114,19 @@ function Frame({ index, progress }: { index: number; progress: MotionValue<numbe
 const storyLines = [
   {
     text: "Как сказать команде «спасибо» — по-настоящему?",
-    window: [0.04, 0.17] as const,
+    window: [0.03, 0.135] as const,
+  },
+  {
+    text: "Не общими словами на планёрке — а тёплым знаком внимания каждому.",
+    window: [0.165, 0.285] as const,
   },
   {
     text: "Забота не бывает громкой. Она — в тепле, которое можно взять в руки.",
-    window: [0.21, 0.35] as const,
+    window: [0.315, 0.43] as const,
   },
   {
-    text: "Внутри — больше, чем подарок.",
-    window: [0.41, 0.58] as const,
+    text: "Внутри — больше, чем подарок. Внутри — «мы вас ценим».",
+    window: [0.46, 0.585] as const,
   },
 ];
 
@@ -172,7 +176,7 @@ export default function GiftScene() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const raw = useSceneProgress(wrapRef);
   // инерция скраба: скролл догоняется пружиной, рывки сглаживаются
-  const spring = useSpring(raw, { stiffness: 70, damping: 22, mass: 0.6, restDelta: 0.0004 });
+  const spring = useSpring(raw, { stiffness: 58, damping: 21, mass: 0.7, restDelta: 0.0004 });
   // reduced-motion: без инерции — сцена меняется строго вместе с жестом скролла
   const reduce = useReducedMotion();
   const p = reduce ? raw : spring;
@@ -181,13 +185,13 @@ export default function GiftScene() {
   const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.55, 0.4, 0.28]);
 
   const cardsProgress = [
-    useTransform(p, [0.62, 0.76], [0, 1]),
-    useTransform(p, [0.68, 0.82], [0, 1]),
-    useTransform(p, [0.74, 0.88], [0, 1]),
+    useTransform(p, [0.64, 0.78], [0, 1]),
+    useTransform(p, [0.7, 0.84], [0, 1]),
+    useTransform(p, [0.76, 0.9], [0, 1]),
   ];
 
   return (
-    <div ref={wrapRef} id="story" className="relative h-[420vh]">
+    <div ref={wrapRef} id="story" className="relative h-[460vh]">
       <div className="sticky top-0 flex h-screen flex-col items-center overflow-hidden bg-night-deep">
         {/* фото-секвенция */}
         <div className="absolute inset-0">
@@ -229,14 +233,15 @@ export default function GiftScene() {
         />
 
         {/* сторителлинг: строки сменяют друг друга по мере открытия */}
-        <StoryLine
-          text={storyLines[0].text}
-          window={storyLines[0].window}
-          progress={p}
-          as="h2"
-        />
-        <StoryLine text={storyLines[1].text} window={storyLines[1].window} progress={p} />
-        <StoryLine text={storyLines[2].text} window={storyLines[2].window} progress={p} />
+        {storyLines.map((line, i) => (
+          <StoryLine
+            key={line.text}
+            text={line.text}
+            window={line.window}
+            progress={p}
+            as={i === 0 ? "h2" : "p"}
+          />
+        ))}
 
         {/* карточки-смыслы поверх кадров 7–8 */}
         <div className="pointer-events-none absolute inset-x-0 top-[22%] z-20 flex flex-col items-center justify-center gap-3 px-6 md:top-[28%] md:flex-row md:gap-8">

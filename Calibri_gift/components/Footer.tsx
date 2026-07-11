@@ -43,6 +43,23 @@ export default function Footer() {
             </a>
           </p>
           <p className="mt-2 text-xs text-muted/70">Краснодар · доставка по всей России</p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+            {[
+              { label: "WhatsApp", href: "https://api.whatsapp.com/send/?phone=79882461551" },
+              { label: "Telegram", href: "https://telegram.me/+f0vDIlkA2yY3ODIy" },
+              { label: "ВКонтакте", href: "https://vk.com/club215516443" },
+            ].map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-cream/15 px-4 py-1.5 text-xs text-cream/80 transition-colors hover:border-gold/50 hover:text-gold"
+              >
+                {s.label}
+              </a>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col justify-between text-sm md:items-end">
@@ -52,8 +69,10 @@ export default function Footer() {
           >
             Получить каталог
           </a>
-          <p className="mt-6 text-xs text-muted/60">
-            © {new Date().getFullYear()} ТК «Колибри»
+          <p className="mt-6 text-xs leading-relaxed text-muted/60">
+            © {new Date().getFullYear()} ООО ТК «Колибри»
+            <br />
+            ИНН 2312230564 · ОГРН 1152312007473
           </p>
         </div>
       </div>

@@ -58,25 +58,36 @@ function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionVa
 
 /* ————— прогрессивная загрузка кадров ————— */
 
-function useSequence() {
+function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(FRAME_COUNT).fill(null));
   const [coarseReady, setCoarseReady] = useState(false);
+  // счётчик догруженных кадров — сигнал канвасу перерисоваться без скролла
+  const loadTick = useMotionValue(0);
 
   useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
     let cancelled = false;
+    let started = false;
+
     const load = (i: number) =>
       new Promise<void>((resolve) => {
         if (imagesRef.current[i]) return resolve();
         const img = new Image();
         img.onload = () => {
-          if (!cancelled) imagesRef.current[i] = img;
+          if (!cancelled) {
+            imagesRef.current[i] = img;
+            loadTick.set(loadTick.get() + 1);
+          }
           resolve();
         };
         img.onerror = () => resolve();
         img.src = frameSrc(i);
       });
 
-    (async () => {
+    const start = async () => {
+      if (started) return;
+      started = true;
       // каркас: каждый 7-й кадр + последний
       const coarse: number[] = [];
       for (let i = 0; i < FRAME_COUNT; i += 7) coarse.push(i);
@@ -88,14 +99,27 @@ function useSequence() {
         if (cancelled) return;
         await load(i);
       }
-    })();
+    };
+
+    // 5.4 МБ не грузим «на всякий случай»: ждём приближения сцены
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          start();
+          io.disconnect();
+        }
+      },
+      { rootMargin: "150% 0px" }
+    );
+    io.observe(el);
 
     return () => {
       cancelled = true;
+      io.disconnect();
     };
-  }, []);
+  }, [wrapRef, loadTick]);
 
-  return { imagesRef, coarseReady };
+  return { imagesRef, coarseReady, loadTick };
 }
 
 /* ————— сторителлинг ————— */
@@ -169,7 +193,7 @@ export default function GiftScene() {
   const reduce = useReducedMotion();
   const p = reduce ? raw : spring;
 
-  const { imagesRef, coarseReady } = useSequence();
+  const { imagesRef, coarseReady, loadTick } = useSequence(wrapRef);
   const [hasDrawn, setHasDrawn] = useState(false);
 
   /* отрисовка кадра по прогрессу */
@@ -180,27 +204,26 @@ export default function GiftScene() {
     if (!ctx) return;
 
     let raf = 0;
-    let lastIdx = -1;
+    let lastImg: HTMLImageElement | null = null;
     let drawnOnce = false;
 
     const nearestLoaded = (idx: number) => {
       const imgs = imagesRef.current;
       for (let o = 0; o < FRAME_COUNT; o++) {
-        if (idx - o >= 0 && imgs[idx - o]) return idx - o;
-        if (idx + o < FRAME_COUNT && imgs[idx + o]) return idx + o;
+        if (idx - o >= 0 && imgs[idx - o]) return imgs[idx - o];
+        if (idx + o < FRAME_COUNT && imgs[idx + o]) return imgs[idx + o];
       }
-      return -1;
+      return null;
     };
 
     const draw = () => {
       raf = 0;
-      const idx = nearestLoaded(
+      const img = nearestLoaded(
         Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(p.get() * (FRAME_COUNT - 1))))
       );
-      if (idx < 0 || idx === lastIdx) return;
-      const img = imagesRef.current[idx];
-      if (!img) return;
-      lastIdx = idx;
+      // сравниваем сам кадр: когда докачался точный — перерисуемся без скролла
+      if (!img || img === lastImg) return;
+      lastImg = img;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cw = canvas.clientWidth;
@@ -226,20 +249,22 @@ export default function GiftScene() {
       if (!raf) raf = requestAnimationFrame(draw);
     };
 
-    const unsub = p.on("change", schedule);
+    const unsubP = p.on("change", schedule);
+    const unsubTick = loadTick.on("change", schedule);
     const onResize = () => {
-      lastIdx = -1; // форсируем перерисовку в новом размере
+      lastImg = null; // форсируем перерисовку в новом размере
       schedule();
     };
     window.addEventListener("resize", onResize);
     if (coarseReady) schedule();
 
     return () => {
-      unsub();
+      unsubP();
+      unsubTick();
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
     };
-  }, [p, coarseReady, imagesRef]);
+  }, [p, coarseReady, imagesRef, loadTick]);
 
   const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.5, 0.35, 0.25]);
 

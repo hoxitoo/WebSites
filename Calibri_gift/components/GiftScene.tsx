@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -12,16 +12,18 @@ import {
 import Snow from "./Snow";
 
 /**
- * Pinned scroll-storytelling на фотореалистичной секвенции (Nano Banana 2).
+ * Pinned scroll-storytelling на видео-секвенции (Veo 3 → 140 кадров WebP).
+ * Кадры рисуются в <canvas> по прогрессу скролла — техника Apple AirPods:
+ * настоящее покадровое движение вместо кросс-фейда статичных поз.
  *
- * Против эффекта «нарезки картинок» работают три приёма:
- * 1) useSpring поверх прогресса — скролл получает инерцию (аналог scrub: 1),
- *    рывки колеса сглаживаются в непрерывное движение;
- * 2) каждый кадр, пока виден, медленно «наезжает» (scale 1 → 1.07) — камера
- *    всё время движется вперёд, статики нет ни в один момент;
- * 3) широкие диссолвы (~70% длины сегмента) + постоянные элементы поверх
- *    кадров (снег, тёплое свечение) сшивают склейки в одну сцену.
+ * Плавность: useSpring-инерция скраба + 8.75 к/с исходника, интерполяция
+ * скроллом. Загрузка прогрессивная: сначала каждый 7-й кадр (~800 КБ),
+ * остальные докачиваются в фоне; до первого кадра — постер <img>.
  */
+
+const FRAME_COUNT = 140;
+const frameSrc = (i: number) =>
+  `/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`;
 
 function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionValue<number> {
   const progress = useMotionValue(0);
@@ -54,59 +56,46 @@ function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionVa
   return progress;
 }
 
-/* ————— раскадровка ————— */
+/* ————— прогрессивная загрузка кадров ————— */
 
-// «центры» кадров по прогрессу сцены
-const CENTERS = [0.03, 0.12, 0.21, 0.3, 0.4, 0.51, 0.64, 0.8];
-const LAST = CENTERS.length - 1;
-// какая доля расстояния между кадрами занята диссолвом (шире = мягче склейка)
-const DISSOLVE = 0.78;
+function useSequence() {
+  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(FRAME_COUNT).fill(null));
+  const [coarseReady, setCoarseReady] = useState(false);
 
-function frameTiming(i: number) {
-  const inMid = i === 0 ? 0 : (CENTERS[i - 1] + CENTERS[i]) / 2;
-  const outMid = i === LAST ? 1 : (CENTERS[i] + CENTERS[i + 1]) / 2;
-  const inW = i === 0 ? 0 : DISSOLVE * (CENTERS[i] - CENTERS[i - 1]);
-  const outW = i === LAST ? 0 : DISSOLVE * (CENTERS[i + 1] - CENTERS[i]);
-  return {
-    visStart: inMid - inW / 2,
-    fullStart: inMid + inW / 2,
-    fullEnd: outMid - outW / 2,
-    visEnd: outMid + outW / 2,
-  };
-}
+  useEffect(() => {
+    let cancelled = false;
+    const load = (i: number) =>
+      new Promise<void>((resolve) => {
+        if (imagesRef.current[i]) return resolve();
+        const img = new Image();
+        img.onload = () => {
+          if (!cancelled) imagesRef.current[i] = img;
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = frameSrc(i);
+      });
 
-function Frame({ index, progress }: { index: number; progress: MotionValue<number> }) {
-  const { visStart, fullStart, fullEnd, visEnd } = frameTiming(index);
+    (async () => {
+      // каркас: каждый 7-й кадр + последний
+      const coarse: number[] = [];
+      for (let i = 0; i < FRAME_COUNT; i += 7) coarse.push(i);
+      coarse.push(FRAME_COUNT - 1);
+      await Promise.all(coarse.map(load));
+      if (!cancelled) setCoarseReady(true);
+      // остальные — в фоне, последовательно, чтобы не душить сеть
+      for (let i = 0; i < FRAME_COUNT; i++) {
+        if (cancelled) return;
+        await load(i);
+      }
+    })();
 
-  const opacity = useTransform(
-    progress,
-    index === 0
-      ? [0, fullEnd, visEnd]
-      : index === LAST
-        ? [visStart, fullStart, 1]
-        : [visStart, fullStart, fullEnd, visEnd],
-    index === 0 ? [1, 1, 0] : index === LAST ? [0, 1, 1] : [0, 1, 1, 0],
-  );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  // непрерывный «наезд камеры»: кадр всё время движения слегка приближается
-  const scale = useTransform(
-    progress,
-    [Math.max(visStart, 0), Math.min(visEnd === 1 ? 1 : visEnd, 1)],
-    [1, 1.07],
-  );
-
-  return (
-    <motion.img
-      src={`/gift/frame-0${index + 1}.webp`}
-      alt=""
-      style={{ opacity, scale }}
-      className="absolute inset-0 h-full w-full object-cover"
-      // весь сет ~470 КБ: грузим сразу, чтобы диссолвы не ждали сеть
-      loading="eager"
-      decoding="async"
-      draggable={false}
-    />
-  );
+  return { imagesRef, coarseReady };
 }
 
 /* ————— сторителлинг ————— */
@@ -174,15 +163,85 @@ const cards = [
 
 export default function GiftScene() {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const raw = useSceneProgress(wrapRef);
-  // инерция скраба: скролл догоняется пружиной, рывки сглаживаются
   const spring = useSpring(raw, { stiffness: 58, damping: 21, mass: 0.7, restDelta: 0.0004 });
-  // reduced-motion: без инерции — сцена меняется строго вместе с жестом скролла
   const reduce = useReducedMotion();
   const p = reduce ? raw : spring;
 
-  // постоянное тёплое свечение — «клей» между кадрами
-  const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.55, 0.4, 0.28]);
+  const { imagesRef, coarseReady } = useSequence();
+  const [hasDrawn, setHasDrawn] = useState(false);
+
+  /* отрисовка кадра по прогрессу */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    let lastIdx = -1;
+    let drawnOnce = false;
+
+    const nearestLoaded = (idx: number) => {
+      const imgs = imagesRef.current;
+      for (let o = 0; o < FRAME_COUNT; o++) {
+        if (idx - o >= 0 && imgs[idx - o]) return idx - o;
+        if (idx + o < FRAME_COUNT && imgs[idx + o]) return idx + o;
+      }
+      return -1;
+    };
+
+    const draw = () => {
+      raf = 0;
+      const idx = nearestLoaded(
+        Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(p.get() * (FRAME_COUNT - 1))))
+      );
+      if (idx < 0 || idx === lastIdx) return;
+      const img = imagesRef.current[idx];
+      if (!img) return;
+      lastIdx = idx;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cw = canvas.clientWidth;
+      const ch = canvas.clientHeight;
+      if (canvas.width !== cw * dpr || canvas.height !== ch * dpr) {
+        canvas.width = cw * dpr;
+        canvas.height = ch * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      // object-cover: центрируем и кропим
+      const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+      const dw = img.naturalWidth * scale;
+      const dh = img.naturalHeight * scale;
+      ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+
+      if (!drawnOnce) {
+        drawnOnce = true;
+        setHasDrawn(true);
+      }
+    };
+
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(draw);
+    };
+
+    const unsub = p.on("change", schedule);
+    const onResize = () => {
+      lastIdx = -1; // форсируем перерисовку в новом размере
+      schedule();
+    };
+    window.addEventListener("resize", onResize);
+    if (coarseReady) schedule();
+
+    return () => {
+      unsub();
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [p, coarseReady, imagesRef]);
+
+  const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.5, 0.35, 0.25]);
 
   const cardsProgress = [
     useTransform(p, [0.64, 0.78], [0, 1]),
@@ -193,14 +252,19 @@ export default function GiftScene() {
   return (
     <div ref={wrapRef} id="story" className="relative h-[460vh]">
       <div className="sticky top-0 flex h-screen flex-col items-center overflow-hidden bg-night-deep">
-        {/* фото-секвенция */}
-        <div className="absolute inset-0">
-          {CENTERS.map((_, i) => (
-            <Frame key={i} index={i} progress={p} />
-          ))}
-        </div>
+        {/* постер до загрузки каркаса кадров */}
+        <img
+          src={frameSrc(0)}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+            hasDrawn ? "opacity-0" : "opacity-100"
+          }`}
+          draggable={false}
+        />
+        {/* видео-секвенция */}
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden />
 
-        {/* постоянное свечение по центру — сшивает склейки */}
+        {/* постоянное тёплое свечение — мягкая связка с виньетками страницы */}
         <motion.div
           style={{ opacity: glowOpacity }}
           className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/3 rounded-full"
@@ -210,12 +274,12 @@ export default function GiftScene() {
             className="h-full w-full rounded-full"
             style={{
               background:
-                "radial-gradient(circle, rgba(255,243,214,0.28) 0%, rgba(232,185,104,0.12) 40%, transparent 70%)",
+                "radial-gradient(circle, rgba(255,243,214,0.22) 0%, rgba(232,185,104,0.1) 40%, transparent 70%)",
             }}
           />
         </motion.div>
 
-        {/* живой снег поверх кадров — непрерывность движения */}
+        {/* живой снег поверх кадров */}
         <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
           <Snow density={0.45} />
         </div>
@@ -232,7 +296,7 @@ export default function GiftScene() {
           aria-hidden
         />
 
-        {/* сторителлинг: строки сменяют друг друга по мере открытия */}
+        {/* сторителлинг */}
         {storyLines.map((line, i) => (
           <StoryLine
             key={line.text}
@@ -243,7 +307,7 @@ export default function GiftScene() {
           />
         ))}
 
-        {/* карточки-смыслы поверх кадров 7–8 */}
+        {/* карточки-смыслы над парящими подарками */}
         <div className="pointer-events-none absolute inset-x-0 top-[22%] z-20 flex flex-col items-center justify-center gap-3 px-6 md:top-[28%] md:flex-row md:gap-8">
           {cards.map((c, i) => (
             <CardOut key={c.title} progress={cardsProgress[i]} index={i}>

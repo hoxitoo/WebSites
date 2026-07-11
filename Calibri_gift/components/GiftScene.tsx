@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import {
   motion,
   useMotionValue,
+  useReducedMotion,
   useSpring,
   useTransform,
   type MotionValue,
@@ -171,7 +172,10 @@ export default function GiftScene() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const raw = useSceneProgress(wrapRef);
   // инерция скраба: скролл догоняется пружиной, рывки сглаживаются
-  const p = useSpring(raw, { stiffness: 70, damping: 22, mass: 0.6, restDelta: 0.0004 });
+  const spring = useSpring(raw, { stiffness: 70, damping: 22, mass: 0.6, restDelta: 0.0004 });
+  // reduced-motion: без инерции — сцена меняется строго вместе с жестом скролла
+  const reduce = useReducedMotion();
+  const p = reduce ? raw : spring;
 
   // постоянное тёплое свечение — «клей» между кадрами
   const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.55, 0.4, 0.28]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
 /**
  * Колибри из света — стилизованный line-art силуэт (отсылка к логотипу),
@@ -30,14 +30,15 @@ const sparks = [
 ];
 
 export default function Hummingbird({ className = "" }: { className?: string }) {
+  const reduce = useReducedMotion();
   return (
     <motion.svg
       viewBox="0 0 420 420"
       fill="none"
       className={className}
       aria-hidden
-      // лёгкое парение после отрисовки
-      animate={{ y: [0, -10, 0] }}
+      // лёгкое парение после отрисовки (reduced-motion: птица статична)
+      animate={reduce ? undefined : { y: [0, -10, 0] }}
       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 3 }}
     >
       <defs>
@@ -92,13 +93,12 @@ export default function Hummingbird({ className = "" }: { className?: string }) 
             r={s.r}
             fill="#e8b968"
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.9, 0] }}
-            transition={{
-              duration: 2.4,
-              delay: s.delay,
-              repeat: Infinity,
-              repeatDelay: 1.6,
-            }}
+            animate={reduce ? { opacity: 0.5 } : { opacity: [0, 0.9, 0] }}
+            transition={
+              reduce
+                ? { duration: 0.6, delay: s.delay }
+                : { duration: 2.4, delay: s.delay, repeat: Infinity, repeatDelay: 1.6 }
+            }
           />
         ))}
       </g>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Manrope } from "next/font/google";
+import CursorSnow from "@/components/CursorSnow";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -37,6 +38,7 @@ export default function RootLayout({
     <html lang="ru" className={`${playfair.variable} ${manrope.variable}`}>
       <body className="antialiased">
         {children}
+        <CursorSnow />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
 import Hummingbird from "./Hummingbird";
 import Magnetic from "./Magnetic";
@@ -8,6 +8,7 @@ import Magnetic from "./Magnetic";
 const lines = ["Вы дарите", "не подарок.", "Вы дарите заботу."];
 
 export default function Hero() {
+  const reduce = useReducedMotion();
   return (
     <section className="relative flex min-h-screen flex-col overflow-hidden">
       {/* фон: зимняя ночь с бордовым теплом внизу */}
@@ -18,6 +19,21 @@ export default function Hero() {
             "radial-gradient(1400px 800px at 70% -10%, #16203a 0%, #0e1526 45%, #090e1a 100%)," +
             "radial-gradient(900px 500px at 30% 110%, rgba(122,36,56,0.35), transparent 60%)",
         }}
+      />
+      {/* кадр 9 (подарок с огнями города) — как тёплая текстура глубины */}
+      <img
+        src="/gift/frame-09.webp"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-bottom opacity-20"
+        draggable={false}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(9,14,26,0.6) 0%, rgba(9,14,26,0.35) 55%, #090e1a 100%)",
+        }}
+        aria-hidden
       />
       <Snow density={1} />
 
@@ -124,8 +140,8 @@ export default function Hero() {
       {/* индикатор скролла */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ delay: 2.4, duration: 2.2, repeat: Infinity }}
+        animate={reduce ? { opacity: 0.6 } : { opacity: [0, 1, 0] }}
+        transition={reduce ? { delay: 2.4, duration: 0.6 } : { delay: 2.4, duration: 2.2, repeat: Infinity }}
         className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-[0.3em] text-muted"
       >
         листайте

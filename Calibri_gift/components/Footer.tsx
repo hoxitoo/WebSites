@@ -12,6 +12,12 @@ export default function Footer() {
         </div>
         <p className="text-center text-sm text-muted">
           Корпоративные новогодние подарки · 11 лет на рынке · 1000+ компаний
+          <a
+            href="/merch"
+            className="mt-1 block text-xs text-muted/60 underline-offset-4 transition-colors hover:text-gold"
+          >
+            Мерч и подарки к проф.праздникам — скоро
+          </a>
         </p>
         <p className="text-xs text-muted/60">
           © {new Date().getFullYear()} ТК «Колибри»

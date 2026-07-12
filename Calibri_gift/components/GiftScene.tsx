@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import Snow from "./Snow";
+import { asset } from "@/lib/asset";
 
 /**
  * Pinned scroll-storytelling на видео-секвенции (Veo 3 → 140 кадров WebP).
@@ -23,7 +24,7 @@ import Snow from "./Snow";
 
 const FRAME_COUNT = 140;
 const frameSrc = (i: number) =>
-  `/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`;
+  asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
 function useSceneProgress(ref: React.RefObject<HTMLDivElement | null>): MotionValue<number> {
   const progress = useMotionValue(0);

@@ -67,6 +67,22 @@ npm run start -- -H 0.0.0.0
 Запасной вариант без ngrok: `npx localtunnel --port 3000`.
 Постоянная демо-ссылка: деплой на Vercel (`npm i -g vercel && vercel`).
 
+## Постоянная демо-ссылка — GitHub Pages
+
+Сайт автоматически публикуется на **https://hoxitoo.github.io/WebSites/**
+при каждом пуше в `main` (workflow `.github/workflows/deploy-pages.yml`).
+
+Разовая настройка в репозитории на GitHub:
+1. **Settings → Pages → Build and deployment → Source: «GitHub Actions»**.
+2. Чтобы форма-квиз слала заявки в Google Таблицу:
+   **Settings → Secrets and variables → Actions → New repository secret** →
+   имя `LEAD_WEBHOOK_URL`, значение — URL Apps Script (`…/exec`).
+   Без секрета сайт работает, но отправка формы вернёт ошибку.
+3. Запустить вручную: вкладка **Actions → Deploy to GitHub Pages → Run workflow**.
+
+Особенности Pages-версии: статический хостинг — серверного `/api` нет,
+форма шлёт заявку в Apps Script напрямую из браузера.
+
 ## Режим разработки
 
 ```bash

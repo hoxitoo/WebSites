@@ -63,13 +63,26 @@ export default function LeadForm() {
     setSend("sending");
     const form = e.currentTarget;
     const contact = Object.fromEntries(new FormData(form).entries());
+    const payload = { ...answers, ...contact, source: "сайт" };
     try {
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...answers, ...contact }),
-      });
-      if (!res.ok) throw new Error("bad status");
+      const directUrl = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL;
+      if (directUrl) {
+        // статический хостинг (GitHub Pages): шлём в Apps Script напрямую.
+        // Без Content-Type json — иначе CORS-preflight, который GAS не умеет;
+        // ответ непрозрачный (no-cors), успех считаем оптимистично
+        await fetch(directUrl, {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify(payload),
+        });
+      } else {
+        const res = await fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("bad status");
+      }
       setSend("idle");
       setStep(TOTAL + 1);
     } catch {

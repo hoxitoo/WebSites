@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
 import Hummingbird from "./Hummingbird";
 import Magnetic from "./Magnetic";
+import { asset } from "@/lib/asset";
 
 const lines = ["Вы дарите", "не подарок.", "Вы дарите заботу."];
 
@@ -22,7 +23,7 @@ export default function Hero() {
       />
       {/* кадр 9 (подарок с огнями города) — как тёплая текстура глубины */}
       <img
-        src="/gift/frame-09.webp"
+        src={asset("/gift/frame-09.webp")}
         alt=""
         className="absolute inset-0 h-full w-full object-cover object-bottom opacity-20"
         draggable={false}

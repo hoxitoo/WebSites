@@ -83,6 +83,24 @@ npm run start -- -H 0.0.0.0
 Особенности Pages-версии: статический хостинг — серверного `/api` нет,
 форма шлёт заявку в Apps Script напрямую из браузера.
 
+## Альтернатива: Vercel (проще + работает серверное API)
+
+1. vercel.com → **Continue with GitHub** → Add New → Project →
+   Import `hoxitoo/WebSites`.
+2. **Root Directory** → `Calibri_gift` (сайт в подпапке!). Framework — Next.js
+   определится сам.
+3. Environment Variables:
+   - `LEAD_WEBHOOK_URL` — URL Apps Script (`…/exec`); заявки пойдут через
+     серверный `/api/lead`, URL скрипта не светится в браузере
+   - `NEXT_PUBLIC_SITE_URL` — `https://<проект>.vercel.app`
+4. Deploy → ссылка `<проект>.vercel.app`. Автодеплой при пуше.
+5. **Project Settings → Git → Production Branch → `main`** (иначе Vercel
+   деплоит ветку по умолчанию репозитория).
+
+Кода менять не нужно: Pages-режим включается только при `GITHUB_PAGES=true`.
+Нюанс: тариф Hobby формально некоммерческий — для боевого сайта заказчицы
+взять Pro, остаться на GitHub Pages или переехать на хостинг с Node.js.
+
 ## Режим разработки
 
 ```bash

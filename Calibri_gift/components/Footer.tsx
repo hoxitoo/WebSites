@@ -1,15 +1,19 @@
+import { asset } from "@/lib/asset";
+
 export default function Footer() {
   return (
     <footer className="border-t border-cream/10 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 text-center md:grid-cols-3 md:px-12 md:text-left">
         <div>
-          <div className="flex items-baseline justify-center gap-3 md:justify-start">
-            <span className="font-display text-xl tracking-wide text-cream">
-              КОЛИБРИ
-            </span>
-            <span className="text-xs uppercase tracking-[0.25em] text-muted">
-              торговая компания
-            </span>
+          {/* фирменный логотип — на светлой плашке (в оригинале тёмный градиент) */}
+          <div className="inline-flex items-center justify-center rounded-2xl bg-cream px-5 py-3">
+            <img
+              src={asset("/logo-kolibri.webp")}
+              alt="Торговая компания «Колибри»"
+              className="h-14 w-auto"
+              loading="lazy"
+              draggable={false}
+            />
           </div>
           <p className="mt-3 text-sm leading-relaxed text-muted">
             Корпоративные новогодние подарки
@@ -42,7 +46,9 @@ export default function Footer() {
               info@kolibri-ug.ru
             </a>
           </p>
-          <p className="mt-2 text-xs text-muted/70">Краснодар · доставка по всей России</p>
+          <p className="mt-2 text-xs text-muted/70">
+            Краснодар, ул. Сормовская, 1/2 · доставка по всей России
+          </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
             {[
               { label: "WhatsApp", href: "https://api.whatsapp.com/send/?phone=79882461551" },

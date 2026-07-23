@@ -2,7 +2,7 @@ import Hero from "@/components/Hero";
 import GiftScene from "@/components/GiftScene";
 import JoyBaubles from "@/components/JoyBaubles";
 import { Numbers, HowItWorks, CatalogTeaser } from "@/components/Sections";
-import { WhyTrust, Delivery, TrustedBy } from "@/components/About";
+import { HrValue, WhyTrust, Delivery, TrustedBy } from "@/components/About";
 import LeadForm from "@/components/LeadForm";
 import Footer from "@/components/Footer";
 import Garland from "@/components/Garland";
@@ -15,6 +15,7 @@ export default function Home() {
       <GiftScene />
       <JoyBaubles />
       <Numbers />
+      <HrValue />
       <HowItWorks />
       <CatalogTeaser />
       <WhyTrust />

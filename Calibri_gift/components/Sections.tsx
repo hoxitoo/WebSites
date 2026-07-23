@@ -4,8 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 import Magnetic from "./Magnetic";
 
-/* ————— Анимированный счётчик ————— */
-function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+/* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) ————— */
+function Counter({
+  to,
+  suffix = "",
+  decimals = 0,
+}: {
+  to: number;
+  suffix?: string;
+  decimals?: number;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.6 });
   const [val, setVal] = useState(0);
@@ -18,7 +26,7 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
     const tick = (now: number) => {
       const t = Math.min((now - start) / dur, 1);
       const eased = 1 - Math.pow(1 - t, 3);
-      setVal(Math.round(to * eased));
+      setVal(to * eased);
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -27,7 +35,10 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 
   return (
     <span ref={ref} className="glow-gold tabular-nums">
-      {val.toLocaleString("ru-RU")}
+      {val.toLocaleString("ru-RU", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
       {suffix}
     </span>
   );
@@ -43,9 +54,9 @@ const reveal = {
 /* ————— Цифры ————— */
 export function Numbers() {
   const items = [
-    { to: 11, suffix: "", label: "лет помогаем компаниям заботиться о людях" },
-    { to: 1000, suffix: "+", label: "компаний доверяют нам новогоднее настроение" },
-    { to: 300, suffix: "+", label: "сотрудников — команды, с которыми мы работаем" },
+    { to: 11, suffix: "", decimals: 0, label: "лет выстраиваем систему, которая стабильно работает в декабре" },
+    { to: 99.9, suffix: " %", decimals: 1, label: "отгрузок точно в срок — результат отлаженных процессов, а не случайность" },
+    { to: 1000, suffix: "+", decimals: 0, label: "постоянных клиентов, 85% из них с нами больше 9 лет" },
   ];
   return (
     <section className="relative mx-auto max-w-6xl px-6 py-28 md:px-12">
@@ -53,7 +64,7 @@ export function Numbers() {
         {items.map((it, i) => (
           <motion.div key={i} {...reveal} transition={{ ...reveal.transition, delay: i * 0.12 }} className="text-center">
             <div className="font-display text-6xl md:text-7xl">
-              <Counter to={it.to} suffix={it.suffix} />
+              <Counter to={it.to} suffix={it.suffix} decimals={it.decimals} />
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted">{it.label}</p>
           </motion.div>
@@ -68,18 +79,18 @@ export function HowItWorks() {
   const steps = [
     {
       n: "01",
-      title: "Вы оставляете заявку",
-      text: "Коротко рассказываете о команде: сколько сотрудников и детей хотите поздравить.",
+      title: "Несколько вопросов в чат-боте",
+      text: "Отвечаете на короткие вопросы — мы понимаем задачу, бюджет и сроки. Пара минут.",
     },
     {
       n: "02",
-      title: "Мы готовим личное КП",
-      text: "Служба заботы подбирает варианты под ваш бюджет, упаковку и пожелания — только для вас.",
+      title: "3 готовых варианта",
+      text: "Вместо каталога из 200 позиций — три смысловые линейки под ваш запрос. Вы добавляете фирменные детали.",
     },
     {
       n: "03",
-      title: "Подарки приезжают к дате",
-      text: "Организуем удобную закупку и доставку — чудо случается вовремя.",
+      title: "Фиксируем и реализуем",
+      text: "Наполнение не меняем без вашего подтверждения. Контроль качества и отгрузка точно в срок.",
     },
   ];
   return (

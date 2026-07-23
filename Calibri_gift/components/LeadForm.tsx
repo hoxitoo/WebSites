@@ -234,6 +234,19 @@ export default function LeadForm() {
             </button>
           </div>
         )}
+
+        {/* вторичный CTA — звонок для тех, кто не готов заполнять */}
+        {step <= TOTAL && (
+          <p className="mt-10 text-center text-sm text-muted">
+            Не готовы заполнять?{" "}
+            <a
+              href="tel:+78612506551"
+              className="text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
+            >
+              Созвонимся — 15 минут, разберём ваш запрос
+            </a>
+          </p>
+        )}
       </div>
     </section>
   );

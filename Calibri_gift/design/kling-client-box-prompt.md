@@ -1,79 +1,77 @@
-# Kling AI — открытие РЕАЛЬНОЙ коробки «Колибри» (барашки, красный бант)
+# Kling AI — открытие фирменной коробки «Колибри» (зелёный 6-гранник)
 
-Kling капризнее Veo к длинным описаниям и «магии»: он лучше слушается, когда
-промпт короткий, конкретный, с чёткой камерой и ОДНИМ понятным движением.
-Ниже — под режим **Image-to-Video** (загружаешь фото её коробки как первый кадр).
+Ассеты (в `design/brand/`):
+- `box-scene-1.jpg` — коробка 3/4, на тёмно-синем фоне с боке (лучший стартовый кадр)
+- `box-scene-2.jpg` — коробка анфас, тот же фон
+- фирменные шары `ball-1..5` — уже вынесены на сайт (секция «А вот и сама радость»)
 
-## Как запускать в Kling (важно)
+Kling капризен: короткий промпт, чёткая камера, ОДНО движение, обязательный
+negative prompt. Режим **Image to Video**, стартовый кадр — `box-scene-1.jpg`.
 
-1. Режим **Image to Video**, модель — новейшая (Kling 2.x / Master, что доступно).
-2. Первый кадр — фото её коробки (`podarok_s_lentoy_Barashki.png`).
-   Лучше сначала посадить коробку на тёмный фон (см. блок «Подготовка» ниже),
-   тогда свет читается ярче.
-3. **Duration 5s**, **CFG / Creativity ~0.3–0.4** (низкая — чтобы Kling не
-   перерисовывал барашков и бант), **Professional / High Quality** если есть.
-4. Камера — в промпте жёстко «static camera», иначе Kling любит облетать.
+## Настройки Kling
 
-## Подготовка кадра (Nano Banana, по желанию — резко улучшает свет)
+- Режим: **Image to Video**, модель новейшая (Kling 2.x / Master)
+- Duration **5s**, Creativity/CFG **0.3–0.4** (низкий — чтобы не перерисовал
+  барашков, детей и надпись «С Новым годом»)
+- Professional / High Quality — если доступно
 
-```
-Keep this exact gift box unchanged — the red satin bow, the three sheep
-characters, the snowy printed artwork. Replace only the beige background with
-a deep dark-navy (#0E1526) winter-night scene: soft falling snow, warm golden
-bokeh, subtle reflective dark table under the box. Cinematic warm light from
-above. Do not alter the box or the bow. 16:9.
-```
-
-## Kling — Клип 1 (5 сек): крышка открывается, свет
-
-**Prompt (положительный):**
-```
-Static locked camera, cinematic product shot. A red-bow gift box stands still.
-The lid slowly rises straight up and tilts slightly back. Warm golden light
-and soft sparkles gently rise from inside the opening box. Snow falls softly.
-Calm, magical, premium mood. The box artwork and the red bow stay exactly the
-same, no distortion.
-```
-
-**Negative prompt (обязательно для Kling):**
-```
-camera movement, zoom, pan, rotation, morphing, warping, distorted faces,
-deformed characters, changing text, extra objects, flicker, glitch, low quality,
-watermark, text overlay
-```
-
-## Kling — Клип 2 (5 сек): вылетают золотые шары
-
-Первый кадр — последний кадр клипа 1 (extend / «продолжить»).
+## Клип 1 (5 сек): крышка открывается, свет
 
 **Prompt:**
 ```
-Static locked camera. From the open glowing box, several golden Christmas
-baubles float gently upward and hover in the air, reflecting warm light,
-connected by faint sparkling trails. Slow, weightless, magical. The box below
-stays unchanged.
+Static locked camera, cinematic. The green hexagonal gift box with a red bow
+stays still on a dark navy bokeh background with falling snow. The lid slowly
+lifts straight up and tilts back; a warm golden light and soft glittering
+sparkles rise gently from inside the opening box. The printed artwork (sheep,
+children, golden lettering) and the red bow stay exactly the same, no distortion.
+Slow, magical, premium New Year mood.
 ```
 
-**Negative prompt:** тот же, что выше.
+**Negative prompt (обязательно):**
+```
+camera movement, zoom, pan, rotation, morphing, warping, distorted faces,
+deformed characters, changing text, melting, extra limbs, flicker, glitch,
+low quality, watermark, text overlay, duplicate box
+```
 
-## Почему у тебя «плохо генерит» — 4 типичных причины на Kling
+## Клип 2 (5 сек): из коробки поднимается свет и шары
 
-1. **Слишком длинный/образный промпт** → Kling теряется. Держи 2–3 коротких
-   предложения + negative prompt (у Veo negative не нужен, у Kling — критичен).
-2. **Высокий CFG/Creativity** → перерисовывает барашков. Ставь низкий (0.3–0.4).
-3. **Нет «static camera»** → Kling облетает коробку, рисунок «плывёт». Жёстко фиксируй.
-4. **Просишь сразу много** (открытие + вылет + дети + текст) → дроби на 2 клипа
-   по 5 сек, каждый — одно движение.
+Стартовый кадр — последний кадр клипа 1 (extend / «продолжить сцену»).
 
-## ⚠️ Про барашков и лица
+**Prompt:**
+```
+Static locked camera. From the open glowing box, a soft fountain of golden
+sparkles and light rises upward, and a few round glass Christmas baubles float
+gently up and hover in the air, reflecting warm light. Slow, weightless, magical.
+The box below stays unchanged.
+```
 
-Печатные персонажи на коробке в динамике могут «дышать»/искажаться на любой
-нейросети. Минимизируем: низкий CFG, статичная камера, короткий клип, движется
-только крышка и свет (корпус с барашками — неподвижен). Если после 2–3 попыток
-барашки всё равно плывут — снимаем корпус статично, а «магию» (свет, шары)
-добавляем поверх уже на монтаже/в коде.
+**Negative prompt:** тот же.
+
+## ⚠️ Важно про «вылетают ИМЕННО её шары»
+
+Kling нарисует шары «в тему», но **не вставит её точные шары** `ball-1..5` —
+нейросеть так не умеет. Есть два честных пути:
+
+- **Путь Kling (быстро):** в видео вылетают похожие золотые шары — атмосферно,
+  но не её конкретные. Годится, если важна именно динамика.
+- **Путь «её точные шары» (уже сделано на сайте):** видео Kling показывает
+  открытие коробки + свет, а её **реальные шары** `ball-1..5` вылетают уже
+  на самом сайте — секция «А вот и сама радость» идёт сразу после сцены
+  открытия. Так шары пиксель-в-пиксель её, и мы полностью управляем движением.
+
+Рекомендация: Клип 1 (открытие + свет) из Kling → на сайте подхватывает
+секция с её настоящими шарами. Это даёт и киношное открытие, и точные шары.
+
+## Почему Kling «плохо генерил» раньше — чек-лист
+
+1. Длинный образный промпт → путается. Держи 2–3 предложения + negative.
+2. Нет negative prompt (у Veo не нужен, у Kling критичен) — добавили.
+3. Высокий CFG → перерисовывает рисунок. Ставь 0.3–0.4.
+4. Нет «static camera» → облетает, рисунок плывёт. Фиксируй жёстко.
+5. Просишь сразу всё → дроби на клипы по 5 сек, одно движение каждый.
 
 ## После генерации
 
-Клипы (mp4) → `design/gift-src/video/` как `new 1.mp4`, `new 2.mp4`, затем:
+Клипы `new 1.mp4` / `new 2.mp4` → `design/gift-src/video/`, затем:
 `node scripts/extract-scene.mjs` — сцена на сайте пересоберётся сама.

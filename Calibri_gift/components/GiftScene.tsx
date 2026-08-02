@@ -13,16 +13,21 @@ import Snow from "./Snow";
 import { asset } from "@/lib/asset";
 
 /**
- * Pinned scroll-storytelling на видео-секвенции (Veo 3 → 140 кадров WebP).
+ * Pinned scroll-storytelling на видео-секвенции (Kling → 101 кадр WebP).
  * Кадры рисуются в <canvas> по прогрессу скролла — техника Apple AirPods:
  * настоящее покадровое движение вместо кросс-фейда статичных поз.
+ * Видео (открытие + вылет шаров) укладывается в первые VIDEO_END прогресса,
+ * затем финальный кадр держится, и поверх выходят карточки-смыслы.
  *
  * Плавность: useSpring-инерция скраба + 8.75 к/с исходника, интерполяция
  * скроллом. Загрузка прогрессивная: сначала каждый 7-й кадр (~800 КБ),
  * остальные докачиваются в фоне; до первого кадра — постер <img>.
  */
 
-const FRAME_COUNT = 140;
+const FRAME_COUNT = 101;
+// видео (открытие + вылет шаров) проигрывается за первые VIDEO_END прогресса,
+// дальше держим финальный кадр — чтобы шары успели вылететь ДО появления карточек
+const VIDEO_END = 0.72;
 const frameSrc = (i: number) =>
   asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
@@ -219,8 +224,10 @@ export default function GiftScene() {
 
     const draw = () => {
       raf = 0;
+      // видео проигрывается за первые VIDEO_END прогресса, дальше — стоп-кадр
+      const vp = Math.min(p.get() / VIDEO_END, 1);
       const img = nearestLoaded(
-        Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(p.get() * (FRAME_COUNT - 1))))
+        Math.min(FRAME_COUNT - 1, Math.max(0, Math.round(vp * (FRAME_COUNT - 1))))
       );
       // сравниваем сам кадр: когда докачался точный — перерисуемся без скролла
       if (!img || img === lastImg) return;
@@ -269,10 +276,11 @@ export default function GiftScene() {
 
   const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.5, 0.35, 0.25]);
 
+  // карточки выходят ПОСЛЕ того, как шары вылетели (видео завершается на VIDEO_END)
   const cardsProgress = [
-    useTransform(p, [0.64, 0.78], [0, 1]),
-    useTransform(p, [0.7, 0.84], [0, 1]),
-    useTransform(p, [0.76, 0.9], [0, 1]),
+    useTransform(p, [0.78, 0.86], [0, 1]),
+    useTransform(p, [0.83, 0.91], [0, 1]),
+    useTransform(p, [0.88, 0.96], [0, 1]),
   ];
 
   return (

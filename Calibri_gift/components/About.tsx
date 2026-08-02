@@ -9,6 +9,72 @@ const reveal = {
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+/* ————— Что внутри: наполнение и качество (слайд «100% качество») ————— */
+export function Filling() {
+  const points = [
+    "Самый свежий состав — следим за сроками годности",
+    "Прямые закупки на фабриках и дистрибьюторские договоры",
+    "Каждый подарок проходит контроль качества",
+    "Возможно производство конфет с вашим логотипом",
+  ];
+  const brands = [
+    "Красный Октябрь",
+    "РотФронт",
+    "Бабаевский",
+    "Ferrero",
+    "Konti",
+    "Сладкий Орешек",
+    "Акконд",
+    "Победа",
+    "Essen",
+    "KDV",
+    "Mars",
+    "Невский кондитер",
+  ];
+
+  return (
+    <section className="section-vignette relative py-28">
+      <div className="mx-auto max-w-6xl px-6 md:px-12">
+        <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
+          А внутри — <span className="glow-gold">только лучшее</span>
+        </motion.h2>
+        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl text-center leading-relaxed text-muted">
+          Наполняем подарки сладостями проверенных фабрик — тем, что дети и
+          взрослые действительно любят. Никаких случайных составов.
+        </motion.p>
+
+        <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-2">
+          {points.map((p, i) => (
+            <motion.div
+              key={p}
+              {...reveal}
+              transition={{ ...reveal.transition, delay: (i % 2) * 0.12 }}
+              className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-night-soft/50 px-6 py-5"
+            >
+              <span className="mt-0.5 text-gold">✦</span>
+              <p className="text-sm leading-relaxed text-cream/85">{p}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.p {...reveal} className="mt-14 text-center text-xs uppercase tracking-[0.3em] text-gold/80">
+          Среди наших поставщиков
+        </motion.p>
+        <motion.div {...reveal} className="mt-6 flex flex-wrap justify-center gap-3">
+          {brands.map((b) => (
+            <span
+              key={b}
+              className="rounded-full border border-cream/15 bg-night-soft/40 px-5 py-2 text-sm text-cream/80"
+            >
+              {b}
+            </span>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* ————— Почему это удобно для HR (экономия времени — главный B2B-аргумент) ————— */
 export function HrValue() {
   const items = [

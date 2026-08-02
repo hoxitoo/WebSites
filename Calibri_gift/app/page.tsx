@@ -1,8 +1,7 @@
 import Hero from "@/components/Hero";
 import GiftScene from "@/components/GiftScene";
-import JoyBaubles from "@/components/JoyBaubles";
 import { Numbers, HowItWorks, CatalogTeaser } from "@/components/Sections";
-import { HrValue, WhyTrust, Delivery, TrustedBy } from "@/components/About";
+import { Filling, HrValue, WhyTrust, Delivery, TrustedBy } from "@/components/About";
 import LeadForm from "@/components/LeadForm";
 import BotQr from "@/components/BotQr";
 import Footer from "@/components/Footer";
@@ -14,7 +13,7 @@ export default function Home() {
       <Garland />
       <Hero />
       <GiftScene />
-      <JoyBaubles />
+      <Filling />
       <Numbers />
       <HrValue />
       <HowItWorks />

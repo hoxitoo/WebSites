@@ -1,43 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Magnetic from "./Magnetic";
 
 /**
- * Квиз-анкета — те же 5 вопросов, что задаёт бот «Служба заботы Деда Мороза».
+ * Квиз-анкета — те же вопросы, что задаёт бот «Служба заботы Деда Мороза»:
+ * 5 вопросов кнопками → город → дата → особое пожелание → контакты.
  * Ответы уходят в ту же Google Таблицу (лист «Заявки») с источником «сайт».
  */
 
-const QUESTIONS = [
+type Step =
+  | { key: string; type: "buttons"; title: string; options: readonly string[] }
+  | { key: string; type: "text"; title: string; placeholder: string }
+  | { key: string; type: "date"; title: string; options: readonly string[] }
+  | { key: string; type: "textarea"; title: string; placeholder: string; skip: true };
+
+const QUIZ: readonly Step[] = [
   {
     key: "employees",
-    title: "Сколько сотрудников хотите поздравить?",
+    type: "buttons",
+    title: "Сколько сотрудников хотите поздравить в этом году?",
     options: ["до 100", "100–300", "300–1000", "1000 и больше"],
   },
   {
     key: "kids",
+    type: "buttons",
     title: "А детских подарков сколько примерно понадобится?",
     options: ["до 100", "100–300", "больше 300", "Пока не знаю"],
   },
   {
     key: "budget",
+    type: "buttons",
     title: "Какой примерно бюджет на один подарок?",
     options: ["до 500 ₽", "500–1000 ₽", "1000–2000 ₽", "2000 ₽ и выше"],
   },
   {
     key: "packaging",
+    type: "buttons",
     title: "В какой упаковке доставить чудо?",
     options: ["Картон", "Жесть", "Текстиль", "Наборы", "Доверимся вам"],
   },
   {
     key: "personalization",
+    type: "buttons",
     title: "Сделать подарки фирменными — с вашим логотипом?",
     options: ["С логотипом компании", "Без персонализации", "Подскажите варианты"],
   },
-] as const;
+  {
+    key: "city",
+    type: "text",
+    title: "В какой город нужна доставка?",
+    placeholder: "Например, Краснодар",
+  },
+  {
+    key: "deliveryDate",
+    type: "date",
+    title: "К какой дате нужны подарки?",
+    options: ["до 15 декабря", "до 20 декабря", "до 25 декабря", "к Новому году", "Пока не знаю"],
+  },
+  {
+    key: "personalNote",
+    type: "textarea",
+    title: "Расскажите что-то особенное о ваших людях",
+    placeholder: "Например: наши сотрудники обожают конфеты «Алёнка»",
+    skip: true,
+  },
+];
 
-const TOTAL = QUESTIONS.length; // 5 вопросов + шаг контактов
+const TOTAL = QUIZ.length; // квиз-шаги; далее — контакты, затем «готово»
 
 type SendState = "idle" | "sending" | "error";
 
@@ -48,12 +79,24 @@ const stepAnim = {
   transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+const inputCls =
+  "w-full rounded-xl border border-cream/15 bg-night-soft/60 px-5 py-3.5 text-cream placeholder:text-muted/60 outline-none transition-colors focus:border-gold/60";
+
 export default function LeadForm() {
-  const [step, setStep] = useState(0); // 0..4 вопросы, 5 контакты, 6 готово
+  const [step, setStep] = useState(0); // 0..TOTAL-1 квиз, TOTAL контакты, TOTAL+1 готово
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [draft, setDraft] = useState("");
   const [send, setSend] = useState<SendState>("idle");
 
-  function pick(key: string, value: string) {
+  // при переходе на текстовый шаг — подставляем уже данный ответ (для «назад»)
+  useEffect(() => {
+    const s = QUIZ[step];
+    if (s && (s.type === "text" || s.type === "date" || s.type === "textarea")) {
+      setDraft(answers[s.key] ?? "");
+    }
+  }, [step, answers]);
+
+  function commit(key: string, value: string) {
     setAnswers((a) => ({ ...a, [key]: value }));
     setStep((s) => s + 1);
   }
@@ -90,8 +133,7 @@ export default function LeadForm() {
     }
   }
 
-  const input =
-    "w-full rounded-xl border border-cream/15 bg-night-soft/60 px-5 py-3.5 text-cream placeholder:text-muted/60 outline-none transition-colors focus:border-gold/60";
+  const cur = step < TOTAL ? QUIZ[step] : null;
 
   return (
     <section id="lead" className="section-vignette relative py-28">
@@ -112,7 +154,7 @@ export default function LeadForm() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mx-auto mt-4 max-w-xl text-center text-muted"
         >
-          5 коротких вопросов — как в нашей Службе заботы Деда Мороза.
+          Несколько коротких вопросов — как в нашей Службе заботы Деда Мороза.
           По ответам пришлём каталог и персональное коммерческое предложение.
         </motion.p>
 
@@ -134,27 +176,115 @@ export default function LeadForm() {
 
         <div className="relative mt-8 min-h-[340px]">
           <AnimatePresence mode="wait">
-            {/* ————— вопросы кнопками ————— */}
-            {step < TOTAL && (
+            {/* ————— квиз-шаги ————— */}
+            {cur && (
               <motion.div key={`q${step}`} {...stepAnim}>
                 <p className="text-center text-xs uppercase tracking-[0.3em] text-gold/70">
                   Вопрос {step + 1} из {TOTAL}
                 </p>
                 <h3 className="mt-3 text-center font-display text-2xl text-cream md:text-3xl">
-                  {QUESTIONS[step].title}
+                  {cur.title}
                 </h3>
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {QUESTIONS[step].options.map((opt) => (
+
+                {cur.type === "buttons" && (
+                  <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                    {cur.options.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => commit(cur.key, opt)}
+                        className="cursor-pointer rounded-xl border border-cream/15 bg-night-soft/50 px-5 py-4 text-sm text-cream/90 transition-all duration-200 hover:border-gold/60 hover:bg-night-soft hover:text-gold"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {cur.type === "date" && (
+                  <>
+                    <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                      {cur.options.map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => commit(cur.key, opt)}
+                          className="cursor-pointer rounded-xl border border-cream/15 bg-night-soft/50 px-5 py-4 text-sm text-cream/90 transition-all duration-200 hover:border-gold/60 hover:bg-night-soft hover:text-gold"
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex gap-3">
+                      <input
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        placeholder="или впишите свою дату"
+                        className={inputCls}
+                      />
+                      <button
+                        type="button"
+                        disabled={!draft.trim()}
+                        onClick={() => commit(cur.key, draft.trim())}
+                        className="cursor-pointer whitespace-nowrap rounded-xl border border-gold/40 px-5 text-sm text-gold transition-colors hover:bg-gold/10 disabled:opacity-40"
+                      >
+                        Далее
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {cur.type === "text" && (
+                  <div className="mt-8 flex gap-3">
+                    <input
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      placeholder={cur.placeholder}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && draft.trim()) commit(cur.key, draft.trim());
+                      }}
+                      className={inputCls}
+                    />
                     <button
-                      key={opt}
                       type="button"
-                      onClick={() => pick(QUESTIONS[step].key, opt)}
-                      className="cursor-pointer rounded-xl border border-cream/15 bg-night-soft/50 px-5 py-4 text-sm text-cream/90 transition-all duration-200 hover:border-gold/60 hover:bg-night-soft hover:text-gold"
+                      disabled={!draft.trim()}
+                      onClick={() => commit(cur.key, draft.trim())}
+                      className="cursor-pointer whitespace-nowrap rounded-xl border border-gold/40 px-5 text-sm text-gold transition-colors hover:bg-gold/10 disabled:opacity-40"
                     >
-                      {opt}
+                      Далее
                     </button>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {cur.type === "textarea" && (
+                  <div className="mt-8">
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      placeholder={cur.placeholder}
+                      rows={3}
+                      className={`${inputCls} resize-none`}
+                    />
+                    <div className="mt-4 flex items-center justify-center gap-5">
+                      <Magnetic>
+                        <button
+                          type="button"
+                          onClick={() => commit(cur.key, draft.trim())}
+                          className="cursor-pointer rounded-full bg-bordeaux px-8 py-3 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
+                        >
+                          Далее
+                        </button>
+                      </Magnetic>
+                      <button
+                        type="button"
+                        onClick={() => commit(cur.key, "")}
+                        className="cursor-pointer text-sm text-muted underline-offset-4 transition-colors hover:text-cream hover:underline"
+                      >
+                        Пропустить ✨
+                      </button>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -168,16 +298,16 @@ export default function LeadForm() {
                   Куда прислать каталог и предложение?
                 </h3>
                 <form onSubmit={onSubmit} className="mt-8 grid gap-4 md:grid-cols-2">
-                  <input name="name" required placeholder="Ваше имя" className={input} />
-                  <input name="company" required placeholder="Компания" className={input} />
+                  <input name="name" required placeholder="Ваше имя" className={inputCls} />
+                  <input name="company" required placeholder="Компания" className={inputCls} />
                   <input
                     name="email"
                     type="email"
                     required
                     placeholder="Рабочая почта"
-                    className={input}
+                    className={inputCls}
                   />
-                  <input name="phone" placeholder="Телефон (по желанию)" className={input} />
+                  <input name="phone" placeholder="Телефон (по желанию)" className={inputCls} />
                   <div className="mt-2 text-center md:col-span-2">
                     <Magnetic>
                       <button

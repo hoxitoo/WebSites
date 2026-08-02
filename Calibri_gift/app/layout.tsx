@@ -15,9 +15,12 @@ const manrope = Manrope({
   display: "swap",
 });
 
+// на GitHub Pages сайт живёт в подкаталоге /WebSites — OG-путь строим
+// абсолютным от SITE, иначе "/gift/og.jpg" резолвится мимо подкаталога
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  // до покупки домена OG-ссылки резолвятся от localhost; заменить на прод-домен
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(SITE),
   title: "Колибри — новогодние подарки, которые говорят о заботе",
   description:
     "Торговая компания «Колибри» — корпоративные новогодние подарки для сотрудников и их детей. Вы дарите не подарок — вы дарите заботу и признание.",
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
     title: "Колибри — вы дарите не подарок. Вы дарите заботу",
     description:
       "Корпоративные новогодние подарки для команд от 300 человек. 11 лет на рынке, 1000+ компаний.",
-    images: [{ url: "/gift/og.jpg", width: 1200, height: 630 }],
+    images: [{ url: `${SITE}/gift/og.jpg`, width: 1200, height: 630 }],
     locale: "ru_RU",
     type: "website",
   },

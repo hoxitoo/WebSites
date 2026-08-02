@@ -45,14 +45,18 @@ export default function Hero() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12"
       >
-        <div className="flex items-baseline gap-3">
-          <span className="font-display text-2xl tracking-wide text-cream">
-            КОЛИБРИ
+        {/* оригинальный логотип на светлой плашке — тёмный текст лого читаем
+            только на светлом, поэтому не кладём его на тёмный фон напрямую */}
+        <a href="#" aria-label="Колибри — торговая компания" className="inline-flex">
+          <span className="inline-flex items-center rounded-xl bg-cream/95 px-3 py-2 shadow-[0_6px_24px_rgba(9,14,26,0.4)]">
+            <img
+              src={asset("/logo-kolibri.webp")}
+              alt="Торговая компания «Колибри»"
+              className="h-9 w-auto md:h-10"
+              draggable={false}
+            />
           </span>
-          <span className="hidden text-xs uppercase tracking-[0.25em] text-muted sm:block">
-            торговая компания
-          </span>
-        </div>
+        </a>
         <a
           href="#lead"
           className="rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10"

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { asset } from "@/lib/asset";
 
 export default function Footer() {
@@ -20,12 +21,12 @@ export default function Footer() {
             <br />
             11 лет на рынке · 1000+ компаний
           </p>
-          <a
+          <Link
             href="/merch"
             className="mt-2 inline-block text-xs text-muted/60 underline-offset-4 transition-colors hover:text-gold"
           >
             Мерч и подарки к проф.праздникам — скоро
-          </a>
+          </Link>
         </div>
 
         <div className="text-sm">

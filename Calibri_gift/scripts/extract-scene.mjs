@@ -1,22 +1,23 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readdirSync, statSync } from "node:fs";
+import { mkdirSync, readdirSync, statSync, rmSync } from "node:fs";
 import path from "node:path";
 import ffmpeg from "ffmpeg-static";
 
 /**
- * Нарезка Veo-видео (design/gift-src/video/new 1.mp4 + new 2.mp4)
+ * Нарезка Kling-видео (design/gift-src/video/new 1-1.mp4 + new 2-2.mp4)
  * в канвас-секвенцию public/gift/seq/frame_NNN.webp.
  *
- * - склейка двух клипов встык (шов замаскирован световым взрывом)
- * - кроп правого края 200px — убирает вотермарк Gemini
- * - ~8.75 кадра/сек из 16 сек ≈ 140 кадров, 1440w, WebP q58
+ * Клип 1 (бант развязывается) — 1280x720, клип 2 (открытие + вылет шаров) —
+ * 1920x1080. Приводим оба к 1920x1080, склеиваем, срезаем правый край
+ * (~320px) — там бледный вотермарк Kling. 10 сек @ 14 к/с ≈ 140 кадров.
  *
  * Запуск: node scripts/extract-scene.mjs
  */
 
-const v1 = path.resolve("design/gift-src/video/new 1.mp4");
-const v2 = path.resolve("design/gift-src/video/new 2.mp4");
+const v1 = path.resolve("design/gift-src/video/new 1-1.mp4");
+const v2 = path.resolve("design/gift-src/video/new 2-2.mp4");
 const outDir = path.resolve("public/gift/seq");
+rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 
 execFileSync(
@@ -26,12 +27,14 @@ execFileSync(
     "-i", v1,
     "-i", v2,
     "-filter_complex",
-    "[0:v][1:v]concat=n=2:v=1:a=0," +
-      "crop=1720:1080:0:0," + // правые 200px с вотермарком — в отход
-      "fps=8.75," +
-      "scale=1440:-2",
+    // оба клипа → 1920x1080, склейка, срез правого края с вотермарком, кадры
+    "[0:v]scale=1920:1080,setsar=1[a];" +
+      "[1:v]scale=1920:1080,setsar=1[b];" +
+      "[a][b]concat=n=2:v=1:a=0[c];" +
+      "[c]crop=1600:1080:0:0,fps=14,scale=1440:-2[out]",
+    "-map", "[out]",
     "-c:v", "libwebp",
-    "-quality", "58",
+    "-quality", "60",
     "-compression_level", "6",
     path.join(outDir, "frame_%03d.webp"),
   ],

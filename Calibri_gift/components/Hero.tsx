@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
-import Hummingbird from "./Hummingbird";
 import Magnetic from "./Magnetic";
 import { asset } from "@/lib/asset";
 
@@ -11,30 +10,15 @@ const lines = ["Вы дарите", "не подарок.", "Вы дарите �
 export default function Hero() {
   const reduce = useReducedMotion();
   return (
-    <section className="relative flex min-h-screen flex-col overflow-hidden">
-      {/* фон: зимняя ночь с бордовым теплом внизу */}
+    <section className="relative flex min-h-svh flex-col overflow-hidden">
+      {/* фон: зимняя ночь (тёплое зелёно-золотое свечение внизу — под бренд) */}
       <div
         className="absolute inset-0"
         style={{
           background:
             "radial-gradient(1400px 800px at 70% -10%, #16203a 0%, #0e1526 45%, #090e1a 100%)," +
-            "radial-gradient(900px 500px at 30% 110%, rgba(122,36,56,0.35), transparent 60%)",
+            "radial-gradient(900px 500px at 30% 115%, rgba(20,70,55,0.35), transparent 60%)",
         }}
-      />
-      {/* кадр 9 (подарок с огнями города) — как тёплая текстура глубины */}
-      <img
-        src={asset("/gift/frame-09.webp")}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-bottom opacity-20"
-        draggable={false}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(9,14,26,0.6) 0%, rgba(9,14,26,0.35) 55%, #090e1a 100%)",
-        }}
-        aria-hidden
       />
       <Snow density={1} />
 
@@ -139,10 +123,22 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* колибри из света */}
-        <div className="relative hidden md:block">
-          <Hummingbird className="mx-auto w-full max-w-[440px]" />
-        </div>
+        {/* овечка, открывающая подарок — фирменный герой-визуал */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mx-auto w-64 sm:w-80 md:w-full md:max-w-[440px]"
+        >
+          <motion.img
+            src={asset("/hero-sheep.webp")}
+            alt="Овечка открывает новогодний подарок «Колибри»"
+            className="h-auto w-full drop-shadow-[0_20px_50px_rgba(9,14,26,0.6)]"
+            draggable={false}
+            animate={reduce ? undefined : { y: [0, -12, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
       </div>
 
       {/* индикатор скролла */}

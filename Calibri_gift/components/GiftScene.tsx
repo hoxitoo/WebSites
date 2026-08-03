@@ -241,10 +241,20 @@ export default function GiftScene() {
         canvas.height = ch * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      // object-cover: центрируем и кропим
-      const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-      const dw = img.naturalWidth * scale;
-      const dh = img.naturalHeight * scale;
+      // на широких экранах — cover (во весь экран), на узких (телефон) —
+      // contain, чтобы коробка не обрезалась по краям; всегда центрируем
+      const nw = img.naturalWidth;
+      const nh = img.naturalHeight;
+      // cover только на широких ~16:9 экранах (кадр 16:9 ложится ровно);
+      // на всех уже — contain, чтобы коробка не обрезалась
+      const wide = cw / ch >= 1.5;
+      const scale = wide
+        ? Math.max(cw / nw, ch / nh)
+        : Math.min(cw / nw, ch / nh);
+      // очищаем (для contain — тёмные поля вместо старого кадра)
+      ctx.clearRect(0, 0, cw, ch);
+      const dw = nw * scale;
+      const dh = nh * scale;
       ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
 
       if (!drawnOnce) {

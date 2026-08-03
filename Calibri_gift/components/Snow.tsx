@@ -42,7 +42,9 @@ export default function Snow({ density = 1 }: { density?: number }) {
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const count = Math.round(((w * h) / 14000) * density);
+      // на мобильных снижаем плотность вдвое — экономим CPU/батарею
+      const perArea = window.innerWidth < 768 ? 26000 : 14000;
+      const count = Math.round(((w * h) / perArea) * density);
       flakes = Array.from({ length: count }, () => {
         const depth = Math.random();
         return {
@@ -93,16 +95,34 @@ export default function Snow({ density = 1 }: { density?: number }) {
         ctx.fill();
       }
 
-      raf = requestAnimationFrame(tick);
+      raf = visible ? requestAnimationFrame(tick) : 0;
     };
 
     resize();
-    tick();
     window.addEventListener("resize", resize);
     window.addEventListener("mousemove", onMove);
 
+    // рисуем только когда канвас на экране — вне вьюпорта rAF не крутится
+    let visible = false;
+    const run = () => {
+      if (visible && !raf) raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        visible = entries[0].isIntersecting;
+        if (visible) run();
+        else if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      },
+      { rootMargin: "100px" }
+    );
+    io.observe(canvas);
+
     return () => {
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
+      io.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
     };

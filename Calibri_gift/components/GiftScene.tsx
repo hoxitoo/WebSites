@@ -80,7 +80,14 @@ function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
       new Promise<void>((resolve) => {
         if (imagesRef.current[i]) return resolve();
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => {
+          // декодируем заранее (вне основного потока) — иначе первый рисунок
+          // кадра при скролле подвисает на телефоне
+          try {
+            if (img.decode) await img.decode();
+          } catch {
+            /* decode может отклониться — не критично */
+          }
           if (!cancelled) {
             imagesRef.current[i] = img;
             loadTick.set(loadTick.get() + 1);
@@ -233,28 +240,39 @@ export default function GiftScene() {
       if (!img || img === lastImg) return;
       lastImg = img;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // DPR: на мобильных ограничиваем 1.5 — вдвое меньше пикселей на
+      // перерисовку кадра → плавнее скролл на слабых телефонах
       const cw = canvas.clientWidth;
       const ch = canvas.clientHeight;
+      // DPR: на мобильных ограничиваем 1.5 — вдвое меньше пикселей на
+      // перерисовку кадра → плавнее скролл на слабых телефонах
+      const mobile = cw < 768;
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2);
       if (canvas.width !== cw * dpr || canvas.height !== ch * dpr) {
         canvas.width = cw * dpr;
         canvas.height = ch * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      // на широких экранах — cover (во весь экран), на узких (телефон) —
-      // contain, чтобы коробка не обрезалась по краям; всегда центрируем
       const nw = img.naturalWidth;
       const nh = img.naturalHeight;
-      // cover только на широких ~16:9 экранах (кадр 16:9 ложится ровно);
-      // на всех уже — contain, чтобы коробка не обрезалась
-      const wide = cw / ch >= 1.5;
-      const scale = wide
-        ? Math.max(cw / nw, ch / nh)
-        : Math.min(cw / nw, ch / nh);
-      // очищаем (для contain — тёмные поля вместо старого кадра)
-      ctx.clearRect(0, 0, cw, ch);
+      const coverScale = Math.max(cw / nw, ch / nh);
+      const containScale = Math.min(cw / nw, ch / nh);
+      // cover на широких ~16:9 (кадр ложится ровно), contain на узких экранах
+      const scale = cw / ch >= 1.5 ? coverScale : containScale;
       const dw = nw * scale;
       const dh = nh * scale;
+
+      ctx.clearRect(0, 0, cw, ch);
+      // если contain оставил поля — заливаем их размытой cover-версией того же
+      // кадра, чтобы не было чёрных полос и жёсткого края «вклеенной картинки»
+      if (scale === containScale && containScale < coverScale) {
+        const bw = nw * coverScale;
+        const bh = nh * coverScale;
+        ctx.save();
+        ctx.filter = mobile ? "blur(14px) brightness(0.5)" : "blur(22px) brightness(0.55)";
+        ctx.drawImage(img, (cw - bw) / 2, (ch - bh) / 2, bw, bh);
+        ctx.restore();
+      }
       ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
 
       if (!drawnOnce) {

@@ -32,7 +32,7 @@ execFileSync(
     "[0:v]scale=1920:1080,setsar=1[a];" +
       "[1:v]scale=1920:1080,setsar=1[b];" +
       "[a][b]concat=n=2:v=1:a=0[c];" +
-      "[c]crop=1600:1080:0:0,fps=12,scale=1440:-2[out]",
+      "[c]crop=1600:1080:0:0,fps=12,scale=1700:-2[out]",
     "-map", "[out]",
     "-c:v", "libwebp",
     "-quality", "60",

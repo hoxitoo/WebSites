@@ -28,6 +28,9 @@ const FRAME_COUNT = 101;
 // видео (открытие + вылет шаров) проигрывается за первые VIDEO_END прогресса,
 // дальше держим финальный кадр — чтобы шары успели вылететь ДО появления карточек
 const VIDEO_END = 0.72;
+// фон сцены = тёмная навигация, совпадает с фоном самих кадров по краям
+const SCENE_BG = "#0b1322";
+const SCENE_BG_T = "rgba(11,19,34,0)";
 const frameSrc = (i: number) =>
   asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
@@ -140,19 +143,19 @@ function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
 const storyLines = [
   {
     text: "Как сказать команде «спасибо» — по-настоящему?",
-    window: [0.03, 0.135] as const,
+    window: [0.02, 0.2] as const,
   },
   {
     text: "Не общими словами на планёрке — а тёплым знаком внимания каждому.",
-    window: [0.165, 0.285] as const,
+    window: [0.21, 0.4] as const,
   },
   {
     text: "Забота не бывает громкой. Она — в тепле, которое можно взять в руки.",
-    window: [0.315, 0.43] as const,
+    window: [0.41, 0.58] as const,
   },
   {
     text: "Внутри — больше, чем подарок. Внутри — «мы вас ценим».",
-    window: [0.46, 0.585] as const,
+    window: [0.59, 0.72] as const,
   },
 ];
 
@@ -240,8 +243,6 @@ export default function GiftScene() {
       if (!img || img === lastImg) return;
       lastImg = img;
 
-      // DPR: на мобильных ограничиваем 1.5 — вдвое меньше пикселей на
-      // перерисовку кадра → плавнее скролл на слабых телефонах
       const cw = canvas.clientWidth;
       const ch = canvas.clientHeight;
       // DPR: на мобильных ограничиваем 1.5 — вдвое меньше пикселей на
@@ -255,25 +256,35 @@ export default function GiftScene() {
       }
       const nw = img.naturalWidth;
       const nh = img.naturalHeight;
-      const coverScale = Math.max(cw / nw, ch / nh);
-      const containScale = Math.min(cw / nw, ch / nh);
-      // cover на широких ~16:9 (кадр ложится ровно), contain на узких экранах
-      const scale = cw / ch >= 1.5 ? coverScale : containScale;
+      // коробка вписана и уменьшена (×0.9) — воздух по краям + выше чёткость
+      // (меньше апскейл). Без blur — он и давал лаги на ПК.
+      const scale = Math.min(cw / nw, ch / nh) * 0.9;
       const dw = nw * scale;
       const dh = nh * scale;
+      const dx = (cw - dw) / 2;
+      const dy = (ch - dh) / 2;
 
-      ctx.clearRect(0, 0, cw, ch);
-      // если contain оставил поля — заливаем их размытой cover-версией того же
-      // кадра, чтобы не было чёрных полос и жёсткого края «вклеенной картинки»
-      if (scale === containScale && containScale < coverScale) {
-        const bw = nw * coverScale;
-        const bh = nh * coverScale;
-        ctx.save();
-        ctx.filter = mobile ? "blur(14px) brightness(0.5)" : "blur(22px) brightness(0.55)";
-        ctx.drawImage(img, (cw - bw) / 2, (ch - bh) / 2, bw, bh);
-        ctx.restore();
-      }
-      ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+      // фон под кадр = тёмная навигация, совпадает с фоном самого кадра по краям
+      ctx.fillStyle = SCENE_BG;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, dx, dy, dw, dh);
+
+      // растушёвка краёв кадра в фон — чтобы не было резкого прямоугольника
+      const F = Math.round(Math.min(dw, dh) * 0.14);
+      const strip = (
+        x: number, y: number, w: number, h: number,
+        x0: number, y0: number, x1: number, y1: number,
+      ) => {
+        const g = ctx.createLinearGradient(x0, y0, x1, y1);
+        g.addColorStop(0, SCENE_BG);
+        g.addColorStop(1, SCENE_BG_T);
+        ctx.fillStyle = g;
+        ctx.fillRect(x, y, w, h);
+      };
+      strip(dx, dy, dw, F, 0, dy, 0, dy + F); // верх
+      strip(dx, dy + dh - F, dw, F, 0, dy + dh, 0, dy + dh - F); // низ
+      strip(dx, dy, F, dh, dx, 0, dx + F, 0); // лево
+      strip(dx + dw - F, dy, F, dh, dx + dw, 0, dx + dw - F, 0); // право
 
       if (!drawnOnce) {
         drawnOnce = true;
@@ -343,7 +354,7 @@ export default function GiftScene() {
 
         {/* живой снег поверх кадров */}
         <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
-          <Snow density={0.45} />
+          <Snow density={0.3} />
         </div>
 
         {/* сшивка с фоном страницы */}

@@ -11,7 +11,8 @@
   --color-gold: #e8b968;
   --color-gold-soft: #f3d9a4;
   --color-cream: #f7f3ec;
-  --color-muted: #9ba3b5;
+  /* светлее прежнего (#9ba3b5) — контраст корпусного текста на тёмном (WCAG AA) */
+  --color-muted: #b6bdcb;
 
   --font-display: var(--font-playfair), "Playfair Display", serif;
   --font-body: var(--font-manrope), "Manrope", sans-serif;
@@ -63,6 +64,34 @@ body {
   background:
     radial-gradient(1200px 600px at 50% 0%, rgba(122, 36, 56, 0.14), transparent 65%),
     radial-gradient(900px 500px at 50% 100%, rgba(232, 185, 104, 0.05), transparent 60%);
+}
+
+/* «Зебра» ритма: чуть более светлая тёплая панель для чередующихся секций */
+.section-band {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 30%),
+    radial-gradient(1100px 520px at 50% 100%, rgba(20, 70, 55, 0.10), transparent 62%);
+}
+
+/* Тёплое свечение — оживляет «холодные» секции (амбер снизу) */
+.warm-glow {
+  position: relative;
+}
+.warm-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(700px 340px at 50% 118%, rgba(232, 185, 104, 0.10), transparent 60%);
+}
+
+/* Editorial-заголовок с золотым кикером (для левых секций — ломает монотонность) */
+.kicker {
+  color: color-mix(in srgb, var(--color-gold) 80%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
 ::selection {

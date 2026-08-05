@@ -59,7 +59,7 @@ export function Numbers() {
     { to: 1000, suffix: "+", decimals: 0, label: "постоянных клиентов, 85% из них с нами больше 9 лет" },
   ];
   return (
-    <section className="relative mx-auto max-w-6xl px-6 py-28 md:px-12">
+    <section className="warm-glow relative mx-auto max-w-6xl px-6 py-28 md:px-12">
       <div className="grid gap-14 md:grid-cols-3">
         {items.map((it, i) => (
           <motion.div key={i} {...reveal} transition={{ ...reveal.transition, delay: i * 0.12 }} className="text-center">
@@ -129,7 +129,7 @@ export function CatalogTeaser() {
     { label: "Наборы", hue: "#2a3752" },
   ];
   return (
-    <section className="relative py-28">
+    <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
         <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
           Каталог — <span className="glow-gold">по личному запросу</span>

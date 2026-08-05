@@ -72,7 +72,7 @@ export default function Hero() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
             className="mb-6 text-xs uppercase tracking-[0.3em] text-gold/80"
           >
             Новогодние корпоративные подарки · 11 лет на рынке
@@ -86,8 +86,8 @@ export default function Hero() {
                   initial={{ y: "110%" }}
                   animate={{ y: 0 }}
                   transition={{
-                    duration: 0.9,
-                    delay: 0.6 + i * 0.18,
+                    duration: 0.6,
+                    delay: 0.15 + i * 0.08,
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 >
@@ -106,7 +106,7 @@ export default function Hero() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 0.8 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
             className="mt-7 max-w-xl text-lg leading-relaxed text-muted"
           >
             Вы дарите сотрудникам не просто подарок — а знак заботы и признания.
@@ -120,7 +120,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.7, duration: 0.8 }}
+            transition={{ delay: 0.55, duration: 0.6 }}
             className="mt-10 flex flex-wrap items-center gap-5"
           >
             <Magnetic>
@@ -150,7 +150,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={reduce ? { opacity: 0.6 } : { opacity: [0, 1, 0] }}
-        transition={reduce ? { delay: 2.4, duration: 0.6 } : { delay: 2.4, duration: 2.2, repeat: Infinity }}
+        transition={reduce ? { delay: 1.1, duration: 0.6 } : { delay: 1.1, duration: 2.2, repeat: Infinity }}
         className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-[0.3em] text-muted"
       >
         листайте

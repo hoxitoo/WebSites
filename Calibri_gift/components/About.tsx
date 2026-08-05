@@ -99,12 +99,16 @@ export function HrValue() {
   ];
 
   return (
-    <section className="relative py-28">
+    <section className="section-band relative py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
+        {/* левое editorial-выравнивание — ломает монотонность центрованных секций */}
+        <motion.p {...reveal} className="kicker">
+          Почему это удобно HR
+        </motion.p>
+        <motion.h2 {...reveal} className="mt-3 max-w-2xl font-display text-3xl md:text-5xl">
           Декабрь <span className="candle-sweep">без лишней суеты</span>
         </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl text-center leading-relaxed text-muted">
+        <motion.p {...reveal} className="mt-5 max-w-2xl leading-relaxed text-muted">
           Подбор, логистику и контроль сроков берём на себя. Ваши пожелания —
           наша реализация: вы обозначаете детали, мы отвечаем за исполнение.
         </motion.p>
@@ -202,7 +206,7 @@ export function Delivery() {
   ];
 
   return (
-    <section className="relative py-28">
+    <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
         <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
           Доставим бережно — <span className="candle-sweep">как подарок</span>
@@ -262,7 +266,7 @@ export function TrustedBy() {
   ];
 
   return (
-    <section className="relative py-24">
+    <section className="section-band relative py-24">
       <div className="mx-auto max-w-5xl px-6 text-center md:px-12">
         <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
           Нам <span className="glow-gold">доверяют</span>

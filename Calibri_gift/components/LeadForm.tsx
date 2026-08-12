@@ -10,11 +10,26 @@ import Magnetic from "./Magnetic";
  * Ответы уходят в ту же Google Таблицу (лист «Заявки») с источником «сайт».
  */
 
+type Base = {
+  key: string;
+  title: string;
+  when?: (a: Record<string, string>) => boolean;
+  // от каких ответов зависит when: пока они не даны, шаг считаем в общем числе
+  // вопросов (иначе счётчик «из N» скакал бы на первом шаге)
+  dependsOn?: readonly string[];
+};
 type Step =
-  | { key: string; type: "buttons"; title: string; options: readonly string[] }
-  | { key: string; type: "text"; title: string; placeholder: string }
-  | { key: string; type: "date"; title: string; options: readonly string[] }
-  | { key: string; type: "textarea"; title: string; placeholder: string; skip: true };
+  | (Base & { type: "buttons"; options: readonly string[] })
+  | (Base & { type: "text"; placeholder: string })
+  | (Base & { type: "date"; options: readonly string[] })
+  | (Base & { type: "textarea"; placeholder: string; skip: true });
+
+// крупный заказ (от 300 подарков) — только им показываем вопрос про логотип:
+// персонализация имеет смысл на больших тиражах
+const BIG_ORDER = (a: Record<string, string>) => {
+  const big = ["300–1000", "1000 и больше", "больше 300"];
+  return big.includes(a.employees ?? "") || big.includes(a.kids ?? "");
+};
 
 const QUIZ: readonly Step[] = [
   {
@@ -26,7 +41,7 @@ const QUIZ: readonly Step[] = [
   {
     key: "kids",
     type: "buttons",
-    title: "А детских подарков сколько примерно понадобится?",
+    title: "Какое примерное количество детских подарков?",
     options: ["до 100", "100–300", "больше 300", "Пока не знаю"],
   },
   {
@@ -39,13 +54,15 @@ const QUIZ: readonly Step[] = [
     key: "packaging",
     type: "buttons",
     title: "В какой упаковке доставить чудо?",
-    options: ["Картон", "Жесть", "Текстиль", "Наборы", "Доверимся вам"],
+    options: ["Картон", "Жесть", "Текстиль", "Наборы", "Премиум упаковка", "Доверимся вам"],
   },
   {
     key: "personalization",
     type: "buttons",
-    title: "Сделать подарки фирменными — с вашим логотипом?",
+    title: "Нужен ли логотип фирмы на подарках?",
     options: ["С логотипом компании", "Без персонализации", "Подскажите варианты"],
+    when: BIG_ORDER,
+    dependsOn: ["employees", "kids"],
   },
   {
     key: "city",
@@ -69,6 +86,34 @@ const QUIZ: readonly Step[] = [
 ];
 
 const TOTAL = QUIZ.length; // квиз-шаги; далее — контакты, затем «готово»
+
+/* ————— условные шаги: пропускаем те, чей when() ложен ————— */
+const shown = (i: number, a: Record<string, string>) => !QUIZ[i].when || QUIZ[i].when!(a);
+
+function nextVisible(from: number, a: Record<string, string>) {
+  for (let i = from + 1; i < TOTAL; i++) if (shown(i, a)) return i;
+  return TOTAL; // дальше — контакты
+}
+
+function prevVisible(from: number, a: Record<string, string>) {
+  for (let i = Math.min(from, TOTAL) - 1; i >= 0; i--) if (shown(i, a)) return i;
+  return 0;
+}
+
+// нумерация «Вопрос N из M» — только по видимым шагам. Условный шаг, судьба
+// которого ещё не решена (нет ответов из dependsOn), считаем в общем числе.
+function progress(step: number, a: Record<string, string>) {
+  let total = 0;
+  let current = 0;
+  for (let i = 0; i < TOTAL; i++) {
+    const q = QUIZ[i];
+    const undecided = q.dependsOn?.every((k) => !a[k]) ?? false;
+    if (!shown(i, a) && !undecided) continue;
+    total++;
+    if (i <= step) current = total;
+  }
+  return { current, total };
+}
 
 type SendState = "idle" | "sending" | "error";
 
@@ -97,8 +142,10 @@ export default function LeadForm() {
   }, [step, answers]);
 
   function commit(key: string, value: string) {
-    setAnswers((a) => ({ ...a, [key]: value }));
-    setStep((s) => s + 1);
+    // условные шаги считаем от уже обновлённых ответов
+    const next = { ...answers, [key]: value };
+    setAnswers(next);
+    setStep((s) => nextVisible(s, next));
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -134,6 +181,7 @@ export default function LeadForm() {
   }
 
   const cur = step < TOTAL ? QUIZ[step] : null;
+  const pr = progress(step, answers);
 
   return (
     <section id="lead" className="section-vignette relative py-28">
@@ -145,7 +193,7 @@ export default function LeadForm() {
           transition={{ duration: 0.7 }}
           className="text-center font-display text-3xl md:text-5xl"
         >
-          Соберём подарок <span className="candle-sweep">под вашу команду</span>
+          Соберём подарок <span className="candle-sweep">под ваш запрос</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -154,23 +202,26 @@ export default function LeadForm() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mx-auto mt-4 max-w-xl text-center text-muted"
         >
-          Несколько коротких вопросов — как в нашей Службе заботы Деда Мороза.
-          По ответам пришлём каталог и персональное коммерческое предложение.
+          Всего несколько коротких вопросов для нашей Службы заботы, на которые
+          мы предлагаем Вам ответить, чтобы получить каталог и Персональное КП.
         </motion.p>
 
-        {/* прогресс-гирлянда */}
+        {/* прогресс-гирлянда (по видимым шагам + шаг контактов) */}
         {step <= TOTAL && (
           <div className="mt-10 flex items-center justify-center gap-2.5" aria-hidden>
-            {Array.from({ length: TOTAL + 1 }, (_, i) => (
-              <span
-                key={i}
-                className="h-2 w-2 rounded-full transition-all duration-500"
-                style={{
-                  background: i <= step ? "#e8b968" : "rgba(247,243,236,0.15)",
-                  boxShadow: i <= step ? "0 0 8px rgba(232,185,104,0.7)" : "none",
-                }}
-              />
-            ))}
+            {Array.from({ length: pr.total + 1 }, (_, i) => {
+              const done = i < (step >= TOTAL ? pr.total + 1 : pr.current);
+              return (
+                <span
+                  key={i}
+                  className="h-2 w-2 rounded-full transition-all duration-500"
+                  style={{
+                    background: done ? "#e8b968" : "rgba(247,243,236,0.15)",
+                    boxShadow: done ? "0 0 8px rgba(232,185,104,0.7)" : "none",
+                  }}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -180,7 +231,7 @@ export default function LeadForm() {
             {cur && (
               <motion.div key={`q${step}`} {...stepAnim}>
                 <p className="text-center text-xs uppercase tracking-[0.3em] text-gold/70">
-                  Вопрос {step + 1} из {TOTAL}
+                  Вопрос {pr.current} из {pr.total}
                 </p>
                 <h3 className="mt-3 text-center font-display text-2xl text-cream md:text-3xl">
                   {cur.title}
@@ -188,16 +239,23 @@ export default function LeadForm() {
 
                 {cur.type === "buttons" && (
                   <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                    {cur.options.map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => commit(cur.key, opt)}
-                        className="cursor-pointer rounded-xl border border-cream/15 bg-night-soft/50 px-5 py-4 text-sm text-cream/90 transition-all duration-200 hover:border-gold/60 hover:bg-night-soft hover:text-gold"
-                      >
-                        {opt}
-                      </button>
-                    ))}
+                    {cur.options.map((opt, i) => {
+                      // нечётное число вариантов: последний по центру, а не сбоку
+                      const lonely =
+                        cur.options.length % 2 === 1 && i === cur.options.length - 1;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => commit(cur.key, opt)}
+                          className={`cursor-pointer rounded-xl border border-cream/15 bg-night-soft/50 px-5 py-4 text-sm text-cream/90 transition-all duration-200 hover:border-gold/60 hover:bg-night-soft hover:text-gold ${
+                            lonely ? "sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.375rem)]" : ""
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -340,12 +398,13 @@ export default function LeadForm() {
                 className="flex min-h-[340px] flex-col items-center justify-center text-center"
               >
                 <h3 className="font-display text-3xl text-cream">
-                  Спасибо! <span className="glow-gold">Служба заботы</span> уже собирает
-                  ваш каталог 🎄
+                  Благодарю! <span className="glow-gold">Служба заботы</span> уже
+                  собирает для Вас Индивидуальное предложение 🎄
                 </h3>
                 <p className="mt-4 max-w-md text-muted">
-                  В ближайшее время менеджер пришлёт на почту каталог и персональное
-                  коммерческое предложение под ваши ответы.
+                  В ближайшее время пришлём на почту каталог и персональное
+                  коммерческое предложение под ваши ответы. Если появятся
+                  дополнительные вопросы — с Вами свяжется наш менеджер.
                 </p>
               </motion.div>
             )}
@@ -357,7 +416,7 @@ export default function LeadForm() {
           <div className="mt-6 text-center">
             <button
               type="button"
-              onClick={() => setStep((s) => s - 1)}
+              onClick={() => setStep((s) => prevVisible(s, answers))}
               className="cursor-pointer text-sm text-muted underline-offset-4 transition-colors hover:text-cream hover:underline"
             >
               ← Вернуться к предыдущему вопросу

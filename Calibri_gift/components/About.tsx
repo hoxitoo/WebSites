@@ -160,7 +160,9 @@ export function WhyTrust() {
     },
     {
       title: "Только для бизнеса",
-      text: "Юрлица и ИП: договор поставки, оплата на р/с, НДС и декларация о соответствии.",
+      text:
+        "Работаем с юридическими лицами: договор поставки, оплата на расчётный счёт, " +
+        "УПД, электронная ТТН. НДС 22% уже в цене.",
     },
   ];
 
@@ -209,7 +211,8 @@ export function Delivery() {
     <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
         <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
-          Доставим бережно — <span className="candle-sweep">как подарок</span>
+          Доставим бережно, <span className="candle-sweep">с заботой о Вас</span> и
+          Вашей компании!
         </motion.h2>
         <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl text-center leading-relaxed text-muted">
           Отправляем из Краснодара по всей России — под контролем наших

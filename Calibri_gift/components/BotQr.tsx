@@ -13,7 +13,7 @@ const reveal = {
 };
 
 /**
- * QR на бота «Служба заботы Деда Мороза» — внизу страницы.
+ * QR на бота «Отдел заботы Деда Мороза» — внизу страницы.
  * Наведите камеру телефона → откроется чат с ботом.
  */
 export default function BotQr() {
@@ -31,7 +31,7 @@ export default function BotQr() {
           >
             <img
               src={asset("/bot-qr.png")}
-              alt="QR-код: Служба заботы Деда Мороза в Telegram"
+              alt="QR-код: Отдел заботы Деда Мороза в Telegram"
               width={200}
               height={200}
               className="h-44 w-44 md:h-52 md:w-52"
@@ -42,7 +42,7 @@ export default function BotQr() {
 
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.12 }} className="text-center md:text-left">
             <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold/80">
-              Служба заботы Деда Мороза
+              Отдел заботы Деда Мороза
             </p>
             <h2 className="font-display text-3xl leading-tight md:text-4xl">
               Наведите камеру — и <span className="glow-gold">начнём</span>

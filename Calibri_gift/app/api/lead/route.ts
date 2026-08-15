@@ -24,9 +24,9 @@ export async function POST(req: Request) {
       budget: s(data.budget, 100),
       packaging: s(data.packaging, 100),
       personalization: s(data.personalization, 100),
+      branding: s(data.branding, 100),
       city: s(data.city, 100),
       deliveryDate: s(data.deliveryDate, 100),
-      personalNote: s(data.personalNote, 500),
       source: "сайт",
     };
 

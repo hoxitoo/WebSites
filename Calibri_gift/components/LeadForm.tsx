@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from "motion/react";
 import Magnetic from "./Magnetic";
 
 /**
- * Квиз-анкета — те же вопросы, что задаёт бот «Служба заботы Деда Мороза»:
- * 5 вопросов кнопками → город → дата → особое пожелание → контакты.
+ * Квиз-анкета — те же вопросы и в том же порядке, что задаёт бот
+ * «Отдел заботы Деда Мороза»: вопросы кнопками → город → дата → контакты.
  * Ответы уходят в ту же Google Таблицу (лист «Заявки») с источником «сайт».
  */
 
@@ -15,24 +15,19 @@ type Base = {
   title: string;
   hint?: string; // пояснение под вопросом (мелким текстом)
   when?: (a: Record<string, string>) => boolean;
-  // от каких ответов зависит when: пока они не даны, шаг считаем в общем числе
-  // вопросов (иначе счётчик «из N» скакал бы на первом шаге)
-  dependsOn?: readonly string[];
+  // от какого ответа зависит when: пока он не дан, шаг считаем в общем числе
+  // вопросов (иначе счётчик «из N» скакал бы посреди анкеты)
+  dependsOn?: string;
 };
 type Step =
   | (Base & { type: "buttons"; options: readonly string[] })
   | (Base & { type: "text"; placeholder: string })
-  | (Base & { type: "date"; options: readonly string[] })
-  | (Base & { type: "textarea"; placeholder: string; skip: true });
+  | (Base & { type: "date"; options: readonly string[] });
 
-// «крупный» заказ — от 300 подарков: только им показываем вопрос про логотип
-const SMALL_KIDS = ["до 100", "от 100 до 300"];
-const SMALL_EMP = ["до 100", "100–300"];
-const BIG_ORDER = (a: Record<string, string>) => {
-  const kids = a.kids ?? "";
-  const emp = a.employees ?? "";
-  return (!!kids && !SMALL_KIDS.includes(kids)) || (!!emp && !SMALL_EMP.includes(emp));
-};
+// «крупный» заказ — от 100 подарков: только ему предлагаем логотип
+const BIG_ORDER = (a: Record<string, string>) => !!a.kids && a.kids !== "до 100";
+const WANTS_BRANDING = (a: Record<string, string>) =>
+  BIG_ORDER(a) && a.personalization === "Нужна персонализация";
 
 const QUIZ: readonly Step[] = [
   {
@@ -50,12 +45,6 @@ const QUIZ: readonly Step[] = [
       "от 2500 до 5000",
       "более 5000",
     ],
-  },
-  {
-    key: "employees",
-    type: "buttons",
-    title: "А сколько сотрудников хотите поздравить в этом году?",
-    options: ["до 100", "100–300", "300–1000", "1000 и больше"],
   },
   {
     key: "budget",
@@ -78,7 +67,6 @@ const QUIZ: readonly Step[] = [
       "Картон",
       "Жесть",
       "Текстиль",
-      "Комбинированная упаковка",
       "Тубы, дерево",
       "Премиум упаковка",
       "Наборы",
@@ -86,23 +74,38 @@ const QUIZ: readonly Step[] = [
     ],
   },
   {
+    // шаг 1: нужна ли персонализация вообще
     key: "personalization",
     type: "buttons",
     title: "Хотите подчеркнуть, что подарок — от вашей компании?",
+    options: ["Нужна персонализация", "Не нужна персонализация"],
+    when: BIG_ORDER,
+    dependsOn: "kids",
+  },
+  {
+    // шаг 2: где именно разместить логотип
+    key: "branding",
+    type: "buttons",
+    title: "Где разместим логотип?",
     hint:
-      "Логотип можно разместить без удорожания концепции: наклейка на коробку " +
-      "или подвесная бирка — от 100 шт., фирменный значок — от 50 шт., " +
-      "открытка с посланием — от 100 шт.",
+      "Наклейка на коробку и подвесная бирка — от 100 шт., фирменный значок — " +
+      "от 50 шт., открытка с посланием — от 100 шт.",
     options: [
       "Наклейка на коробку",
       "Подвесная бирка",
       "Фирменный значок",
       "Открытка с посланием",
-      "Оставить дизайн нейтральным",
       "Подскажите варианты",
     ],
-    when: BIG_ORDER,
-    dependsOn: ["employees", "kids"],
+    when: WANTS_BRANDING,
+    dependsOn: "personalization",
+  },
+  {
+    // вопрос про сотрудников заказчица попросила перенести в конец
+    key: "employees",
+    type: "buttons",
+    title: "А сколько сотрудников хотите поздравить в этом году?",
+    options: ["до 100", "100–300", "300–1000", "1000 и больше"],
   },
   {
     key: "city",
@@ -122,13 +125,6 @@ const QUIZ: readonly Step[] = [
       "до 25 декабря",
     ],
   },
-  {
-    key: "personalNote",
-    type: "textarea",
-    title: "Расскажите что-то особенное о ваших людях",
-    placeholder: "Например: наши сотрудники обожают конфеты «Алёнка»",
-    skip: true,
-  },
 ];
 
 const TOTAL = QUIZ.length; // квиз-шаги; далее — контакты, затем «готово»
@@ -146,15 +142,26 @@ function prevVisible(from: number, a: Record<string, string>) {
   return 0;
 }
 
-// нумерация «Вопрос N из M» — только по видимым шагам. Условный шаг, судьба
-// которого ещё не решена (нет ответов из dependsOn), считаем в общем числе.
+// Учитывать ли шаг в счётчике «из N». Условный шаг, судьба которого ещё
+// не решена (ответ из dependsOn не дан, а сам «родительский» шаг показывается),
+// считаем оптимистично — иначе итог прыгал бы «из 7» → «из 8».
+function counted(i: number, a: Record<string, string>): boolean {
+  const q = QUIZ[i];
+  if (!q.when) return true;
+  if (shown(i, a)) return true;
+  if (q.dependsOn && !a[q.dependsOn]) {
+    const p = QUIZ.findIndex((s) => s.key === q.dependsOn);
+    return p < 0 || counted(p, a);
+  }
+  return false;
+}
+
+// нумерация «Вопрос N из M» — только по учитываемым шагам
 function progress(step: number, a: Record<string, string>) {
   let total = 0;
   let current = 0;
   for (let i = 0; i < TOTAL; i++) {
-    const q = QUIZ[i];
-    const undecided = q.dependsOn?.every((k) => !a[k]) ?? false;
-    if (!shown(i, a) && !undecided) continue;
+    if (!counted(i, a)) continue;
     total++;
     if (i <= step) current = total;
   }
@@ -182,7 +189,7 @@ export default function LeadForm() {
   // при переходе на текстовый шаг — подставляем уже данный ответ (для «назад»)
   useEffect(() => {
     const s = QUIZ[step];
-    if (s && (s.type === "text" || s.type === "date" || s.type === "textarea")) {
+    if (s && (s.type === "text" || s.type === "date")) {
       setDraft(answers[s.key] ?? "");
     }
   }, [step, answers]);
@@ -248,7 +255,7 @@ export default function LeadForm() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mx-auto mt-4 max-w-xl text-center text-muted"
         >
-          Всего несколько коротких вопросов для нашей Службы заботы, на которые
+          Всего несколько коротких вопросов для нашей Отдела заботы, на которые
           мы предлагаем Вам ответить, чтобы получить каталог и Персональное КП.
         </motion.p>
 
@@ -365,35 +372,6 @@ export default function LeadForm() {
                   </div>
                 )}
 
-                {cur.type === "textarea" && (
-                  <div className="mt-8">
-                    <textarea
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      placeholder={cur.placeholder}
-                      rows={3}
-                      className={`${inputCls} resize-none`}
-                    />
-                    <div className="mt-4 flex items-center justify-center gap-5">
-                      <Magnetic>
-                        <button
-                          type="button"
-                          onClick={() => commit(cur.key, draft.trim())}
-                          className="cursor-pointer rounded-full bg-bordeaux px-8 py-3 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
-                        >
-                          Далее
-                        </button>
-                      </Magnetic>
-                      <button
-                        type="button"
-                        onClick={() => commit(cur.key, "")}
-                        className="cursor-pointer text-sm text-muted underline-offset-4 transition-colors hover:text-cream hover:underline"
-                      >
-                        Пропустить ✨
-                      </button>
-                    </div>
-                  </div>
-                )}
               </motion.div>
             )}
 
@@ -449,7 +427,7 @@ export default function LeadForm() {
                 className="flex min-h-[340px] flex-col items-center justify-center text-center"
               >
                 <h3 className="font-display text-3xl text-cream">
-                  Благодарю! <span className="glow-gold">Служба заботы</span> уже
+                  Благодарю! <span className="glow-gold">Отдел заботы</span> уже
                   собирает для Вас Индивидуальное предложение 🎄
                 </h3>
                 <p className="mt-4 max-w-md text-muted">

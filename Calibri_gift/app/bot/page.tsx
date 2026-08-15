@@ -3,9 +3,9 @@ import Link from "next/link";
 import Snow from "@/components/Snow";
 
 export const metadata: Metadata = {
-  title: "Служба заботы Деда Мороза — выберите мессенджер",
+  title: "Отдел заботы Деда Мороза — выберите мессенджер",
   description:
-    "Ответьте на 5 коротких вопросов — и Служба заботы Деда Мороза соберёт каталог и персональное предложение для вашей компании.",
+    "Ответьте на 5 коротких вопросов — и Отдел заботы Деда Мороза соберёт каталог и персональное предложение для вашей компании.",
   robots: { index: false }, // вход по QR из каталога, в поиске не нужна
 };
 
@@ -30,7 +30,7 @@ export default function BotPage() {
           ТК «Колибри» представляет
         </p>
         <h1 className="font-display text-4xl leading-tight md:text-5xl">
-          Служба заботы <span className="glow-gold">Деда Мороза</span>
+          Отдел заботы <span className="glow-gold">Деда Мороза</span>
         </h1>
         <p className="mx-auto mt-5 max-w-md leading-relaxed text-muted">
           5 коротких вопросов — и мы соберём для вашей компании каталог

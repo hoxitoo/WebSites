@@ -5,12 +5,14 @@ import Snow from "@/components/Snow";
 export const metadata: Metadata = {
   title: "Отдел заботы Деда Мороза — выберите мессенджер",
   description:
-    "Ответьте на 5 коротких вопросов — и Отдел заботы Деда Мороза соберёт каталог и персональное предложение для вашей компании.",
+    "Ответьте на несколько коротких вопросов — и Отдел заботы Деда Мороза соберёт каталог и персональное предложение для вашей компании.",
   robots: { index: false }, // вход по QR из каталога, в поиске не нужна
 };
 
 const TG_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/kolibri_care_bot";
-const MAX_URL = process.env.NEXT_PUBLIC_MAX_BOT_URL ?? "https://max.ru/";
+// ссылка на того же бота в MAX; если заказчица сменит username — поменять env
+const MAX_URL =
+  process.env.NEXT_PUBLIC_MAX_BOT_URL ?? "https://max.ru/id2312230564_bot";
 
 export default function BotPage() {
   return (
@@ -19,7 +21,7 @@ export default function BotPage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #2a1a14 50%, #1b100c 100%)," +
+            "radial-gradient(1200px 700px at 50% -10%, #4a2e20 0%, #2a1a14 55%, #1b100c 100%)," +
             "radial-gradient(800px 500px at 50% 115%, rgba(122,36,56,0.4), transparent 60%)",
         }}
       />
@@ -33,7 +35,7 @@ export default function BotPage() {
           Отдел заботы <span className="glow-gold">Деда Мороза</span>
         </h1>
         <p className="mx-auto mt-5 max-w-md leading-relaxed text-muted">
-          5 коротких вопросов — и мы соберём для вашей компании каталог
+          Несколько коротких вопросов — и мы соберём для вашей компании каталог
           и персональное предложение. Отвечать можно кнопками, это займёт
           пару минут.
         </p>

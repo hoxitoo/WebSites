@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
-import Hummingbird from "./Hummingbird";
 import Magnetic from "./Magnetic";
 import { asset } from "@/lib/asset";
 
@@ -46,17 +45,21 @@ export default function Hero() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12"
       >
-        {/* оригинальный логотип на светлой плашке — тёмный текст лого читаем
-            только на светлом, поэтому не кладём его на тёмный фон напрямую */}
-        <a href="#" aria-label="Колибри — торговая компания" className="inline-flex">
-          <span className="inline-flex items-center rounded-xl bg-cream/95 px-3 py-2 shadow-[0_6px_24px_rgba(27,16,12,0.4)]">
-            <img
-              src={asset("/logo-kolibri.webp")}
-              alt="Торговая компания «Колибри»"
-              className="h-9 w-auto md:h-10"
-              draggable={false}
-            />
-          </span>
+        {/* «вывернутая» версия фирменного логотипа: кремово-золотая, без
+            плашки — собирается из оригинала скриптом scripts/make-logo.mjs */}
+        <a
+          href="#"
+          aria-label="Колибри — торговая компания"
+          className="inline-flex transition-opacity duration-300 hover:opacity-80"
+        >
+          <img
+            src={asset("/logo-kolibri-row.webp")}
+            alt="Торговая компания «Колибри»"
+            width={964}
+            height={400}
+            className="h-11 w-auto md:h-14"
+            draggable={false}
+          />
         </a>
         <a
           href="#lead"
@@ -67,8 +70,8 @@ export default function Hero() {
       </motion.header>
 
       {/* контент */}
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-6 pb-20 md:grid-cols-[1.2fr_1fr] md:px-12">
-        <div>
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-20 md:px-12">
+        <div className="max-w-3xl">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -138,11 +141,6 @@ export default function Hero() {
               Почему это больше, чем подарок ↓
             </a>
           </motion.div>
-        </div>
-
-        {/* колибри из света */}
-        <div className="relative hidden md:block">
-          <Hummingbird className="mx-auto w-full max-w-[440px]" />
         </div>
       </div>
 

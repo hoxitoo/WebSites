@@ -6,16 +6,16 @@ export default function Footer() {
     <footer className="border-t border-cream/10 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 text-center md:grid-cols-3 md:px-12 md:text-left">
         <div>
-          {/* фирменный логотип — на светлой плашке (в оригинале тёмный градиент) */}
-          <div className="inline-flex items-center justify-center rounded-2xl bg-cream px-5 py-3">
-            <img
-              src={asset("/logo-kolibri.webp")}
-              alt="Торговая компания «Колибри»"
-              className="h-14 w-auto"
-              loading="lazy"
-              draggable={false}
-            />
-          </div>
+          {/* фирменный логотип в «вывернутой» кремово-золотой версии */}
+          <img
+            src={asset("/logo-kolibri-mark.webp")}
+            alt="Торговая компания «Колибри»"
+            width={483}
+            height={420}
+            className="mx-auto h-24 w-auto md:mx-0"
+            loading="lazy"
+            draggable={false}
+          />
           <p className="mt-3 text-sm leading-relaxed text-muted">
             Корпоративные новогодние подарки
             <br />

@@ -17,8 +17,8 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1400px 800px at 70% -10%, #16203a 0%, #0e1526 45%, #090e1a 100%)," +
-            "radial-gradient(900px 500px at 30% 115%, rgba(20,70,55,0.35), transparent 60%)",
+            "radial-gradient(1400px 800px at 70% -10%, #3a251c 0%, #2a1a14 45%, #1b100c 100%)," +
+            "radial-gradient(900px 500px at 30% 115%, rgba(196,106,44,0.28), transparent 60%)",
         }}
       />
       {/* овечка с подарком — бледная подложка под текстом */}
@@ -33,7 +33,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(9,14,26,0.55) 0%, rgba(9,14,26,0.35) 55%, #090e1a 100%)",
+            "linear-gradient(to bottom, rgba(27,16,12,0.55) 0%, rgba(27,16,12,0.35) 55%, #1b100c 100%)",
         }}
         aria-hidden
       />
@@ -49,7 +49,7 @@ export default function Hero() {
         {/* оригинальный логотип на светлой плашке — тёмный текст лого читаем
             только на светлом, поэтому не кладём его на тёмный фон напрямую */}
         <a href="#" aria-label="Колибри — торговая компания" className="inline-flex">
-          <span className="inline-flex items-center rounded-xl bg-cream/95 px-3 py-2 shadow-[0_6px_24px_rgba(9,14,26,0.4)]">
+          <span className="inline-flex items-center rounded-xl bg-cream/95 px-3 py-2 shadow-[0_6px_24px_rgba(27,16,12,0.4)]">
             <img
               src={asset("/logo-kolibri.webp")}
               alt="Торговая компания «Колибри»"

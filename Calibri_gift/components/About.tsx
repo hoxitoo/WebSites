@@ -9,6 +9,76 @@ const reveal = {
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+/* ————— Зачем это бизнесу: измеримый эффект (тексты заказчицы) ————— */
+export function BusinessEffect() {
+  const items = [
+    {
+      title: "Сигнал «ты в команде»",
+      text:
+        "Подарок говорит сотруднику: «ты важен, мы тебя ценим». Для человека это " +
+        "микроподдержка, для бизнеса — вклад в стабильность.",
+    },
+    {
+      title: "Опора в непростое время",
+      text:
+        "Такие сигналы особенно важны сейчас: они помогают человеку чувствовать " +
+        "устойчивость компании, в которой он работает.",
+    },
+    {
+      title: "Лояльность без повышения зарплаты",
+      text:
+        "Когда человек чувствует, что его ценят, он реже уходит. Это прямая " +
+        "экономия: подбор, адаптация и обучение нового сотрудника стоят дорого.",
+    },
+    {
+      title: "Точно в цель",
+      text:
+        "Точечный подбор: каждый сотрудник получает понятный знак внимания, " +
+        "а компания — стабильную мотивированную команду.",
+    },
+  ];
+
+  return (
+    <section className="warm-glow relative py-28">
+      <div className="mx-auto max-w-6xl px-6 md:px-12">
+        <motion.p {...reveal} className="kicker text-center">
+          Зачем это бизнесу
+        </motion.p>
+        <motion.h2 {...reveal} className="mt-3 text-center font-display text-3xl md:text-5xl">
+          Не про «тёплые слова» — <span className="glow-gold">про эффект</span>
+        </motion.h2>
+
+        <div className="mt-14 grid gap-6 sm:grid-cols-2">
+          {items.map((it, i) => (
+            <motion.div
+              key={it.title}
+              {...reveal}
+              transition={{ ...reveal.transition, delay: (i % 2) * 0.12 }}
+              className="rounded-2xl border border-cream/10 bg-night-soft/50 p-7"
+            >
+              <h3 className="mb-2.5 font-display text-xl text-gold">{it.title}</h3>
+              <p className="text-sm leading-relaxed text-muted">{it.text}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* эмоциональная кода — её текст про семейные истории */}
+        <motion.div
+          {...reveal}
+          className="mx-auto mt-10 max-w-3xl rounded-2xl border border-gold/25 bg-night-soft/40 px-8 py-7 text-center"
+        >
+          <p className="font-display text-lg leading-relaxed text-cream/90 md:text-xl">
+            Новогодние подарки — это про маленькие семейные истории: как ребёнок
+            бежит к ёлке, как взрослые переглядываются и улыбаются, как
+            появляется ощущение, что год будет добрым.{" "}
+            <span className="text-gold">Именно с этой мыслью мы и делаем подарки для вас.</span>
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* ————— Что внутри: наполнение и качество (слайд «100% качество») ————— */
 export function Filling() {
   const points = [
@@ -203,7 +273,10 @@ export function Delivery() {
     "Надёжная брендированная гофротара, мягкие игрушки — в дополнительной упаковке",
   ];
   const regions = [
-    { name: "ЮФО и Республика Крым", line: "бесплатно от 50 000 ₽" },
+    { name: "Краснодар и Краснодарский край", line: "бесплатно от 50 000 ₽" },
+    { name: "Ставропольский край и Республика Крым", line: "бесплатно от 50 000 ₽" },
+    { name: "Ростов-на-Дону и Ростовская область", line: "бесплатно от 50 000 ₽" },
+    { name: "Волгоград и Волгоградская область", line: "бесплатно от 50 000 ₽" },
     { name: "Европейская часть России", line: "бесплатно от 100 000 ₽" },
   ];
 
@@ -237,7 +310,7 @@ export function Delivery() {
           Бесплатная доставка
         </motion.p>
 
-        <div className="mx-auto mt-6 grid max-w-3xl gap-5 sm:grid-cols-2">
+        <div className="mx-auto mt-6 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {regions.map((r, i) => (
             <motion.div
               key={r.name}

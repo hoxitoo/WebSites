@@ -1,7 +1,14 @@
 import Hero from "@/components/Hero";
 import GiftScene from "@/components/GiftScene";
 import { Numbers, HowItWorks, CatalogTeaser } from "@/components/Sections";
-import { Filling, HrValue, WhyTrust, Delivery, TrustedBy } from "@/components/About";
+import {
+  Filling,
+  BusinessEffect,
+  HrValue,
+  WhyTrust,
+  Delivery,
+  TrustedBy,
+} from "@/components/About";
 import LeadForm from "@/components/LeadForm";
 import BotQr from "@/components/BotQr";
 import Footer from "@/components/Footer";
@@ -14,6 +21,7 @@ export default function Home() {
       <Hero />
       <GiftScene />
       <Filling />
+      <BusinessEffect />
       <Numbers />
       <HrValue />
       <HowItWorks />

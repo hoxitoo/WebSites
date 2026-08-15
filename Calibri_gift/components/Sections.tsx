@@ -123,10 +123,10 @@ export function HowItWorks() {
 /* ————— Тизер каталога (без цен — намеренно) ————— */
 export function CatalogTeaser() {
   const boxes = [
-    { label: "Картон", hue: "#7a2438" },
-    { label: "Жесть", hue: "#16203a" },
-    { label: "Текстиль", hue: "#5c1a2e" },
-    { label: "Наборы", hue: "#2a3752" },
+    { label: "Картон", hue: "#7a3a24" },
+    { label: "Жесть", hue: "#4a2e20" },
+    { label: "Текстиль", hue: "#6b2f2a" },
+    { label: "Наборы", hue: "#5a3a22" },
   ];
   return (
     <section className="warm-glow relative py-28">
@@ -149,7 +149,7 @@ export function CatalogTeaser() {
               whileHover={{ y: -8 }}
               className="group relative overflow-hidden rounded-2xl border border-cream/10 p-8"
               style={{
-                background: `linear-gradient(160deg, ${b.hue} 0%, #0e1526 120%)`,
+                background: `linear-gradient(160deg, ${b.hue} 0%, #2a1a14 120%)`,
               }}
             >
               {/* «размытые» силуэты подарков — интрига */}

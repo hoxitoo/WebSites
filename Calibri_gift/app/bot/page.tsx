@@ -19,7 +19,7 @@ export default function BotPage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #0e1526 50%, #090e1a 100%)," +
+            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #2a1a14 50%, #1b100c 100%)," +
             "radial-gradient(800px 500px at 50% 115%, rgba(122,36,56,0.4), transparent 60%)",
         }}
       />

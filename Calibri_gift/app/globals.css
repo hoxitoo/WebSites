@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* Палитра «зимняя ночь + тепло свечи» — бренд Колибри */
-  --color-night: #0e1526;
-  --color-night-deep: #090e1a;
-  --color-night-soft: #16203a;
+  /* Палитра «тёплый шоколад + свет камина» — по правке заказчицы
+     (имена токенов night* сохранены, чтобы не переписывать все компоненты) */
+  --color-night: #2a1a14;
+  --color-night-deep: #1b100c;
+  --color-night-soft: #3a251c;
   --color-bordeaux: #7a2438;
   --color-bordeaux-deep: #521626;
   --color-bordeaux-bright: #a03049;
   --color-gold: #e8b968;
   --color-gold-soft: #f3d9a4;
   --color-cream: #f7f3ec;
-  /* светлее прежнего (#9ba3b5) — контраст корпусного текста на тёмном (WCAG AA) */
-  --color-muted: #b6bdcb;
+  /* тёплый приглушённый — контраст корпусного текста на шоколадном (WCAG AA) */
+  --color-muted: #cbb9ac;
 
   --font-display: var(--font-playfair), "Playfair Display", serif;
   --font-body: var(--font-manrope), "Manrope", sans-serif;
@@ -62,15 +63,15 @@ body {
 /* Мягкая виньетка секций */
 .section-vignette {
   background:
-    radial-gradient(1200px 600px at 50% 0%, rgba(122, 36, 56, 0.14), transparent 65%),
-    radial-gradient(900px 500px at 50% 100%, rgba(232, 185, 104, 0.05), transparent 60%);
+    radial-gradient(1200px 600px at 50% 0%, rgba(140, 60, 40, 0.18), transparent 65%),
+    radial-gradient(900px 500px at 50% 100%, rgba(232, 185, 104, 0.07), transparent 60%);
 }
 
 /* «Зебра» ритма: чуть более светлая тёплая панель для чередующихся секций */
 .section-band {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 30%),
-    radial-gradient(1100px 520px at 50% 100%, rgba(20, 70, 55, 0.10), transparent 62%);
+    linear-gradient(180deg, rgba(255, 240, 220, 0.03), transparent 30%),
+    radial-gradient(1100px 520px at 50% 100%, rgba(122, 60, 30, 0.16), transparent 62%);
 }
 
 /* Тёплое свечение — оживляет «холодные» секции (амбер снизу) */

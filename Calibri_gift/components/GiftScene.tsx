@@ -29,8 +29,8 @@ const FRAME_COUNT = 101;
 // дальше держим финальный кадр — чтобы шары успели вылететь ДО появления карточек
 const VIDEO_END = 0.72;
 // фон сцены = тёмная навигация, совпадает с фоном самих кадров по краям
-const SCENE_BG = "#0b1322";
-const SCENE_BG_T = "rgba(11,19,34,0)";
+const SCENE_BG = "#1b100c";
+const SCENE_BG_T = "rgba(27,16,12,0)";
 const frameSrc = (i: number) =>
   asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
@@ -179,7 +179,7 @@ function StoryLine({
       style={{ opacity, y }}
       className="absolute inset-x-0 top-[10vh] z-20 px-6 text-center md:top-[12vh]"
     >
-      <Tag className="mx-auto max-w-3xl font-display text-2xl leading-snug text-cream [text-shadow:0_2px_28px_rgba(9,14,26,0.95),0_0_60px_rgba(9,14,26,0.6)] md:text-4xl">
+      <Tag className="mx-auto max-w-3xl font-display text-2xl leading-snug text-cream [text-shadow:0_2px_28px_rgba(27,16,12,0.95),0_0_60px_rgba(27,16,12,0.6)] md:text-4xl">
         {text}
       </Tag>
     </motion.div>
@@ -360,12 +360,12 @@ export default function GiftScene() {
         {/* сшивка с фоном страницы */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-10 h-36"
-          style={{ background: "linear-gradient(to bottom, #090e1a, transparent)" }}
+          style={{ background: "linear-gradient(to bottom, #1b100c, transparent)" }}
           aria-hidden
         />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-36"
-          style={{ background: "linear-gradient(to top, #090e1a, transparent)" }}
+          style={{ background: "linear-gradient(to top, #1b100c, transparent)" }}
           aria-hidden
         />
 
@@ -409,7 +409,7 @@ function CardOut({
   return (
     <motion.div
       style={{ opacity: progress, y, rotate }}
-      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(9,14,26,0.55)] backdrop-blur-md md:p-7"
+      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(27,16,12,0.55)] backdrop-blur-md md:p-7"
     >
       {children}
     </motion.div>

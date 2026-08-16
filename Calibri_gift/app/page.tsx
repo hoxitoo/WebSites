@@ -9,6 +9,7 @@ import {
   Delivery,
   TrustedBy,
 } from "@/components/About";
+import KidsStrip from "@/components/KidsStrip";
 import LeadForm from "@/components/LeadForm";
 import BotQr from "@/components/BotQr";
 import Footer from "@/components/Footer";
@@ -26,6 +27,7 @@ export default function Home() {
       <HrValue />
       <HowItWorks />
       <CatalogTeaser />
+      <KidsStrip />
       <WhyTrust />
       <TrustedBy />
       <Delivery />

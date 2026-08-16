@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 import Magnetic from "./Magnetic";
+import Lightbox, { type Shot } from "./Lightbox";
+import { asset } from "@/lib/asset";
 
 /* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) ————— */
 function Counter({
@@ -121,15 +123,25 @@ export function HowItWorks() {
 }
 
 /* ————— Тизер каталога (без цен — намеренно) ————— */
+
+// названия и порядок — по правке заказчицы; фото собраны из её каталога
+// скриптом scripts/extract-catalog.mjs
+const BOXES = [
+  { label: "Наборы", file: "tile-nabory.webp", hue: "#5a3a22",
+    alt: "Новогодний подарочный набор: коробка со сладостями, игрушки-овечки и открытка" },
+  { label: "Картонная упаковка", file: "tile-karton.webp", hue: "#7a3a24",
+    alt: "Подарок в картонной упаковке с новогодним рисунком" },
+  { label: "Текстильная упаковка", file: "tile-tekstil.webp", hue: "#6b2f2a",
+    alt: "Мягкая игрушка-овечка — подарок в текстильной упаковке" },
+  { label: "Комбинированная упаковка", file: "tile-kombi.webp", hue: "#4a2e20",
+    alt: "Подарок в комбинированной упаковке — туба с новогодним рисунком" },
+  { label: "Премиум упаковка", file: "tile-premium.webp", hue: "#52243a",
+    alt: "Премиальный подарочный набор в упаковке-матрёшке" },
+] as const;
+
 export function CatalogTeaser() {
-  // названия и порядок — по правке заказчицы
-  const boxes = [
-    { label: "Наборы", hue: "#5a3a22" },
-    { label: "Картонная упаковка", hue: "#7a3a24" },
-    { label: "Текстильная упаковка", hue: "#6b2f2a" },
-    { label: "Комбинированная упаковка", hue: "#4a2e20" },
-    { label: "Премиум упаковка", hue: "#52243a" },
-  ];
+  const [shot, setShot] = useState<Shot | null>(null);
+  const boxes = BOXES;
   return (
     <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
@@ -144,28 +156,45 @@ export function CatalogTeaser() {
 
         <div className="mt-14 grid grid-cols-2 gap-5 lg:grid-cols-5">
           {boxes.map((b, i) => (
-            <motion.div
+            <motion.button
               key={b.label}
+              type="button"
+              onClick={() =>
+                setShot({ src: asset(`/catalog/${b.file}`), alt: b.alt, caption: b.label })
+              }
               {...reveal}
               transition={{ ...reveal.transition, delay: i * 0.1 }}
               whileHover={{ y: -8 }}
-              // пятый плиток нечётный — на узких экранах растягиваем его
+              // пятая плитка нечётная — на узких экранах растягиваем её
               // на всю строку, иначе висит сиротой сбоку
-              className={`group relative overflow-hidden rounded-2xl border border-cream/10 p-6 ${
+              className={`group relative cursor-pointer overflow-hidden rounded-2xl border border-cream/10 p-4 text-center transition-colors duration-300 hover:border-gold/45 ${
                 i === boxes.length - 1 ? "col-span-2 lg:col-span-1" : ""
               }`}
               style={{
                 background: `linear-gradient(160deg, ${b.hue} 0%, #2a1a14 120%)`,
               }}
             >
-              {/* «размытые» силуэты подарков — интрига */}
-              <div className="mx-auto mb-5 h-20 w-20 rounded-xl bg-cream/10 blur-[6px] transition-all duration-500 group-hover:blur-[3px]" />
-              <p className="text-xs uppercase leading-relaxed tracking-[0.14em] text-cream/80">
+              {/* фото товара на светлой подложке — как карточка в каталоге */}
+              <span className="mb-4 block overflow-hidden rounded-xl bg-cream">
+                <img
+                  src={asset(`/catalog/${b.file}`)}
+                  alt={b.alt}
+                  loading="lazy"
+                  className="mx-auto h-36 w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.06] md:h-40"
+                />
+              </span>
+              {/* трекинг на узких экранах меньше: «КОМБИНИРОВАННАЯ» не влезала */}
+              <span className="block break-words text-xs uppercase leading-relaxed tracking-[0.07em] text-cream/85 group-hover:text-gold md:tracking-[0.14em]">
                 {b.label}
-              </p>
-            </motion.div>
+              </span>
+              <span className="mt-1 block text-[0.65rem] text-muted/70 transition-colors group-hover:text-gold/70">
+                нажмите, чтобы увеличить
+              </span>
+            </motion.button>
           ))}
         </div>
+
+        <Lightbox shot={shot} onClose={() => setShot(null)} />
 
         <motion.div {...reveal} className="mt-12">
           <Magnetic>

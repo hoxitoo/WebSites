@@ -31,6 +31,11 @@ const VIDEO_END = 0.72;
 // фон сцены = тёмная навигация, совпадает с фоном самих кадров по краям
 const SCENE_BG = "#1b100c";
 const SCENE_BG_T = "rgba(27,16,12,0)";
+// Коробка стоит не в середине кадра, а правее (её центр ≈ 0,575 ширины),
+// слева — пустое боке. Поэтому рисуем не весь кадр, а его часть: коробка
+// встаёт по центру экрана, лишний воздух слева уходит.
+const CROP_CX = 0.575;
+const CROP_W = 0.85;
 const frameSrc = (i: number) =>
   asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
@@ -177,9 +182,14 @@ function StoryLine({
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-x-0 top-[10vh] z-20 px-6 text-center md:top-[12vh]"
+      // отступ и кегль зависят и от высоты окна: на низком окне (панели
+      // браузера + таскбар) крупный текст съедал экран и налезал на коробку
+      className="absolute inset-x-0 top-[max(2.5vh,12px)] z-20 px-6 text-center"
     >
-      <Tag className="mx-auto max-w-3xl font-display text-2xl leading-snug text-cream [text-shadow:0_2px_28px_rgba(27,16,12,0.95),0_0_60px_rgba(27,16,12,0.6)] md:text-4xl">
+      <Tag
+        className="mx-auto max-w-3xl font-display leading-snug text-cream [text-shadow:0_2px_28px_rgba(27,16,12,0.95),0_0_60px_rgba(27,16,12,0.6)]"
+        style={{ fontSize: "clamp(1.05rem, 1.5vh + 1.1vw, 2.25rem)" }}
+      >
         {text}
       </Tag>
     </motion.div>
@@ -254,20 +264,28 @@ export default function GiftScene() {
         canvas.height = ch * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      const nw = img.naturalWidth;
-      const nh = img.naturalHeight;
-      // коробка вписана и уменьшена (×0.9) — воздух по краям + выше чёткость
-      // (меньше апскейл). Без blur — он и давал лаги на ПК.
-      const scale = Math.min(cw / nw, ch / nh) * 0.9;
-      const dw = nw * scale;
-      const dh = nh * scale;
+      // берём часть кадра с коробкой — так она оказывается по центру экрана
+      const sx = Math.round(img.naturalWidth * (CROP_CX - CROP_W / 2));
+      const sw = Math.round(img.naturalWidth * CROP_W);
+      const sh = img.naturalHeight;
+
+      // Верхнюю полосу отдаём заголовку сторителлинга. Без этого на низких
+      // окнах (браузер с панелями + таскбар) кадр занимал всю высоту и текст
+      // ложился прямо на коробку — заказчица это и увидела.
+      const band = Math.max(64, Math.min(ch * 0.24, 175));
+      const avail = ch - band;
+      // ×0.94 — воздух по краям и меньше апскейла (выше чёткость).
+      // Без blur — он и давал лаги на ПК.
+      const scale = Math.min(cw / sw, avail / sh) * 0.94;
+      const dw = sw * scale;
+      const dh = sh * scale;
       const dx = (cw - dw) / 2;
-      const dy = (ch - dh) / 2;
+      const dy = band + (avail - dh) / 2;
 
       // фон под кадр = тёмная навигация, совпадает с фоном самого кадра по краям
       ctx.fillStyle = SCENE_BG;
       ctx.fillRect(0, 0, cw, ch);
-      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.drawImage(img, sx, 0, sw, sh, dx, dy, dw, dh);
 
       // растушёвка краёв кадра в фон — чтобы не было резкого прямоугольника
       const F = Math.round(Math.min(dw, dh) * 0.14);
@@ -315,6 +333,12 @@ export default function GiftScene() {
 
   const glowOpacity = useTransform(p, [0.22, 0.45, 0.75, 1], [0, 0.5, 0.35, 0.25]);
 
+  // Подсказка и полоса прогресса. Без них сцена читалась как «зависла»:
+  // экран почти не меняется, и непонятно — листать, нажимать или ждать.
+  const hintOpacity = useTransform(p, [0, 0.02, 0.1, 0.14], [1, 1, 1, 0]);
+  const barScale = useTransform(p, [0, VIDEO_END], [0.02, 1]);
+  const barOpacity = useTransform(p, [0, 0.01, 0.94, 1], [0, 1, 1, 0]);
+
   // карточки выходят ПОСЛЕ того, как шары вылетели (видео завершается на VIDEO_END)
   const cardsProgress = [
     useTransform(p, [0.78, 0.86], [0, 1]),
@@ -323,13 +347,16 @@ export default function GiftScene() {
   ];
 
   return (
-    <div ref={wrapRef} id="story" className="relative h-[460vh]">
+    // 400vh вместо 460: сцена и так читалась как «долгая», а прокрутка
+    // на 3,6 экрана усиливала ощущение, что страница подвисла
+    <div ref={wrapRef} id="story" className="relative h-[400vh]">
       <div className="sticky top-0 flex h-screen flex-col items-center overflow-hidden bg-night-deep">
-        {/* постер до загрузки каркаса кадров */}
+        {/* постер до загрузки каркаса кадров — кадрируем так же, как канвас,
+            чтобы при подмене не было прыжка */}
         <img
           src={frameSrc(0)}
           alt=""
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+          className={`absolute inset-x-0 bottom-0 top-[18%] w-full object-contain transition-opacity duration-500 ${
             hasDrawn ? "opacity-0" : "opacity-100"
           }`}
           draggable={false}
@@ -379,6 +406,38 @@ export default function GiftScene() {
             as={i === 0 ? "h2" : "p"}
           />
         ))}
+
+        {/* Подсказка: что делать. Гаснет, как только человек начал листать.
+            На низком окне уезжает под заголовок — внизу там уже коробка. */}
+        <motion.div
+          style={{ opacity: hintOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-12 z-20 flex flex-col items-center gap-1 px-6 text-center [@media(max-height:620px)]:bottom-auto [@media(max-height:620px)]:top-[74px]"
+          aria-hidden
+        >
+          <span className="rounded-full bg-night-deep/70 px-4 py-1.5 text-[0.7rem] uppercase tracking-[0.24em] text-gold/95 backdrop-blur-sm">
+            Листайте — коробка откроется сама
+          </span>
+          {/* стрелку на низком окне убираем — там она уже упирается в коробку */}
+          <motion.span
+            animate={reduce ? undefined : { y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="text-gold/80 [@media(max-height:620px)]:hidden"
+          >
+            ↓
+          </motion.span>
+        </motion.div>
+
+        {/* полоса прогресса открытия — видно, что сцена живая и сколько осталось */}
+        <motion.div
+          style={{ opacity: barOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[3px] bg-cream/10"
+          aria-hidden
+        >
+          <motion.div
+            style={{ scaleX: barScale, transformOrigin: "left" }}
+            className="h-full bg-gold/80 shadow-[0_0_12px_rgba(232,185,104,0.8)]"
+          />
+        </motion.div>
 
         {/* карточки-смыслы над парящими подарками */}
         <div className="pointer-events-none absolute inset-x-0 top-[22%] z-20 flex flex-col items-center justify-center gap-3 px-6 md:top-[28%] md:flex-row md:gap-8">

@@ -122,11 +122,13 @@ export function HowItWorks() {
 
 /* ————— Тизер каталога (без цен — намеренно) ————— */
 export function CatalogTeaser() {
+  // названия и порядок — по правке заказчицы
   const boxes = [
-    { label: "Картон", hue: "#7a3a24" },
-    { label: "Жесть", hue: "#4a2e20" },
-    { label: "Текстиль", hue: "#6b2f2a" },
     { label: "Наборы", hue: "#5a3a22" },
+    { label: "Картонная упаковка", hue: "#7a3a24" },
+    { label: "Текстильная упаковка", hue: "#6b2f2a" },
+    { label: "Комбинированная упаковка", hue: "#4a2e20" },
+    { label: "Премиум упаковка", hue: "#52243a" },
   ];
   return (
     <section className="warm-glow relative py-28">
@@ -140,21 +142,27 @@ export function CatalogTeaser() {
           персональное коммерческое предложение.
         </motion.p>
 
-        <div className="mt-14 grid grid-cols-2 gap-5 md:grid-cols-4">
+        <div className="mt-14 grid grid-cols-2 gap-5 lg:grid-cols-5">
           {boxes.map((b, i) => (
             <motion.div
               key={b.label}
               {...reveal}
               transition={{ ...reveal.transition, delay: i * 0.1 }}
               whileHover={{ y: -8 }}
-              className="group relative overflow-hidden rounded-2xl border border-cream/10 p-8"
+              // пятый плиток нечётный — на узких экранах растягиваем его
+              // на всю строку, иначе висит сиротой сбоку
+              className={`group relative overflow-hidden rounded-2xl border border-cream/10 p-6 ${
+                i === boxes.length - 1 ? "col-span-2 lg:col-span-1" : ""
+              }`}
               style={{
                 background: `linear-gradient(160deg, ${b.hue} 0%, #2a1a14 120%)`,
               }}
             >
               {/* «размытые» силуэты подарков — интрига */}
-              <div className="mx-auto mb-6 h-24 w-24 rounded-xl bg-cream/10 blur-[6px] transition-all duration-500 group-hover:blur-[3px]" />
-              <p className="text-sm uppercase tracking-[0.2em] text-cream/80">{b.label}</p>
+              <div className="mx-auto mb-5 h-20 w-20 rounded-xl bg-cream/10 blur-[6px] transition-all duration-500 group-hover:blur-[3px]" />
+              <p className="text-xs uppercase leading-relaxed tracking-[0.14em] text-cream/80">
+                {b.label}
+              </p>
             </motion.div>
           ))}
         </div>

@@ -15,9 +15,6 @@ type Base = {
   title: string;
   hint?: string; // пояснение под вопросом (мелким текстом)
   when?: (a: Record<string, string>) => boolean;
-  // от какого ответа зависит when: пока он не дан, шаг считаем в общем числе
-  // вопросов (иначе счётчик «из N» скакал бы посреди анкеты)
-  dependsOn?: string;
 };
 type Step =
   | (Base & { type: "buttons"; options: readonly string[] })
@@ -80,7 +77,6 @@ const QUIZ: readonly Step[] = [
     title: "Хотите подчеркнуть, что подарок — от вашей компании?",
     options: ["Нужна персонализация", "Не нужна персонализация"],
     when: BIG_ORDER,
-    dependsOn: "kids",
   },
   {
     // шаг 2: где именно разместить логотип
@@ -98,14 +94,14 @@ const QUIZ: readonly Step[] = [
       "Подскажите варианты",
     ],
     when: WANTS_BRANDING,
-    dependsOn: "personalization",
   },
   {
-    // вопрос про сотрудников заказчица попросила перенести в конец
+    // Правка заказчицы: количество сотрудников убрали, спрашиваем только
+    // сам факт. Ключ прежний — колонки в таблице не сдвигаются.
     key: "employees",
     type: "buttons",
-    title: "А сколько сотрудников хотите поздравить в этом году?",
-    options: ["до 100", "100–300", "300–1000", "1000 и больше"],
+    title: "Нужны подарки для сотрудников и партнёров?",
+    options: ["Да", "Нет"],
   },
   {
     key: "city",
@@ -142,31 +138,14 @@ function prevVisible(from: number, a: Record<string, string>) {
   return 0;
 }
 
-// Учитывать ли шаг в счётчике «из N». Условный шаг, судьба которого ещё
-// не решена (ответ из dependsOn не дан, а сам «родительский» шаг показывается),
-// считаем оптимистично — иначе итог прыгал бы вверх («из 7» → «из 8»).
-// Если условие не сработало, итог уменьшится — это читается нормально.
-function counted(i: number, a: Record<string, string>): boolean {
-  const q = QUIZ[i];
-  if (!q.when) return true;
-  if (shown(i, a)) return true;
-  if (q.dependsOn && !a[q.dependsOn]) {
-    const p = QUIZ.findIndex((s) => s.key === q.dependsOn);
-    return p < 0 || counted(p, a);
-  }
-  return false;
-}
-
-// нумерация «Вопрос N из M» — только по учитываемым шагам
+// «Вопрос N из M»: знаменатель — всегда полное число шагов квиза, он
+// не меняется по ходу заполнения. Раньше он пересчитывался по видимым
+// шагам, и когда условный вопрос отпадал, счётчик прыгал «4 из 6» →
+// «5 из 5». Заказчица это заметила и попросила «5 из 6».
 function progress(step: number, a: Record<string, string>) {
-  let total = 0;
   let current = 0;
-  for (let i = 0; i < TOTAL; i++) {
-    if (!counted(i, a)) continue;
-    total++;
-    if (i <= step) current = total;
-  }
-  return { current, total };
+  for (let i = 0; i <= step && i < TOTAL; i++) if (shown(i, a)) current++;
+  return { current, total: TOTAL };
 }
 
 type SendState = "idle" | "sending" | "error";

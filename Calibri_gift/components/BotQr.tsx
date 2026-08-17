@@ -27,7 +27,7 @@ export default function BotQr() {
             target="_blank"
             rel="noopener noreferrer"
             {...reveal}
-            className="mx-auto block rounded-2xl bg-cream p-4 shadow-[0_20px_60px_rgba(27,16,12,0.5)]"
+            className="mx-auto block rounded-2xl bg-cream p-4 shadow-[0_20px_60px_rgba(8,14,30,0.5)]"
           >
             <img
               src={asset("/bot-qr.png")}

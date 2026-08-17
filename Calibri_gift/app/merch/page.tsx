@@ -16,7 +16,7 @@ export default function MerchPage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #2a1a14 50%, #1b100c 100%)",
+            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #16233d 50%, #101c33 100%)",
         }}
       />
       <Snow density={0.6} />

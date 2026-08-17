@@ -29,8 +29,8 @@ const FRAME_COUNT = 101;
 // дальше держим финальный кадр — чтобы шары успели вылететь ДО появления карточек
 const VIDEO_END = 0.72;
 // фон сцены = тёмная навигация, совпадает с фоном самих кадров по краям
-const SCENE_BG = "#1b100c";
-const SCENE_BG_T = "rgba(27,16,12,0)";
+const SCENE_BG = "#101c33";
+const SCENE_BG_T = "rgba(16,28,51,0)";
 // Коробка стоит не в середине кадра, а правее (её центр ≈ 0,575 ширины),
 // слева — пустое боке. Поэтому рисуем не весь кадр, а его часть: коробка
 // встаёт по центру экрана, лишний воздух слева уходит.
@@ -187,7 +187,7 @@ function StoryLine({
       className="absolute inset-x-0 top-[max(2.5vh,12px)] z-20 px-6 text-center"
     >
       <Tag
-        className="mx-auto max-w-3xl font-display leading-snug text-cream [text-shadow:0_2px_28px_rgba(27,16,12,0.95),0_0_60px_rgba(27,16,12,0.6)]"
+        className="mx-auto max-w-3xl font-display leading-snug text-cream [text-shadow:0_2px_28px_rgba(8,14,30,0.95),0_0_60px_rgba(8,14,30,0.6)]"
         style={{ fontSize: "clamp(1.05rem, 1.5vh + 1.1vw, 2.25rem)" }}
       >
         {text}
@@ -287,8 +287,26 @@ export default function GiftScene() {
       ctx.fillRect(0, 0, cw, ch);
       ctx.drawImage(img, sx, 0, sw, sh, dx, dy, dw, dh);
 
-      // растушёвка краёв кадра в фон — чтобы не было резкого прямоугольника
-      const F = Math.round(Math.min(dw, dh) * 0.14);
+      // Растворяем края кадра в фоне: заказчица увидела рамку («стало видно
+      // границы»). Эллиптическая виньетка по форме кадра гасит и углы, и
+      // середины сторон сразу — одними полосами углы не закрывались.
+      // Цвет тот же, что фон секции, поэтому стык исчезает независимо от
+      // того, насколько боке в кадре светлее фона страницы.
+      ctx.save();
+      ctx.translate(dx + dw / 2, dy + dh / 2);
+      ctx.scale(dw / dh, 1); // круг → эллипс по пропорциям кадра
+      const R = (dh / 2) * 1.04;
+      const vg = ctx.createRadialGradient(0, 0, R * 0.52, 0, 0, R);
+      vg.addColorStop(0, SCENE_BG_T);
+      vg.addColorStop(0.72, SCENE_BG_T);
+      vg.addColorStop(1, SCENE_BG);
+      ctx.fillStyle = vg;
+      ctx.fillRect(-dh, -dh, dh * 2, dh * 2); // в масштабе покрывает весь кадр
+      ctx.restore();
+
+      // и добавочные полосы по самим кромкам — на случай очень широкого окна,
+      // где эллипс не доходит до боковых краёв
+      const F = Math.round(Math.min(dw, dh) * 0.1);
       const strip = (
         x: number, y: number, w: number, h: number,
         x0: number, y0: number, x1: number, y1: number,
@@ -387,12 +405,12 @@ export default function GiftScene() {
         {/* сшивка с фоном страницы */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-10 h-36"
-          style={{ background: "linear-gradient(to bottom, #1b100c, transparent)" }}
+          style={{ background: "linear-gradient(to bottom, #101c33, transparent)" }}
           aria-hidden
         />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-36"
-          style={{ background: "linear-gradient(to top, #1b100c, transparent)" }}
+          style={{ background: "linear-gradient(to top, #101c33, transparent)" }}
           aria-hidden
         />
 
@@ -468,7 +486,7 @@ function CardOut({
   return (
     <motion.div
       style={{ opacity: progress, y, rotate }}
-      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(27,16,12,0.55)] backdrop-blur-md md:p-7"
+      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(8,14,30,0.55)] backdrop-blur-md md:p-7"
     >
       {children}
     </motion.div>

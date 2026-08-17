@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 import Magnetic from "./Magnetic";
 import Lightbox, { type Shot } from "./Lightbox";
+import CatalogRequest from "./CatalogRequest";
 import { asset } from "@/lib/asset";
 
 /* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) ————— */
@@ -127,15 +128,15 @@ export function HowItWorks() {
 // названия и порядок — по правке заказчицы; фото собраны из её каталога
 // скриптом scripts/extract-catalog.mjs
 const BOXES = [
-  { label: "Наборы", file: "tile-nabory.webp", hue: "#5a3a22",
+  { label: "Наборы", file: "tile-nabory.webp", hue: "#22375c",
     alt: "Новогодний подарочный набор: коробка со сладостями, игрушки-овечки и открытка" },
-  { label: "Картонная упаковка", file: "tile-karton.webp", hue: "#7a3a24",
+  { label: "Картонная упаковка", file: "tile-karton.webp", hue: "#2b4470",
     alt: "Подарок в картонной упаковке с новогодним рисунком" },
-  { label: "Текстильная упаковка", file: "tile-tekstil.webp", hue: "#6b2f2a",
+  { label: "Текстильная упаковка", file: "tile-tekstil.webp", hue: "#1e3557",
     alt: "Мягкая игрушка-овечка — подарок в текстильной упаковке" },
-  { label: "Комбинированная упаковка", file: "tile-kombi.webp", hue: "#4a2e20",
+  { label: "Комбинированная упаковка", file: "tile-kombi.webp", hue: "#2a3d63",
     alt: "Подарок в комбинированной упаковке — туба с новогодним рисунком" },
-  { label: "Премиум упаковка", file: "tile-premium.webp", hue: "#52243a",
+  { label: "Премиум упаковка", file: "tile-premium.webp", hue: "#3a2b52",
     alt: "Премиальный подарочный набор в упаковке-матрёшке" },
 ] as const;
 
@@ -171,7 +172,7 @@ export function CatalogTeaser() {
                 i === boxes.length - 1 ? "col-span-2 lg:col-span-1" : ""
               }`}
               style={{
-                background: `linear-gradient(160deg, ${b.hue} 0%, #2a1a14 120%)`,
+                background: `linear-gradient(160deg, ${b.hue} 0%, #16233d 120%)`,
               }}
             >
               {/* фото товара на светлой подложке — как карточка в каталоге */}
@@ -197,14 +198,19 @@ export function CatalogTeaser() {
         <Lightbox shot={shot} onClose={() => setShot(null)} />
 
         <motion.div {...reveal} className="mt-12">
-          <Magnetic>
-            <a
-              href="#lead"
-              className="inline-block rounded-full bg-bordeaux px-8 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
-            >
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Magnetic>
+              <a
+                href="#lead"
+                className="inline-block rounded-full bg-bordeaux px-7 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
+              >
+                Получить индивидуальное предложение
+              </a>
+            </Magnetic>
+            <CatalogRequest className="cursor-pointer rounded-full border border-gold/50 px-7 py-4 font-medium text-gold transition-colors duration-300 hover:bg-gold/10">
               Получить каталог на почту
-            </a>
-          </Magnetic>
+            </CatalogRequest>
+          </div>
         </motion.div>
       </div>
     </section>

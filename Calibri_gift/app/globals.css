@@ -1,19 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  /* Палитра «тёплый шоколад + свет камина» — по правке заказчицы
-     (имена токенов night* сохранены, чтобы не переписывать все компоненты) */
-  --color-night: #2a1a14;
-  --color-night-deep: #1b100c;
-  --color-night-soft: #3a251c;
+  /* Палитра «зимняя ночь» — заказчица вернула синий, но попросила
+     «не такой тёмный», поэтому базовый тон осветлён на два шага
+     против первой версии. Углы кадров в сцене с подарком — #050c1c,
+     то есть синий ещё и совпадает с ними по тону (шоколадный не совпадал,
+     и на стыке была видна рамка кадра). */
+  --color-night: #16233d;
+  --color-night-deep: #101c33;
+  --color-night-soft: #1f2f4d;
   --color-bordeaux: #7a2438;
   --color-bordeaux-deep: #521626;
   --color-bordeaux-bright: #a03049;
   --color-gold: #e8b968;
   --color-gold-soft: #f3d9a4;
   --color-cream: #f7f3ec;
-  /* тёплый приглушённый — контраст корпусного текста на шоколадном (WCAG AA) */
-  --color-muted: #cbb9ac;
+  /* холодный приглушённый — контраст корпусного текста на синем (WCAG AA) */
+  --color-muted: #b6c2d6;
 
   --font-display: var(--font-playfair), "Playfair Display", serif;
   --font-body: var(--font-manrope), "Manrope", sans-serif;
@@ -63,15 +66,15 @@ body {
 /* Мягкая виньетка секций */
 .section-vignette {
   background:
-    radial-gradient(1200px 600px at 50% 0%, rgba(140, 60, 40, 0.18), transparent 65%),
+    radial-gradient(1200px 600px at 50% 0%, rgba(46, 74, 120, 0.28), transparent 65%),
     radial-gradient(900px 500px at 50% 100%, rgba(232, 185, 104, 0.07), transparent 60%);
 }
 
-/* «Зебра» ритма: чуть более светлая тёплая панель для чередующихся секций */
+/* «Зебра» ритма: чуть более светлая панель для чередующихся секций */
 .section-band {
   background:
-    linear-gradient(180deg, rgba(255, 240, 220, 0.03), transparent 30%),
-    radial-gradient(1100px 520px at 50% 100%, rgba(122, 60, 30, 0.16), transparent 62%);
+    linear-gradient(180deg, rgba(214, 230, 255, 0.04), transparent 30%),
+    radial-gradient(1100px 520px at 50% 100%, rgba(40, 66, 112, 0.3), transparent 62%);
 }
 
 /* Тёплое свечение — оживляет «холодные» секции (амбер снизу) */

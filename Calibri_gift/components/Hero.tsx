@@ -3,21 +3,23 @@
 import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
 import Magnetic from "./Magnetic";
+import CatalogRequest from "./CatalogRequest";
 import { asset } from "@/lib/asset";
 
-const lines = ["Вы дарите", "не подарок.", "Вы дарите заботу."];
+// текст заголовка и подзаголовка — дословно по правке заказчицы
+const lines = ["Вы дарите самое важное —", "заботу и внимание"];
 
 export default function Hero() {
   const reduce = useReducedMotion();
   return (
     <section className="relative flex min-h-svh flex-col overflow-hidden">
-      {/* фон: зимняя ночь (тёплое зелёно-золотое свечение внизу — под бренд) */}
+      {/* фон: зимняя ночь — заказчица вернула синюю палитру */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1400px 800px at 70% -10%, #3a251c 0%, #2a1a14 45%, #1b100c 100%)," +
-            "radial-gradient(900px 500px at 30% 115%, rgba(196,106,44,0.28), transparent 60%)",
+            "radial-gradient(1400px 800px at 70% -10%, #1f2f4d 0%, #16233d 45%, #101c33 100%)," +
+            "radial-gradient(900px 500px at 30% 115%, rgba(60,104,168,0.32), transparent 60%)",
         }}
       />
       {/* овечка с подарком — бледная подложка под текстом */}
@@ -32,7 +34,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(27,16,12,0.55) 0%, rgba(27,16,12,0.35) 55%, #1b100c 100%)",
+            "linear-gradient(to bottom, rgba(8,14,30,0.55) 0%, rgba(8,14,30,0.35) 55%, #101c33 100%)",
         }}
         aria-hidden
       />
@@ -57,16 +59,13 @@ export default function Hero() {
             alt="Торговая компания «Колибри»"
             width={964}
             height={400}
-            className="h-11 w-auto md:h-14"
+            className="h-12 w-auto sm:h-14 md:h-20"
             draggable={false}
           />
         </a>
-        <a
-          href="#lead"
-          className="rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10"
-        >
+        <CatalogRequest className="cursor-pointer rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
           Получить каталог
-        </a>
+        </CatalogRequest>
       </motion.header>
 
       {/* контент */}
@@ -81,7 +80,7 @@ export default function Hero() {
             Новогодние корпоративные подарки · 11 лет на рынке
           </motion.p>
 
-          <h1 className="font-display text-5xl leading-[1.08] md:text-7xl">
+          <h1 className="font-display text-[2rem] leading-[1.12] sm:text-5xl sm:leading-[1.08] md:text-7xl">
             {lines.map((line, i) => (
               <span key={i} className="block overflow-hidden">
                 <motion.span
@@ -94,9 +93,9 @@ export default function Hero() {
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 >
-                  {i === 2 ? (
+                  {i === 1 ? (
                     <>
-                      Вы дарите <span className="candle-sweep">заботу</span>.
+                      <span className="candle-sweep">заботу</span> и внимание
                     </>
                   ) : (
                     line
@@ -110,11 +109,14 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-7 max-w-xl text-lg leading-relaxed text-muted"
+            className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-muted md:mt-7 md:text-lg"
           >
-            Подарок — это знак заботы и признания: так вы показываете, что
-            цените своих сотрудников. А мы берём на себя всё: подбор, контроль
-            качества, соблюдение сроков и учёт ваших пожеланий.{" "}
+            Новогодний подарок — это проявление традиционных ценностей:
+            заботы о людях, внимания к семьям сотрудников и их детям.
+            <br className="hidden md:block" />{" "}
+            Мы бережно относимся к времени наших клиентов, поэтому берём
+            на себя всё: подбор, контроль качества, соблюдение сроков и учёт
+            ваших пожеланий.{" "}
             <span className="text-gold/90">
               Индивидуальный подход — в основе нашей работы.
             </span>
@@ -124,22 +126,21 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.6 }}
-            className="mt-10 flex flex-wrap items-center gap-5"
+            className="mt-7 flex flex-wrap items-center gap-4 md:mt-10 md:gap-5"
           >
+            {/* Правка заказчицы: две разные кнопки. За каталогом — короткое
+                окошко с контактами, за персональным КП — анкета как в боте. */}
             <Magnetic>
               <a
                 href="#lead"
-                className="inline-block rounded-full bg-bordeaux px-8 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
+                className="inline-block rounded-full bg-bordeaux px-7 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
               >
-                Получить каталог подарков
+                Получить индивидуальное предложение
               </a>
             </Magnetic>
-            <a
-              href="#story"
-              className="text-sm text-muted underline-offset-4 transition-colors hover:text-cream hover:underline"
-            >
-              Почему это больше, чем подарок ↓
-            </a>
+            <CatalogRequest className="cursor-pointer rounded-full border border-gold/50 px-7 py-4 font-medium text-gold transition-colors duration-300 hover:bg-gold/10">
+              Получить каталог
+            </CatalogRequest>
           </motion.div>
         </div>
       </div>

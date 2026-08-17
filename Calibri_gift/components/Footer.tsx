@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { asset } from "@/lib/asset";
+import CatalogRequest from "./CatalogRequest";
 
 export default function Footer() {
   return (
@@ -70,12 +71,9 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col justify-between text-sm md:items-end">
-          <a
-            href="#lead"
-            className="mx-auto inline-block rounded-full border border-gold/40 px-6 py-2.5 text-gold transition-colors duration-200 hover:bg-gold/10 md:mx-0"
-          >
+          <CatalogRequest className="mx-auto cursor-pointer rounded-full border border-gold/40 px-6 py-2.5 text-gold transition-colors duration-200 hover:bg-gold/10 md:mx-0">
             Получить каталог
-          </a>
+          </CatalogRequest>
           <p className="mt-6 text-xs leading-relaxed text-muted/60">
             © {new Date().getFullYear()} ООО ТК «Колибри»
             <br />

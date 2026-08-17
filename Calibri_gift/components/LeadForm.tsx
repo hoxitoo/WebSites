@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Magnetic from "./Magnetic";
+import { sendLead } from "@/lib/sendLead";
 
 /**
  * Квиз-анкета — те же вопросы и в том же порядке, что задаёт бот
@@ -186,26 +187,9 @@ export default function LeadForm() {
     setSend("sending");
     const form = e.currentTarget;
     const contact = Object.fromEntries(new FormData(form).entries());
-    const payload = { ...answers, ...contact, source: "сайт" };
+    const payload = { ...answers, ...contact } as Record<string, string>;
     try {
-      const directUrl = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL;
-      if (directUrl) {
-        // статический хостинг (GitHub Pages): шлём в Apps Script напрямую.
-        // Без Content-Type json — иначе CORS-preflight, который GAS не умеет;
-        // ответ непрозрачный (no-cors), успех считаем оптимистично
-        await fetch(directUrl, {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify(payload),
-        });
-      } else {
-        const res = await fetch("/api/lead", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error("bad status");
-      }
+      await sendLead(payload);
       setSend("idle");
       setStep(TOTAL + 1);
     } catch {

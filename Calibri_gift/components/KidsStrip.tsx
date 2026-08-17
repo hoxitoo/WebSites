@@ -104,12 +104,12 @@ export default function KidsStrip() {
         {/* края растворяются в фоне, чтобы лента не обрубалась резко */}
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16"
-          style={{ background: "linear-gradient(to right, #1b100c, transparent)" }}
+          style={{ background: "linear-gradient(to right, #101c33, transparent)" }}
           aria-hidden
         />
         <div
           className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16"
-          style={{ background: "linear-gradient(to left, #1b100c, transparent)" }}
+          style={{ background: "linear-gradient(to left, #101c33, transparent)" }}
           aria-hidden
         />
       </motion.div>

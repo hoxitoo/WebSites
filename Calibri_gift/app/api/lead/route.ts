@@ -27,6 +27,8 @@ export async function POST(req: Request) {
       branding: s(data.branding, 100),
       city: s(data.city, 100),
       deliveryDate: s(data.deliveryDate, 100),
+      // короткая форма «Получить каталог» помечает заявку этим полем
+      comment: s(data.comment, 500),
       source: "сайт",
     };
 

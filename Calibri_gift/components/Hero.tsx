@@ -40,6 +40,47 @@ export default function Hero() {
       />
       <Snow density={1} />
 
+      {/* Правка заказчицы: «контакты нужно и сверху и снизу». Раньше сверху
+          был только телефон, и на телефоне он вообще прятался — она этого
+          не увидела. Теперь полоса с обоими номерами, почтой и мессенджерами
+          стоит самой первой строкой и видна на любом экране. */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-20 border-b border-cream/10 bg-night-deep/45 px-4 py-2.5 backdrop-blur-sm"
+      >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[0.78rem] text-cream/80 sm:gap-x-6 sm:text-sm">
+          <a href="tel:+78612506551" className="transition-colors hover:text-gold">
+            8 (861) 250-65-51
+          </a>
+          <a href="tel:+79882461551" className="transition-colors hover:text-gold">
+            8 (988) 246-15-51
+          </a>
+          <a
+            href="mailto:info@kolibri-ug.ru"
+            className="transition-colors hover:text-gold"
+          >
+            info@kolibri-ug.ru
+          </a>
+          <span className="hidden text-cream/25 sm:inline">·</span>
+          {[
+            { label: "WhatsApp", href: "https://api.whatsapp.com/send/?phone=79882461551" },
+            { label: "Telegram", href: "https://telegram.me/+f0vDIlkA2yY3ODIy" },
+          ].map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-gold"
+            >
+              {s.label}
+            </a>
+          ))}
+        </div>
+      </motion.div>
+
       {/* шапка */}
       <motion.header
         initial={{ opacity: 0, y: -16 }}
@@ -63,20 +104,10 @@ export default function Hero() {
             draggable={false}
           />
         </a>
-        {/* правка заказчицы: «контакты нужно и сверху и снизу».
-            На телефоне номер прячем — там он занял бы всю строку рядом
-            с крупным логотипом; вместо него та же кнопка каталога. */}
-        <div className="flex items-center gap-5">
-          <a
-            href="tel:+78612506551"
-            className="hidden text-sm text-cream/85 transition-colors hover:text-gold sm:block"
-          >
-            8 (861) 250-65-51
-          </a>
-          <CatalogRequest className="cursor-pointer whitespace-nowrap rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
-            Получить каталог
-          </CatalogRequest>
-        </div>
+        {/* номер стоит строкой выше, в полосе контактов — здесь не дублируем */}
+        <CatalogRequest className="cursor-pointer whitespace-nowrap rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
+          Получить каталог
+        </CatalogRequest>
       </motion.header>
 
       {/* контент */}

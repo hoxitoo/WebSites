@@ -106,8 +106,8 @@ export default function CareDept() {
               transition={{ ...reveal.transition, delay: (i % 2) * 0.1 }}
               className="rounded-2xl border border-night/10 bg-cream/85 p-6 shadow-[0_10px_36px_rgba(16,28,51,0.08)]"
             >
-              <h3 className="font-display text-xl text-bordeaux">{z.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-night/75">{z.text}</p>
+              <h3 className="font-display text-xl text-bordeaux md:text-2xl">{z.title}</h3>
+              <p className="mt-2 text-base leading-relaxed text-night/75">{z.text}</p>
             </motion.div>
           ))}
         </div>
@@ -115,19 +115,25 @@ export default function CareDept() {
         <motion.p {...reveal} className="mt-14 text-xs uppercase tracking-[0.3em] text-bordeaux">
           Индивидуальный подарок — по шагам
         </motion.p>
-        <div className="mt-7 grid gap-x-6 gap-y-7 text-left sm:grid-cols-2 lg:grid-cols-5">
+        {/* Правка: «в этом блоке мелкий текст слишком (бриф, дизайн и т.д.)» —
+            названия шагов и пояснения увеличены, номер вынесен отдельной
+            крупной цифрой. Поэтому и колонок теперь три, а не пять: на пять
+            текст такого размера уже не влезал. */}
+        <div className="mt-8 grid gap-x-8 gap-y-8 text-left sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map(([title, text], i) => (
             <motion.div
               key={title}
               {...reveal}
               transition={{ ...reveal.transition, delay: i * 0.07 }}
-              // пятый шаг на узких экранах занимает всю строку — иначе висит сиротой
-              className="border-t-2 border-bordeaux/25 pt-4 sm:last:col-span-2 lg:last:col-span-1"
+              className="border-t-2 border-bordeaux/25 pt-4"
             >
-              <p className="font-display text-sm text-bordeaux">
-                {String(i + 1).padStart(2, "0")} · {title}
+              <p className="font-display text-3xl leading-none text-bordeaux/45">
+                {String(i + 1).padStart(2, "0")}
               </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-night/70">{text}</p>
+              <h3 className="mt-2 font-display text-xl text-bordeaux md:text-2xl">
+                {title}
+              </h3>
+              <p className="mt-2 text-base leading-relaxed text-night/75">{text}</p>
             </motion.div>
           ))}
         </div>
@@ -142,8 +148,8 @@ export default function CareDept() {
           <dl className="mt-5 divide-y divide-night/10">
             {BRANDING.map(([what, qty]) => (
               <div key={what} className="flex items-baseline justify-between gap-4 py-2.5">
-                <dt className="text-sm text-night-deep">{what}</dt>
-                <dd className="whitespace-nowrap text-sm font-semibold text-bordeaux">{qty}</dd>
+                <dt className="text-base text-night-deep">{what}</dt>
+                <dd className="whitespace-nowrap text-base font-semibold text-bordeaux">{qty}</dd>
               </div>
             ))}
           </dl>

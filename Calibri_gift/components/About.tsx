@@ -205,15 +205,16 @@ export function HrValue() {
 
   return (
     <section className="section-band relative py-28">
-      <div className="mx-auto max-w-6xl px-6 md:px-12">
-        {/* левое editorial-выравнивание — ломает монотонность центрованных секций */}
+      {/* заказчица: «всегда давайте всё центрировать по центру» —
+          эта секция была единственной с левым выравниванием */}
+      <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
         <motion.p {...reveal} className="kicker">
           Почему это удобно HR
         </motion.p>
-        <motion.h2 {...reveal} className="mt-3 max-w-2xl font-display text-3xl md:text-5xl">
+        <motion.h2 {...reveal} className="mx-auto mt-3 max-w-2xl font-display text-3xl md:text-5xl">
           Декабрь <span className="candle-sweep">без лишней суеты</span>
         </motion.h2>
-        <motion.p {...reveal} className="mt-5 max-w-2xl leading-relaxed text-muted">
+        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted">
           Подбор, логистику и контроль сроков берём на себя. Ваши пожелания —
           наша реализация: вы обозначаете детали, мы отвечаем за исполнение.
         </motion.p>

@@ -49,7 +49,9 @@ export default function Footer() {
             </a>
           </p>
           <p className="mt-2 text-xs text-muted/70">
-            Краснодар, ул. Сормовская, 1/2 · доставка по всей России
+            Производство: Краснодар, ул. Уральская, 104
+            <br />
+            Доставка по всей России
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
             {[

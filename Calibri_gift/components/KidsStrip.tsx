@@ -54,8 +54,9 @@ export default function KidsStrip() {
           {...reveal}
           className="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-muted"
         >
-          Фотографии из нашего каталога: те самые подарки — в руках детей.
-          Именно это и получают дома дети ваших сотрудников.
+          Настоящее чудо в кадре: дети держат подарки из нашего каталога.
+          Именно такую радость вы можете подарить семьям своих сотрудников.
+          И это только маленькая часть нашей коллекции 2027 года.
         </motion.p>
 
         <div className="mt-10 flex items-center justify-between">

@@ -3,7 +3,22 @@
 import { motion } from "motion/react";
 import { asset } from "@/lib/asset";
 
+/**
+ * Два QR-кода на бота «Отдел заботы Деда Мороза» — Telegram и MAX.
+ *
+ * Сделано по её же макету третьей страницы каталога: «ОТСКАНИРУЙТЕ QR-КОД
+ * или напишите „старт“ в чат — НАЧНЁМ ПОДБОР», два кода рядом.
+ * Коды рисует scripts/make-qr.mjs — при смене ссылки на бота
+ * достаточно перегенерировать.
+ */
+
 const TG_URL = process.env.NEXT_PUBLIC_TG_BOT_URL ?? "https://t.me/kolibri_care_bot";
+const MAX_URL = process.env.NEXT_PUBLIC_MAX_BOT_URL ?? "https://max.ru/id2312230564_bot";
+
+const MESSENGERS = [
+  { name: "Telegram", url: TG_URL, qr: "/bot-qr.png" },
+  { name: "MAX", url: MAX_URL, qr: "/max-qr.png" },
+] as const;
 
 const reveal = {
   initial: { opacity: 0, y: 36 },
@@ -12,55 +27,63 @@ const reveal = {
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-/**
- * QR на бота «Отдел заботы Деда Мороза» — внизу страницы.
- * Наведите камеру телефона → откроется чат с ботом.
- */
 export default function BotQr() {
   return (
     <section className="section-vignette relative py-24">
-      <div className="mx-auto max-w-4xl px-6 md:px-12">
-        <div className="grid items-center gap-10 rounded-3xl border border-gold/20 bg-night-soft/40 p-8 md:grid-cols-[auto_1fr] md:p-12">
-          {/* QR на светлой плашке — чтобы камера уверенно считывала */}
-          <motion.a
-            href={TG_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            {...reveal}
-            className="mx-auto block rounded-2xl bg-cream p-4 shadow-[0_20px_60px_rgba(8,14,30,0.5)]"
-          >
-            <img
-              src={asset("/bot-qr.png")}
-              alt="QR-код: Отдел заботы Деда Мороза в Telegram"
-              width={200}
-              height={200}
-              className="h-44 w-44 md:h-52 md:w-52"
-              loading="lazy"
-              draggable={false}
-            />
-          </motion.a>
+      <div className="mx-auto max-w-4xl px-6 text-center md:px-12">
+        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-gold/85">
+          Отдел заботы Деда Мороза
+        </motion.p>
+        <motion.h2
+          {...reveal}
+          className="mx-auto mt-4 max-w-2xl font-display text-3xl leading-tight md:text-5xl"
+        >
+          Отсканируйте QR-код — и <span className="glow-gold">начнём подбор</span>
+        </motion.h2>
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
+          Или просто напишите «старт» в чат. Ответите на несколько коротких
+          вопросов — и мы подберём три варианта под ваш бюджет и сроки.
+        </motion.p>
 
-          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.12 }} className="text-center md:text-left">
-            <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold/80">
-              Отдел заботы Деда Мороза
-            </p>
-            <h2 className="font-display text-3xl leading-tight md:text-4xl">
-              Наведите камеру — и <span className="glow-gold">начнём</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-muted md:mx-0">
-              Несколько вопросов в Telegram — и мы соберём каталог и персональное
-              предложение под вашу компанию. Пара минут, ни к чему не обязывает.
-            </p>
-            <a
-              href={TG_URL}
+        <div className="mt-10 flex flex-wrap items-start justify-center gap-8 sm:gap-14">
+          {MESSENGERS.map((m, i) => (
+            <motion.a
+              key={m.name}
+              href={m.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-block rounded-full border border-gold/40 px-6 py-3 text-sm text-gold transition-colors duration-200 hover:bg-gold/10"
+              {...reveal}
+              transition={{ ...reveal.transition, delay: i * 0.12 }}
+              className="group block"
             >
-              Открыть бота в Telegram
-            </a>
-          </motion.div>
+              {/* QR на светлой плашке — так камера считывает уверенно */}
+              <span className="block rounded-2xl bg-cream p-3.5 shadow-[0_20px_60px_rgba(8,14,30,0.5)] transition-transform duration-300 group-hover:-translate-y-1.5">
+                <img
+                  src={asset(m.qr)}
+                  alt={`QR-код: Отдел заботы Деда Мороза в ${m.name}`}
+                  width={200}
+                  height={200}
+                  className="h-40 w-40 md:h-48 md:w-48"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </span>
+              <span className="mt-4 block text-sm uppercase tracking-[0.2em] text-cream/85 group-hover:text-gold">
+                {m.name}
+              </span>
+            </motion.a>
+          ))}
         </div>
+
+        <motion.p {...reveal} className="mt-9 text-sm text-muted">
+          Не пользуетесь мессенджерами?{" "}
+          <a
+            href="#lead"
+            className="text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
+          >
+            Оставьте заявку на сайте
+          </a>
+        </motion.p>
       </div>
     </section>
   );

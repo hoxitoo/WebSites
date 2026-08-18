@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { asset } from "@/lib/asset";
 
 const reveal = {
   initial: { opacity: 0, y: 36 },
@@ -41,11 +42,15 @@ export function BusinessEffect() {
   return (
     <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.p {...reveal} className="kicker text-center">
-          Зачем это бизнесу
+        {/* кикер заказчица просила сделать заметнее: «плохо читабельно,
+            сразу не видно этого, акцент сделать» — теперь это плашка */}
+        <motion.p {...reveal} className="text-center">
+          <span className="inline-block rounded-full border border-gold/40 bg-gold/10 px-5 py-1.5 text-xs uppercase tracking-[0.28em] text-gold">
+            Зачем это бизнесу
+          </span>
         </motion.p>
-        <motion.h2 {...reveal} className="mt-3 text-center font-display text-3xl md:text-5xl">
-          Не про «тёплые слова» — <span className="glow-gold">про эффект</span>
+        <motion.h2 {...reveal} className="mt-5 text-center font-display text-3xl md:text-5xl">
+          И тёплые слова, и <span className="glow-gold">измеримый эффект</span>
         </motion.h2>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2">
@@ -80,6 +85,27 @@ export function BusinessEffect() {
 }
 
 /* ————— Что внутри: наполнение и качество (слайд «100% качество») ————— */
+// Правка заказчицы: «давайте всё таки логотипы поставим?» — вместо
+// текстовых плашек настоящие логотипы фабрик из её каталога
+// (собраны скриптом scripts/extract-brand.mjs).
+const FACTORIES = [
+  ["Красный Октябрь", "factory-krasnyy-oktyabr.webp"],
+  ["РотФронт", "factory-rotfront.webp"],
+  ["Бабаевский", "factory-babaevskiy.webp"],
+  ["Ferrero", "factory-ferrero.webp"],
+  ["Акконд", "factory-akkond.webp"],
+  ["Славянка", "factory-slavyanka.webp"],
+  ["Сладкий Орешек", "factory-sladkiy-oreshek.webp"],
+  ["Победа", "factory-pobeda.webp"],
+  ["Махеевъ", "factory-maheev.webp"],
+  ["KDV", "factory-kdv.webp"],
+] as const;
+
+// Эти фабрики были в прежнем текстовом списке, но их логотипов в каталоге нет —
+// оставляем строкой, чтобы поставщики не пропали. Пришлёт логотипы — переедут
+// наверх, к остальным.
+const FACTORIES_TEXT = ["Konti", "Essen", "Mars", "Невский кондитер"];
+
 export function Filling() {
   const points = [
     "Самый свежий состав — следим за сроками годности",
@@ -87,33 +113,19 @@ export function Filling() {
     "Каждый подарок проходит контроль качества",
     "Возможно производство конфет с вашим логотипом",
   ];
-  const brands = [
-    "Красный Октябрь",
-    "РотФронт",
-    "Бабаевский",
-    "Ferrero",
-    "Konti",
-    "Сладкий Орешек",
-    "Акконд",
-    "Победа",
-    "Essen",
-    "KDV",
-    "Mars",
-    "Невский кондитер",
-  ];
 
   return (
     <section className="section-vignette relative py-28">
-      <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
+      <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
+        <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
           А внутри — <span className="glow-gold">только лучшее</span>
         </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl text-center leading-relaxed text-muted">
+        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted">
           Наполняем подарки сладостями проверенных фабрик — тем, что дети и
           взрослые действительно любят. Никаких случайных составов.
         </motion.p>
 
-        <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-2">
+        <div className="mx-auto mt-14 grid max-w-4xl gap-4 text-left sm:grid-cols-2">
           {points.map((p, i) => (
             <motion.div
               key={p}
@@ -127,19 +139,42 @@ export function Filling() {
           ))}
         </div>
 
-        <motion.p {...reveal} className="mt-14 text-center text-xs uppercase tracking-[0.3em] text-gold/80">
-          Среди наших поставщиков
+        <motion.p {...reveal} className="mt-16 text-xs uppercase tracking-[0.3em] text-gold/85">
+          Традиционное наполнение конфетами
         </motion.p>
-        <motion.div {...reveal} className="mt-6 flex flex-wrap justify-center gap-3">
-          {brands.map((b) => (
-            <span
-              key={b}
-              className="rounded-full border border-cream/15 bg-night-soft/40 px-5 py-2 text-sm text-cream/80"
+        {/* логотипы на светлых плашках — как в каталоге; на тёмном фоне
+            фирменные цвета фабрик иначе теряются */}
+        <div className="mx-auto mt-7 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
+          {FACTORIES.map(([name, file], i) => (
+            <motion.div
+              key={file}
+              {...reveal}
+              transition={{ ...reveal.transition, delay: (i % 5) * 0.08 }}
+              className="flex h-20 items-center justify-center rounded-xl bg-cream px-3 py-2 shadow-[0_10px_30px_rgba(8,14,30,0.35)] md:h-24"
             >
-              {b}
+              <img
+                src={asset(`/brand/${file}`)}
+                alt={name}
+                loading="lazy"
+                className="max-h-14 w-auto max-w-full object-contain md:max-h-16"
+                draggable={false}
+              />
+            </motion.div>
+          ))}
+        </div>
+        <motion.p
+          {...reveal}
+          className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2"
+        >
+          {FACTORIES_TEXT.map((name) => (
+            <span
+              key={name}
+              className="rounded-full border border-cream/15 px-4 py-1.5 text-xs text-cream/75"
+            >
+              {name}
             </span>
           ))}
-        </motion.div>
+        </motion.p>
       </div>
     </section>
   );
@@ -266,113 +301,114 @@ export function WhyTrust() {
 }
 
 /* ————— Доставка (данные презентации «Колибри» NEW, июль 2026) ————— */
+// Доставка. Заказчица: «вообще не нравится как про транспорт — очень много,
+// не поймёшь куда смотреть» + «паровоз добавим где доставка» + «всегда
+// давайте всё центрировать».
+//
+// Поэтому: светлая «зимняя» секция (единственная светлая в тёмном сайте —
+// глазу есть за что зацепиться, о чём она и просила), паровоз из каталога,
+// а пять карточек-регионов заменены одной таблицей: регион слева, сумма
+// справа. Пороги — из её нового макета третьей страницы каталога.
 export function Delivery() {
-  const points = [
-    "Собственный парк автотранспорта и прямые договоры с транспортными компаниями",
-    "Фиксированная дата поставки — производство к согласованной в договоре дате",
-    "Надёжная брендированная гофротара, мягкие игрушки — в дополнительной упаковке",
-  ];
   const regions = [
-    { name: "Краснодар и Краснодарский край", line: "бесплатно от 50 000 ₽" },
-    { name: "Ставропольский край и Республика Крым", line: "бесплатно от 50 000 ₽" },
-    { name: "Ростов-на-Дону и Ростовская область", line: "бесплатно от 50 000 ₽" },
-    { name: "Волгоград и Волгоградская область", line: "бесплатно от 50 000 ₽" },
-    { name: "Европейская часть России", line: "бесплатно от 100 000 ₽" },
+    ["Краснодар и Ростов-на-Дону", "от 25 000 ₽"],
+    ["Краснодарский край", "от 35 000 ₽"],
+    ["Ростовская область", "от 50 000 ₽"],
+    ["Ставропольский край, Республика Крым", "от 100 000 ₽"],
+    ["Волгоградская область и Волгоград", "от 100 000 ₽"],
   ];
 
   return (
-    <section className="warm-glow relative py-28">
-      <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
-          Доставим бережно, <span className="candle-sweep">с заботой о Вас</span> и
-          Вашей компании!
+    <section className="relative overflow-hidden py-24 text-center">
+      {/* светлый зимний фон — контраст с тёмными секциями */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, #eaf1fb 0%, #f7f3ec 55%, #eaf1fb 100%)",
+        }}
+        aria-hidden
+      />
+      <div className="relative mx-auto max-w-5xl px-6 md:px-12">
+        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
+          Бесплатная доставка до дверей
+        </motion.p>
+        <motion.h2
+          {...reveal}
+          className="mx-auto mt-4 max-w-3xl font-display text-3xl leading-tight text-night-deep md:text-5xl"
+        >
+          Доставим бережно, <span className="text-bordeaux">с заботой о Вас</span>{" "}
+          и Вашей компании!
         </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl text-center leading-relaxed text-muted">
-          Отправляем из Краснодара по всей России — под контролем наших
-          специалистов и точно в срок.
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-night/70">
+          Отправляем из Краснодара по всей России. Собственный автопарк и прямые
+          договоры с перевозчиками — дата поставки фиксируется в договоре.
         </motion.p>
 
-        <div className="mx-auto mt-12 grid max-w-4xl gap-4">
-          {points.map((p, i) => (
-            <motion.div
-              key={p}
-              {...reveal}
-              transition={{ ...reveal.transition, delay: i * 0.1 }}
-              className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-night-soft/40 px-6 py-4"
-            >
-              <span className="mt-0.5 text-gold">✦</span>
-              <p className="text-sm leading-relaxed text-cream/85">{p}</p>
-            </motion.div>
-          ))}
-        </div>
+        {/* Паровоз из каталога — «паровоз добавим где доставка».
+            Его собственный зимний фон совпадает по тону со светлой секцией,
+            поэтому показываем панелью со скруглением, а низ растворяем. */}
+        <motion.img
+          {...reveal}
+          src={asset("/brand/train.webp")}
+          alt="Новогодний поезд с подарками"
+          width={1000}
+          height={879}
+          loading="lazy"
+          className="mx-auto mt-6 w-full max-w-xl"
+          draggable={false}
+        />
 
-        <motion.p {...reveal} className="mt-12 text-center text-xs uppercase tracking-[0.3em] text-gold/80">
-          Бесплатная доставка
-        </motion.p>
-
-        <div className="mx-auto mt-6 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {regions.map((r, i) => (
-            <motion.div
-              key={r.name}
-              {...reveal}
-              transition={{ ...reveal.transition, delay: i * 0.12 }}
-              className="rounded-2xl border border-gold/25 bg-night-soft/40 p-6 text-center"
-            >
-              <h3 className="mb-2 text-sm font-semibold text-cream">{r.name}</h3>
-              <p className="font-display text-xl text-gold">{r.line}</p>
-            </motion.div>
-          ))}
-        </div>
+        <motion.div
+          {...reveal}
+          className="mx-auto -mt-2 max-w-2xl rounded-3xl border border-night/10 bg-cream/80 p-6 text-left shadow-[0_18px_60px_rgba(16,28,51,0.12)] md:p-8"
+        >
+          <p className="text-center text-sm text-night/70">
+            В одну точку выгрузки — при заказе на сумму:
+          </p>
+          <dl className="mt-5 divide-y divide-night/10">
+            {regions.map(([name, sum]) => (
+              <div key={name} className="flex items-baseline justify-between gap-4 py-3">
+                <dt className="text-sm text-night-deep md:text-base">{name}</dt>
+                <dd className="whitespace-nowrap font-display text-lg text-bordeaux md:text-xl">
+                  {sum}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-5 text-center text-xs leading-relaxed text-night/60">
+            В остальные регионы доставку менеджер рассчитает индивидуально.
+            Занос в помещение и подъём на этаж — дополнительная услуга,
+            в стоимость доставки не входят.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 /* ————— Нам доверяют + благотворительность (презентация NEW) ————— */
-export function TrustedBy() {
-  const clients = [
-    "ЛУКОЙЛ",
-    "Росатом · Ростовская АЭС",
-    "Россети",
-    "ТАНТК им. Г. М. Бериева",
-    "Роспотребнадзор",
-    "Юг-Авто",
-    "Сад-Гигант",
-    "Морской порт Таганрога",
-  ];
-
+// Правка заказчицы: список компаний-клиентов убран целиком
+// («только оставить где-то про благотворительность»), остался её текст
+// про вклад в доброе дело.
+export function Charity() {
   return (
-    <section className="section-band relative py-24">
-      <div className="mx-auto max-w-5xl px-6 text-center md:px-12">
-        <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
-          Нам <span className="glow-gold">доверяют</span>
-        </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-4 max-w-2xl leading-relaxed text-muted">
-          Компании, чьи благодарственные письма мы бережно храним.
-        </motion.p>
-
-        <motion.div {...reveal} className="mt-10 flex flex-wrap justify-center gap-3">
-          {clients.map((c) => (
-            <span
-              key={c}
-              className="rounded-full border border-cream/15 bg-night-soft/50 px-5 py-2.5 text-sm text-cream/85"
-            >
-              {c}
-            </span>
-          ))}
-        </motion.div>
-
-        <motion.div
-          {...reveal}
-          className="mx-auto mt-12 max-w-2xl rounded-2xl border border-gold/25 bg-night-soft/40 px-8 py-6"
-        >
-          <p className="leading-relaxed text-cream/90">
-            💛 С каждого проданного подарка «Колибри» оказывает
-            <span className="text-gold"> благотворительную помощь</span> —
-            забота в наших подарках буквально встроена в цену.
+    <section className="relative py-20">
+      <motion.div
+        {...reveal}
+        className="mx-auto max-w-3xl px-6 text-center md:px-12"
+      >
+        <div className="rounded-3xl border border-gold/30 bg-night-soft/45 px-7 py-9 md:px-12">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold">Доброе дело</p>
+          <p className="mt-5 text-lg leading-relaxed text-cream/90 md:text-xl">
+            Каждый подарок — это не только знак внимания семье сотрудника,
+            но и вклад в доброе дело: с каждого проданного подарка ООО ТК
+            «Колибри» оказывает{" "}
+            <span className="text-gold">благотворительную помощь</span>{" "}
+            малоимущим семьям и детским домам.
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -219,7 +219,7 @@ export default function LeadForm() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mx-auto mt-4 max-w-xl text-center text-muted"
         >
-          Всего несколько коротких вопросов для нашей Отдела заботы, на которые
+          Всего несколько коротких вопросов для нашего Отдела заботы, на которые
           мы предлагаем Вам ответить, чтобы получить каталог и Персональное КП.
         </motion.p>
 
@@ -417,15 +417,30 @@ export default function LeadForm() {
           </div>
         )}
 
-        {/* вторичный CTA — звонок для тех, кто не готов заполнять */}
+        {/* Вторичный путь для тех, кто не готов заполнять. Раньше здесь была
+            ссылка «Созвонимся» на tel: — на компьютере без приложения для
+            звонков браузер показывал окно «Открыть приложение», и заказчица
+            приняла это за ошибку. Теперь виден сам номер: на телефоне он
+            по-прежнему набирается одним касанием, на компьютере его просто
+            читают и набирают. */}
         {step <= TOTAL && (
-          <p className="mt-10 text-center text-sm text-muted">
-            Не готовы заполнять?{" "}
+          <p className="mt-10 text-center text-sm leading-relaxed text-muted">
+            Не готовы заполнять? Позвоните — 15 минут, и разберём ваш запрос:
+            <br />
             <a
               href="tel:+78612506551"
-              className="text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
+              className="mt-1 inline-block text-base text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
             >
-              Созвонимся — 15 минут, разберём ваш запрос
+              8 (861) 250-65-51
+            </a>
+            <span className="mx-2 text-muted/50">·</span>
+            <a
+              href="https://api.whatsapp.com/send/?phone=79882461551"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-base text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
+            >
+              написать в WhatsApp
             </a>
           </p>
         )}

@@ -105,6 +105,23 @@ async function crop(pno, idx, width, out, quality) {
   console.log(out, `${m.width}×${m.height}`);
 }
 
+// Разворотами показываем сам каталог — правка «каталог модель с разворотами».
+// Берём страницы-разделители категорий: они самые нарядные.
+const SPREADS = [
+  [1, "cover", "Обложка каталога «Коллекция новогодних подарков 2027»"],
+  [5, "nabory", "Страница каталога: новогодние подарки в наборах"],
+  [31, "karton", "Страница каталога: подарки в картонной упаковке"],
+  [51, "tekstil", "Страница каталога: подарки в текстильной упаковке"],
+  [67, "premium", "Страница каталога: подарки в премиум-упаковке"],
+];
+for (const [pno, name] of SPREADS) {
+  const png = await pagePng(pno);
+  const out = `spread-${name}.webp`;
+  await sharp(png).resize({ width: 1100 }).webp({ quality: 82 }).toFile(path.join(OUT, out));
+  const m = await sharp(path.join(OUT, out)).metadata();
+  console.log(out, `${m.width}×${m.height}`);
+}
+
 for (const t of TILES) await crop(t.page, t.idx, 900, `tile-${t.out}.webp`, 84);
 for (let i = 0; i < KIDS.length; i++) {
   await crop(KIDS[i].page, KIDS[i].idx, 560, `kid-${String(i + 1).padStart(2, "0")}.webp`, 80);

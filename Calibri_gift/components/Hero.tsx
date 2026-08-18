@@ -63,9 +63,20 @@ export default function Hero() {
             draggable={false}
           />
         </a>
-        <CatalogRequest className="cursor-pointer rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
-          Получить каталог
-        </CatalogRequest>
+        {/* правка заказчицы: «контакты нужно и сверху и снизу».
+            На телефоне номер прячем — там он занял бы всю строку рядом
+            с крупным логотипом; вместо него та же кнопка каталога. */}
+        <div className="flex items-center gap-5">
+          <a
+            href="tel:+78612506551"
+            className="hidden text-sm text-cream/85 transition-colors hover:text-gold sm:block"
+          >
+            8 (861) 250-65-51
+          </a>
+          <CatalogRequest className="cursor-pointer whitespace-nowrap rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
+            Получить каталог
+          </CatalogRequest>
+        </div>
       </motion.header>
 
       {/* контент */}

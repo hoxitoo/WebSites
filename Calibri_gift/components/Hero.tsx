@@ -111,14 +111,14 @@ export default function Hero() {
         </a>
 
         {/* Правка заказчицы: «вверху сайта о нас, доставка и т.д. шапкой».
-            Меню ведёт к разделам страницы. На телефоне логотип и кнопка
-            занимают первую строку, меню переносится под них и прокручивается
-            в сторону — иначе пункты налезали друг на друга. */}
+            Меню ведёт к разделам страницы. На узком экране логотип и кнопка
+            занимают первую строку, а меню переносится под них — не в скролл
+            в сторону, а в две строки: так ни один пункт не спрятан. */}
         <nav
           aria-label="Разделы сайта"
-          className="order-3 w-full overflow-x-auto lg:order-none lg:w-auto lg:overflow-visible"
+          className="order-3 w-full lg:order-none lg:w-auto"
         >
-          <ul className="flex items-center gap-5 whitespace-nowrap text-sm text-cream/85 lg:gap-7">
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-cream/85 lg:flex-nowrap lg:gap-7">
             {NAV.map((item) => (
               <li key={item.href}>
                 <a

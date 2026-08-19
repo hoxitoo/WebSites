@@ -125,19 +125,20 @@ export function HowItWorks() {
 
 /* ————— Тизер каталога (без цен — намеренно) ————— */
 
-// названия и порядок — по правке заказчицы; фото собраны из её каталога
-// скриптом scripts/extract-catalog.mjs
+// Названия и порядок — по правке заказчицы. На плитках не вырезанные предметы,
+// а целые страницы-разделители каталога: «хочу, чтобы не только предмет был
+// в кадре, а целая страница». Собирает scripts/extract-catalog.mjs.
 const BOXES = [
   { label: "Наборы", file: "tile-nabory.webp", hue: "#22375c",
-    alt: "Новогодний подарочный набор: коробка со сладостями, игрушки-овечки и открытка" },
+    alt: "Страница каталога: новогодние подарки в наборах" },
   { label: "Картонная упаковка", file: "tile-karton.webp", hue: "#2b4470",
-    alt: "Подарок в картонной упаковке с новогодним рисунком" },
+    alt: "Страница каталога: новогодние подарки в картонной упаковке" },
   { label: "Текстильная упаковка", file: "tile-tekstil.webp", hue: "#1e3557",
-    alt: "Мягкая игрушка-овечка — подарок в текстильной упаковке" },
+    alt: "Страница каталога: новогодние подарки в текстильной упаковке" },
   { label: "Комбинированная упаковка", file: "tile-kombi.webp", hue: "#2a3d63",
-    alt: "Подарок в комбинированной упаковке — туба с новогодним рисунком" },
+    alt: "Страница каталога: новогодние подарки в комбинированной упаковке" },
   { label: "Премиум упаковка", file: "tile-premium.webp", hue: "#3a2b52",
-    alt: "Премиальный подарочный набор в упаковке-матрёшке" },
+    alt: "Страница каталога: новогодние подарки в премиум-упаковке" },
 ] as const;
 
 export function CatalogTeaser() {
@@ -162,7 +163,10 @@ export function CatalogTeaser() {
           персональное коммерческое предложение.
         </motion.p>
 
-        <div className="mt-14 grid grid-cols-2 gap-5 lg:grid-cols-5">
+        {/* Плитки — целые страницы каталога, они горизонтальные, поэтому
+            не сетка из пяти столбцов (в ней страница выходила крохотной),
+            а свободный ряд по три: последняя строка центрируется сама. */}
+        <div className="mt-14 flex flex-wrap justify-center gap-5">
           {boxes.map((b, i) => (
             <motion.button
               key={b.label}
@@ -173,22 +177,21 @@ export function CatalogTeaser() {
               {...reveal}
               transition={{ ...reveal.transition, delay: i * 0.1 }}
               whileHover={{ y: -8 }}
-              // пятая плитка нечётная — на узких экранах растягиваем её
-              // на всю строку, иначе висит сиротой сбоку
-              className={`group relative cursor-pointer overflow-hidden rounded-2xl border border-cream/10 p-4 text-center transition-colors duration-300 hover:border-gold/45 ${
-                i === boxes.length - 1 ? "col-span-2 lg:col-span-1" : ""
-              }`}
+              // ширина в долях, а не в пикселях: при фиксированной 330 px
+              // две плитки не влезали в контейнер буквально на 6 px и уезжали
+              // по одной в строку. Вычитаем из доли часть отступа gap-5.
+              className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-cream/10 p-4 text-center transition-colors duration-300 hover:border-gold/45 sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
               style={{
                 background: `linear-gradient(160deg, ${b.hue} 0%, #16233d 120%)`,
               }}
             >
-              {/* фото товара на светлой подложке — как карточка в каталоге */}
+              {/* страница каталога целиком — как лист, а не вырезка */}
               <span className="mb-4 block overflow-hidden rounded-xl bg-cream">
                 <img
                   src={asset(`/catalog/${b.file}`)}
                   alt={b.alt}
                   loading="lazy"
-                  className="mx-auto h-36 w-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.06] md:h-40"
+                  className="block aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                 />
               </span>
               {/* трекинг на узких экранах меньше: «КОМБИНИРОВАННАЯ» не влезала */}

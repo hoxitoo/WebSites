@@ -32,25 +32,21 @@ const TILES = [
   // сюда». На плитке был подарочный пакет из раздела авторского картона,
   // и по фото не читалось, что это картонная коробка. Теперь коробка
   // из раздела «картонная упаковка» — с шарами и верёвочными ручками.
-  { out: "karton", page: 44, idx: 6, trimTop: 0.1, alt: "Подарок в картонной упаковке — коробка с новогодними шарами" },
-  { out: "tekstil", page: 55, idx: 6, alt: "Мягкая игрушка-овечка — подарок в текстильной упаковке" },
-  { out: "kombi", page: 64, idx: 2, alt: "Подарок в комбинированной упаковке — туба с новогодним рисунком" },
-  { out: "premium", page: 68, idx: 4, alt: "Премиальный подарочный набор в упаковке-матрёшке" },
+  { out: "karton", page: 44, idx: 6, trim: { top: 0.1 }, alt: "Подарок в картонной упаковке — коробка с новогодними шарами" },
+  // Правка: на плитке «Текстильная упаковка» стояла мягкая игрушка — то есть
+  // содержимое, а не упаковка. Теперь тканевый мешочек с барашком
+  // из раздела «текстильная упаковка» (стр. 60).
+  { out: "tekstil", page: 60, idx: 5, trim: { right: 0.2 }, alt: "Подарок в текстильной упаковке — тканевый мешочек с барашком" },
+  // туба — это и есть комбинированная упаковка; взял самый нарядный кадр
+  // раздела, на белом фоне и без соседних элементов (стр. 66)
+  { out: "kombi", page: 66, idx: 2, trim: { right: 0.14 }, alt: "Подарок в комбинированной упаковке — новогодняя туба" },
+  { out: "premium", page: 68, idx: 4, trim: { left: 0.06, bottom: 0.04 }, alt: "Премиальный подарочный набор в упаковке-матрёшке" },
 ];
 
-// горизонтальная лента: дети с подарками
-const KIDS = [
-  { page: 16, idx: 2, alt: "Девочка с новогодним подарком и игрушками" },
-  { page: 20, idx: 0, alt: "Девочка с мягкой игрушкой из новогоднего набора" },
-  { page: 32, idx: 2, alt: "Девочка с подарочной коробкой у ёлки" },
-  { page: 35, idx: 0, alt: "Мальчик с новогодним подарком" },
-  { page: 44, idx: 0, alt: "Девочка с подарочной сумкой" },
-  { page: 47, idx: 1, alt: "Девочка с открытым новогодним подарком" },
-  { page: 56, idx: 5, alt: "Мальчик с большой мягкой игрушкой" },
-  { page: 58, idx: 0, alt: "Девочка с подарочным мешочком и игрушкой" },
-  { page: 64, idx: 5, alt: "Мальчик с подарочной тубой" },
-  { page: 65, idx: 2, alt: "Девочка с новогодним подарком" },
-];
+// Фото детей здесь больше не вырезаем: заказчица прислала студийные
+// снимки на Яндекс.Диске, их забирает scripts/fetch-kids.mjs. Раньше этот
+// скрипт перезаписывал kid-*.webp вырезками из PDF — то есть портил
+// студийные фото при любом обновлении плиток.
 
 const SCALE = 2.6; // рендер страницы: 765pt → ~1990px
 const PW = 765, PH = 567;
@@ -89,23 +85,27 @@ async function pagePng(pno) {
   return png;
 }
 
-// trimTop — доля высоты, которую снимаем сверху: на некоторых страницах
-// в рамку картинки залезает соседний декор каталога (дуга, уголок плашки),
-// и на плитке он читается как случайное пятно.
-async function crop(pno, idx, width, out, quality, trimTop = 0) {
+// trim — сколько снять с каждой стороны, в долях от размера кадра.
+// В рамку картинки на странице каталога часто залезает соседний товар
+// или декор плашки, и на плитке это читается как случайный обрезок.
+async function crop(pno, idx, width, out, quality, trim = {}) {
   const b = pageImages(pno)[idx];
   if (!b) throw new Error(`стр. ${pno}: нет картинки №${idx} — карта разошлась с каталогом`);
   const png = await pagePng(pno);
   const meta = await sharp(png).metadata();
-  const left = Math.max(0, Math.round(b.x0 * SCALE));
+  const fullW = Math.round(b.w * SCALE);
   const fullH = Math.round(b.h * SCALE);
-  const cut = Math.round(fullH * trimTop);
-  const top = Math.max(0, Math.round(b.y0 * SCALE) + cut);
+  const cutL = Math.round(fullW * (trim.left ?? 0));
+  const cutR = Math.round(fullW * (trim.right ?? 0));
+  const cutT = Math.round(fullH * (trim.top ?? 0));
+  const cutB = Math.round(fullH * (trim.bottom ?? 0));
+  const left = Math.max(0, Math.round(b.x0 * SCALE) + cutL);
+  const top = Math.max(0, Math.round(b.y0 * SCALE) + cutT);
   await sharp(png)
     .extract({
       left, top,
-      width: Math.min(meta.width - left, Math.round(b.w * SCALE)),
-      height: Math.min(meta.height - top, fullH - cut),
+      width: Math.min(meta.width - left, fullW - cutL - cutR),
+      height: Math.min(meta.height - top, fullH - cutT - cutB),
     })
     .resize({ width, withoutEnlargement: true })
     .webp({ quality })
@@ -118,8 +118,5 @@ async function crop(pno, idx, width, out, quality, trimTop = 0) {
 // заказчица прислала макеты раскрытого каталога, и они куда живее, чем
 // одиночные страницы, которые вырезались здесь раньше.
 
-for (const t of TILES) await crop(t.page, t.idx, 900, `tile-${t.out}.webp`, 84, t.trimTop);
-for (let i = 0; i < KIDS.length; i++) {
-  await crop(KIDS[i].page, KIDS[i].idx, 560, `kid-${String(i + 1).padStart(2, "0")}.webp`, 80);
-}
+for (const t of TILES) await crop(t.page, t.idx, 900, `tile-${t.out}.webp`, 84, t.trim);
 console.log("готово:", OUT);

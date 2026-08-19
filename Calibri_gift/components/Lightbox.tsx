@@ -60,7 +60,9 @@ export default function Lightbox({
               alt={shot.alt}
               // клик по самой картинке не закрывает — закрывает фон и крестик
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[74vh] w-auto max-w-[min(620px,92vw)] rounded-2xl bg-cream object-contain shadow-[0_30px_90px_rgba(0,0,0,0.6)]"
+              // развороты каталога широкие — им нужно больше места, чем
+              // вертикальным фото товара, иначе страницу не рассмотреть
+              className="max-h-[80vh] w-auto max-w-[min(1200px,94vw)] rounded-2xl bg-cream object-contain shadow-[0_30px_90px_rgba(0,0,0,0.6)]"
             />
             {shot.caption && (
               <p className="text-center text-sm uppercase tracking-[0.2em] text-gold/90">

@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { asset } from "@/lib/asset";
+import Disclosure from "./Disclosure";
 
 const reveal = {
   initial: { opacity: 0, y: 36 },
@@ -319,17 +320,10 @@ export function Delivery() {
     ["Волгоградская область и Волгоград", "от 100 000 ₽"],
   ];
 
+  // светлая («зимняя») секция: бежевый фон и растворённые края —
+  // см. .section-light в globals.css
   return (
-    <section className="relative overflow-hidden py-24 text-center">
-      {/* светлый зимний фон — контраст с тёмными секциями */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, #eaf1fb 0%, #f7f3ec 55%, #eaf1fb 100%)",
-        }}
-        aria-hidden
-      />
+    <section className="section-light relative overflow-hidden py-32 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Бесплатная доставка до дверей
@@ -349,20 +343,33 @@ export function Delivery() {
         {/* Паровоз из каталога — «паровоз добавим где доставка».
             Его собственный зимний фон совпадает по тону со светлой секцией,
             поэтому показываем панелью со скруглением, а низ растворяем. */}
-        <motion.img
-          {...reveal}
-          src={asset("/brand/train.webp")}
-          alt="Новогодний поезд с подарками"
-          width={1000}
-          height={879}
-          loading="lazy"
-          className="mx-auto mt-6 w-full max-w-xl"
-          draggable={false}
-        />
-
+        {/* Раньше секция была холодного голубого тона и совпадала с фоном
+            самого рисунка. После перекраски в бежевый белёсо-голубой фон
+            паровоза стал читаться как случайная плашка, поэтому кладём его
+            на кремовую карточку и слегка утепляем — так это выглядит
+            задуманным, а не обрезанной картинкой. */}
         <motion.div
           {...reveal}
-          className="mx-auto -mt-2 max-w-2xl rounded-3xl border border-night/10 bg-cream/80 p-6 text-left shadow-[0_18px_60px_rgba(16,28,51,0.12)] md:p-8"
+          className="mx-auto mt-6 w-full max-w-xl overflow-hidden rounded-[2rem] bg-cream/70 shadow-[0_18px_50px_rgba(16,28,51,0.10)]"
+        >
+          <img
+            src={asset("/brand/train.webp")}
+            alt="Новогодний поезд с подарками"
+            width={1000}
+            height={879}
+            loading="lazy"
+            className="w-full"
+            style={{ filter: "sepia(0.12) saturate(1.04)" }}
+            draggable={false}
+          />
+        </motion.div>
+
+        {/* Правка: «аналогично для блока с паровозом» — таблица порогов
+            спрятана под + , секция стала короче */}
+        <motion.div {...reveal} className="mt-4">
+        <Disclosure question="Куда и от какой суммы доставляем бесплатно?">
+        <div
+          className="mx-auto max-w-2xl rounded-3xl border border-night/10 bg-cream/80 p-6 text-left shadow-[0_18px_60px_rgba(16,28,51,0.12)] md:p-8"
         >
           <p className="text-center text-sm text-night/70">
             В одну точку выгрузки — при заказе на сумму:
@@ -382,6 +389,8 @@ export function Delivery() {
             Занос в помещение и подъём на этаж — дополнительная услуга,
             в стоимость доставки не входят.
           </p>
+        </div>
+        </Disclosure>
         </motion.div>
       </div>
     </section>

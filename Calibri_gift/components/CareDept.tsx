@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
+import Disclosure from "./Disclosure";
+import { BotQrInline } from "./BotQr";
 
 /**
  * «Отдел заботы Деда Мороза» и зоны ответственности.
@@ -65,12 +67,7 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    <section className="relative overflow-hidden py-24 text-center">
-      <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(180deg, #f7f3ec 0%, #eaf1fb 100%)" }}
-        aria-hidden
-      />
+    <section className="section-light relative overflow-hidden py-32 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Отдел заботы Деда Мороза
@@ -112,48 +109,45 @@ export default function CareDept() {
           ))}
         </div>
 
-        <motion.p {...reveal} className="mt-14 text-xs uppercase tracking-[0.3em] text-bordeaux">
-          Индивидуальный подарок — по шагам
-        </motion.p>
-        {/* Правка: «в этом блоке мелкий текст слишком (бриф, дизайн и т.д.)» —
-            названия шагов и пояснения увеличены, номер вынесен отдельной
-            крупной цифрой. Поэтому и колонок теперь три, а не пять: на пять
-            текст такого размера уже не влезал. */}
-        <div className="mt-8 grid gap-x-8 gap-y-8 text-left sm:grid-cols-2 lg:grid-cols-3">
-          {STEPS.map(([title, text], i) => (
-            <motion.div
-              key={title}
-              {...reveal}
-              transition={{ ...reveal.transition, delay: i * 0.07 }}
-              className="border-t-2 border-bordeaux/25 pt-4"
-            >
-              <p className="font-display text-3xl leading-none text-bordeaux/45">
-                {String(i + 1).padStart(2, "0")}
-              </p>
-              <h3 className="mt-2 font-display text-xl text-bordeaux md:text-2xl">
-                {title}
-              </h3>
-              <p className="mt-2 text-base leading-relaxed text-night/75">{text}</p>
-            </motion.div>
-          ))}
-        </div>
+        {/* Правка: «блок с индивидуальным подарком переделать в вопрос
+            „Хотите посмотреть как собирается уникальный подарок?“ и вынести
+            весь текст под + ». Внутри — шаги и тиражи брендирования. */}
+        <motion.div {...reveal} className="mt-14">
+          <Disclosure question="Хотите посмотреть, как собирается уникальный подарок?">
+            <div className="grid gap-x-8 gap-y-8 text-left sm:grid-cols-2 lg:grid-cols-3">
+              {STEPS.map(([title, text], i) => (
+                <div key={title} className="border-t-2 border-bordeaux/25 pt-4">
+                  <p className="font-display text-3xl leading-none text-bordeaux/45">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-2 font-display text-xl text-bordeaux md:text-2xl">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-base leading-relaxed text-night/75">{text}</p>
+                </div>
+              ))}
+            </div>
 
-        <motion.div
-          {...reveal}
-          className="mx-auto mt-14 max-w-2xl rounded-3xl border border-night/10 bg-night-deep/[0.04] p-6 text-left md:p-8"
-        >
-          <p className="text-center text-xs uppercase tracking-[0.24em] text-bordeaux">
-            Ваш логотип на подарке
-          </p>
-          <dl className="mt-5 divide-y divide-night/10">
-            {BRANDING.map(([what, qty]) => (
-              <div key={what} className="flex items-baseline justify-between gap-4 py-2.5">
-                <dt className="text-base text-night-deep">{what}</dt>
-                <dd className="whitespace-nowrap text-base font-semibold text-bordeaux">{qty}</dd>
-              </div>
-            ))}
-          </dl>
+            <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-night/10 bg-night-deep/[0.04] p-6 text-left md:p-8">
+              <p className="text-center text-xs uppercase tracking-[0.24em] text-bordeaux">
+                Ваш логотип на подарке
+              </p>
+              <dl className="mt-5 divide-y divide-night/10">
+                {BRANDING.map(([what, qty]) => (
+                  <div key={what} className="flex items-baseline justify-between gap-4 py-2.5">
+                    <dt className="text-base text-night-deep">{what}</dt>
+                    <dd className="whitespace-nowrap text-base font-semibold text-bordeaux">
+                      {qty}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </Disclosure>
         </motion.div>
+
+        {/* Правка: «qr кода переместить в блок чтобы декабрь прошел спокойно» */}
+        <BotQrInline />
       </div>
     </section>
   );

@@ -15,6 +15,11 @@
   --color-gold: #e8b968;
   --color-gold-soft: #f3d9a4;
   --color-cream: #f7f3ec;
+  /* Бежевый фон светлых секций. Правка заказчицы: «белые места сайта
+     перекрасить в бежевый, чтобы не было столь резкого перехода от тёмного
+     к светлому». Было почти белое #f7f3ec / #eaf1fb. */
+  --color-beige: #ece0c8;
+  --color-beige-soft: #f4ecdc;
   /* холодный приглушённый — контраст корпусного текста на синем (WCAG AA) */
   --color-muted: #b6c2d6;
 
@@ -96,6 +101,63 @@ body {
   font-size: 0.72rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
+}
+
+/* Светлая («зимняя») секция: бежевый фон плюс растворённые края.
+   Правка заказчицы: «белые места сайта перекрасить в бежевый, чтобы не было
+   столь резкого перехода от тёмного к светлому». Полосы сверху и снизу
+   переводят цвет страницы в бежевый постепенно, поэтому стыка не видно.
+   Внутренние отступы секции должны быть не меньше высоты полосы. */
+.section-light {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--color-beige) 0%,
+    var(--color-beige-soft) 45%,
+    var(--color-beige) 100%
+  );
+}
+.section-light::before,
+.section-light::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 96px;
+  pointer-events: none;
+}
+.section-light::before {
+  top: 0;
+  background: linear-gradient(
+    180deg,
+    var(--color-night-deep) 0%,
+    color-mix(in srgb, var(--color-night-deep) 55%, transparent) 32%,
+    transparent 100%
+  );
+}
+.section-light::after {
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    var(--color-night-deep) 0%,
+    color-mix(in srgb, var(--color-night-deep) 55%, transparent) 32%,
+    transparent 100%
+  );
+}
+
+/* Главная кнопка — в цвет ленты «Создаём подарки 11 лет».
+   Правка заказчицы: «обведённую кнопку перекрасить в цвет плашки
+   „создаем подарки 11 лет“». Один класс на все главные кнопки сайта,
+   чтобы они не разъезжались по цвету. */
+.btn-ribbon {
+  background: linear-gradient(96deg, #8f1f2e 0%, #c0392b 45%, #e8813a 100%);
+  color: var(--color-cream);
+  box-shadow: 0 14px 40px rgba(192, 57, 43, 0.35);
+  transition: box-shadow 0.3s, filter 0.3s;
+}
+.btn-ribbon:hover {
+  box-shadow: 0 18px 54px rgba(232, 129, 58, 0.45);
+  filter: brightness(1.06);
 }
 
 ::selection {

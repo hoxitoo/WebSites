@@ -28,7 +28,11 @@ if (!PDF) {
 // плитки категорий: чистые фото товара на белом
 const TILES = [
   { out: "nabory", page: 20, idx: 3, alt: "Новогодний подарочный набор: коробка со сладостями, игрушки-овечки и открытка" },
-  { out: "karton", page: 32, idx: 1, alt: "Подарок в картонной упаковке с новогодним рисунком" },
+  // Правка заказчицы: «Картонная упаковка — найти в каталоге такое и вставить
+  // сюда». На плитке был подарочный пакет из раздела авторского картона,
+  // и по фото не читалось, что это картонная коробка. Теперь коробка
+  // из раздела «картонная упаковка» — с шарами и верёвочными ручками.
+  { out: "karton", page: 44, idx: 6, trimTop: 0.1, alt: "Подарок в картонной упаковке — коробка с новогодними шарами" },
   { out: "tekstil", page: 55, idx: 6, alt: "Мягкая игрушка-овечка — подарок в текстильной упаковке" },
   { out: "kombi", page: 64, idx: 2, alt: "Подарок в комбинированной упаковке — туба с новогодним рисунком" },
   { out: "premium", page: 68, idx: 4, alt: "Премиальный подарочный набор в упаковке-матрёшке" },
@@ -85,18 +89,23 @@ async function pagePng(pno) {
   return png;
 }
 
-async function crop(pno, idx, width, out, quality) {
+// trimTop — доля высоты, которую снимаем сверху: на некоторых страницах
+// в рамку картинки залезает соседний декор каталога (дуга, уголок плашки),
+// и на плитке он читается как случайное пятно.
+async function crop(pno, idx, width, out, quality, trimTop = 0) {
   const b = pageImages(pno)[idx];
   if (!b) throw new Error(`стр. ${pno}: нет картинки №${idx} — карта разошлась с каталогом`);
   const png = await pagePng(pno);
   const meta = await sharp(png).metadata();
   const left = Math.max(0, Math.round(b.x0 * SCALE));
-  const top = Math.max(0, Math.round(b.y0 * SCALE));
+  const fullH = Math.round(b.h * SCALE);
+  const cut = Math.round(fullH * trimTop);
+  const top = Math.max(0, Math.round(b.y0 * SCALE) + cut);
   await sharp(png)
     .extract({
       left, top,
       width: Math.min(meta.width - left, Math.round(b.w * SCALE)),
-      height: Math.min(meta.height - top, Math.round(b.h * SCALE)),
+      height: Math.min(meta.height - top, fullH - cut),
     })
     .resize({ width, withoutEnlargement: true })
     .webp({ quality })
@@ -105,24 +114,11 @@ async function crop(pno, idx, width, out, quality) {
   console.log(out, `${m.width}×${m.height}`);
 }
 
-// Разворотами показываем сам каталог — правка «каталог модель с разворотами».
-// Берём страницы-разделители категорий: они самые нарядные.
-const SPREADS = [
-  [1, "cover", "Обложка каталога «Коллекция новогодних подарков 2027»"],
-  [5, "nabory", "Страница каталога: новогодние подарки в наборах"],
-  [31, "karton", "Страница каталога: подарки в картонной упаковке"],
-  [51, "tekstil", "Страница каталога: подарки в текстильной упаковке"],
-  [67, "premium", "Страница каталога: подарки в премиум-упаковке"],
-];
-for (const [pno, name] of SPREADS) {
-  const png = await pagePng(pno);
-  const out = `spread-${name}.webp`;
-  await sharp(png).resize({ width: 1100 }).webp({ quality: 82 }).toFile(path.join(OUT, out));
-  const m = await sharp(path.join(OUT, out)).metadata();
-  console.log(out, `${m.width}×${m.height}`);
-}
+// Развороты каталога делает отдельный скрипт scripts/make-spreads.mjs:
+// заказчица прислала макеты раскрытого каталога, и они куда живее, чем
+// одиночные страницы, которые вырезались здесь раньше.
 
-for (const t of TILES) await crop(t.page, t.idx, 900, `tile-${t.out}.webp`, 84);
+for (const t of TILES) await crop(t.page, t.idx, 900, `tile-${t.out}.webp`, 84, t.trimTop);
 for (let i = 0; i < KIDS.length; i++) {
   await crop(KIDS[i].page, KIDS[i].idx, 560, `kid-${String(i + 1).padStart(2, "0")}.webp`, 80);
 }

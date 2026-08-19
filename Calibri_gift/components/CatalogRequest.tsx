@@ -159,7 +159,7 @@ export default function CatalogRequest({
                       <button
                         type="submit"
                         disabled={state === "sending"}
-                        className="mt-2 cursor-pointer rounded-full bg-bordeaux px-8 py-3.5 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)] disabled:opacity-60"
+                        className="mt-2 cursor-pointer btn-ribbon rounded-full px-8 py-3.5 font-medium disabled:opacity-60"
                       >
                         {state === "sending"
                           ? "Отправляем…"

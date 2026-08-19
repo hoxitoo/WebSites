@@ -144,9 +144,16 @@ export function CatalogTeaser() {
   const [shot, setShot] = useState<Shot | null>(null);
   const boxes = BOXES;
   return (
+    /* Правка заказчицы: «сделать экспериментально только в этом блоке единый
+       шрифт (сейчас там два разных стиля шрифта) — чтобы в блоке был, включая
+       заголовок, только 1 тип шрифта (не заголовочный)». Поэтому здесь нет
+       font-display: и заголовок, и текст набраны корпусным Manrope. */
     <section className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
-        <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
+        <motion.h2
+          {...reveal}
+          className="text-[1.7rem] font-semibold leading-tight tracking-tight md:text-[2.6rem]"
+        >
           Каталог — <span className="glow-gold">по личному запросу</span>
         </motion.h2>
         <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted">
@@ -202,7 +209,7 @@ export function CatalogTeaser() {
             <Magnetic>
               <a
                 href="#lead"
-                className="inline-block rounded-full bg-bordeaux px-7 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
+                className="inline-block btn-ribbon rounded-full px-7 py-4 font-medium"
               >
                 Получить индивидуальное предложение
               </a>

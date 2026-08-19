@@ -158,8 +158,9 @@ export default function Hero() {
             <br className="hidden md:block" />{" "}
             Мы бережно относимся к времени наших клиентов, поэтому берём
             на себя всё: подбор, контроль качества, соблюдение сроков и учёт
-            ваших пожеланий.{" "}
-            <span className="text-gold/90">
+            ваших пожеланий.
+            {/* правка заказчицы: подчёркнутое — на новую строку */}
+            <span className="mt-3 block text-gold/90">
               Индивидуальный подход — в основе нашей работы.
             </span>
           </motion.p>
@@ -175,7 +176,7 @@ export default function Hero() {
             <Magnetic>
               <a
                 href="#lead"
-                className="inline-block rounded-full bg-bordeaux px-7 py-4 font-medium text-cream shadow-[0_0_40px_rgba(160,48,73,0.45)] transition-shadow duration-300 hover:shadow-[0_0_60px_rgba(232,185,104,0.35)]"
+                className="inline-block btn-ribbon rounded-full px-7 py-4 font-medium"
               >
                 Получить индивидуальное предложение
               </a>

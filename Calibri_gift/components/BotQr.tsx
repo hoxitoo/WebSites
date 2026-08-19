@@ -27,6 +27,61 @@ const reveal = {
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
 
+/**
+ * Тот же блок с QR, но встроенный в светлую секцию «Чтобы декабрь прошёл
+ * спокойно» — правка заказчицы «qr кода переместить в блок чтобы декабрь
+ * прошел спокойно». Отдельная секция BotQr со страницы убрана: два блока
+ * с одними и теми же кодами не нужны.
+ */
+export function BotQrInline() {
+  return (
+    <motion.div {...reveal} className="mt-16">
+      <p className="text-xs uppercase tracking-[0.3em] text-bordeaux">
+        Отсканируйте QR-код — и начнём подбор
+      </p>
+      <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-night/75">
+        Или просто напишите «старт» в чат. Ответите на несколько коротких
+        вопросов — и мы подберём три варианта под ваш бюджет и сроки.
+      </p>
+      <div className="mt-8 flex flex-wrap items-start justify-center gap-8 sm:gap-14">
+        {MESSENGERS.map((m) => (
+          <a
+            key={m.name}
+            href={m.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group block"
+          >
+            <span className="block rounded-2xl border border-night/10 bg-cream p-3.5 shadow-[0_12px_40px_rgba(16,28,51,0.14)] transition-transform duration-300 group-hover:-translate-y-1.5">
+              <img
+                src={asset(m.qr)}
+                alt={`QR-код: Отдел заботы Деда Мороза в ${m.name}`}
+                width={200}
+                height={200}
+                className="h-36 w-36 md:h-44 md:w-44"
+                loading="lazy"
+                draggable={false}
+              />
+            </span>
+            <span className="mt-3 block text-sm uppercase tracking-[0.2em] text-night/70 group-hover:text-bordeaux">
+              {m.name}
+            </span>
+          </a>
+        ))}
+      </div>
+      <p className="mt-8 text-base text-night/70">
+        Не пользуетесь мессенджерами?{" "}
+        <a
+          href="#lead"
+          className="text-bordeaux underline-offset-4 transition-colors hover:underline"
+        >
+          Оставьте заявку на сайте
+        </a>
+      </p>
+    </motion.div>
+  );
+}
+
 export default function BotQr() {
   return (
     <section className="section-vignette relative py-24">

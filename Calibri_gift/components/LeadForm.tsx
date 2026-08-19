@@ -438,20 +438,12 @@ export default function LeadForm() {
           <p className="mt-10 text-center text-sm leading-relaxed text-muted">
             Не готовы заполнять? Позвоните — 15 минут, и разберём ваш запрос:
             <br />
+            {/* WhatsApp убран с сайта по правке заказчицы */}
             <a
               href="tel:+78612506551"
               className="mt-1 inline-block text-base text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
             >
               8 (861) 250-65-51
-            </a>
-            <span className="mx-2 text-muted/50">·</span>
-            <a
-              href="https://api.whatsapp.com/send/?phone=79882461551"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-base text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
-            >
-              написать в WhatsApp
             </a>
           </p>
         )}

@@ -9,6 +9,16 @@ import { asset } from "@/lib/asset";
 // текст заголовка и подзаголовка — дословно по правке заказчицы
 const lines = ["Вы дарите самое важное —", "заботу и внимание"];
 
+// Меню в шапке — правка «вверху сайта о нас, доставка и т.д. шапкой».
+// Ведёт к разделам этой же страницы (id стоят на секциях).
+const NAV = [
+  { label: "О нас", href: "#about" },
+  { label: "Каталог", href: "#catalog" },
+  { label: "Отдел заботы", href: "#care" },
+  { label: "Доставка", href: "#delivery" },
+  { label: "Контакты", href: "#contacts" },
+] as const;
+
 export default function Hero() {
   const reduce = useReducedMotion();
   return (
@@ -63,21 +73,16 @@ export default function Hero() {
           >
             info@kolibri-ug.ru
           </a>
+          {/* WhatsApp убран с сайта по правке заказчицы */}
           <span className="hidden text-cream/25 sm:inline">·</span>
-          {[
-            { label: "WhatsApp", href: "https://api.whatsapp.com/send/?phone=79882461551" },
-            { label: "Telegram", href: "https://telegram.me/+f0vDIlkA2yY3ODIy" },
-          ].map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-gold"
-            >
-              {s.label}
-            </a>
-          ))}
+          <a
+            href="https://telegram.me/+f0vDIlkA2yY3ODIy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-gold"
+          >
+            Telegram
+          </a>
         </div>
       </motion.div>
 
@@ -86,7 +91,7 @@ export default function Hero() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12"
+        className="relative z-10 flex flex-wrap items-center justify-between gap-y-3 px-6 py-5 md:px-12 md:py-6"
       >
         {/* «вывернутая» версия фирменного логотипа: кремово-золотая, без
             плашки — собирается из оригинала скриптом scripts/make-logo.mjs */}
@@ -104,6 +109,29 @@ export default function Hero() {
             draggable={false}
           />
         </a>
+
+        {/* Правка заказчицы: «вверху сайта о нас, доставка и т.д. шапкой».
+            Меню ведёт к разделам страницы. На телефоне логотип и кнопка
+            занимают первую строку, меню переносится под них и прокручивается
+            в сторону — иначе пункты налезали друг на друга. */}
+        <nav
+          aria-label="Разделы сайта"
+          className="order-3 w-full overflow-x-auto lg:order-none lg:w-auto lg:overflow-visible"
+        >
+          <ul className="flex items-center gap-5 whitespace-nowrap text-sm text-cream/85 lg:gap-7">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={item.href}
+                  className="transition-colors duration-200 hover:text-gold"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
         {/* номер стоит строкой выше, в полосе контактов — здесь не дублируем */}
         <CatalogRequest className="cursor-pointer whitespace-nowrap rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
           Получить каталог

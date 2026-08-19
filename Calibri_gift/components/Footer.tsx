@@ -4,7 +4,8 @@ import CatalogRequest from "./CatalogRequest";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-cream/10 py-14">
+    // id — цель пункта «Контакты» в меню шапки
+    <footer id="contacts" className="border-t border-cream/10 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 text-center md:grid-cols-3 md:px-12 md:text-left">
         <div>
           {/* фирменный логотип в «вывернутой» кремово-золотой версии */}
@@ -54,8 +55,8 @@ export default function Footer() {
             Доставка по всей России
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+            {/* WhatsApp убран с сайта по правке заказчицы */}
             {[
-              { label: "WhatsApp", href: "https://api.whatsapp.com/send/?phone=79882461551" },
               { label: "Telegram", href: "https://telegram.me/+f0vDIlkA2yY3ODIy" },
               { label: "ВКонтакте", href: "https://vk.com/club215516443" },
             ].map((s) => (

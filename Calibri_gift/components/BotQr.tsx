@@ -39,7 +39,7 @@ export function BotQrInline() {
       <p className="text-xs uppercase tracking-[0.3em] text-bordeaux">
         Отсканируйте QR-код — и начнём подбор
       </p>
-      <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-night/75">
+      <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-night/85">
         Или просто напишите «старт» в чат. Ответите на несколько коротких
         вопросов — и мы подберём три варианта под ваш бюджет и сроки.
       </p>
@@ -63,13 +63,13 @@ export function BotQrInline() {
                 draggable={false}
               />
             </span>
-            <span className="mt-3 block text-sm uppercase tracking-[0.2em] text-night/70 group-hover:text-bordeaux">
+            <span className="mt-3 block text-sm uppercase tracking-[0.2em] text-night/85 group-hover:text-bordeaux">
               {m.name}
             </span>
           </a>
         ))}
       </div>
-      <p className="mt-8 text-base text-night/70">
+      <p className="mt-8 text-base text-night/85">
         Не пользуетесь мессенджерами?{" "}
         <a
           href="#lead"

@@ -67,7 +67,7 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    <section className="section-light relative overflow-hidden py-32 text-center">
+    <section id="care" className="section-light relative overflow-hidden py-32 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Отдел заботы Деда Мороза
@@ -81,7 +81,7 @@ export default function CareDept() {
         </motion.h2>
         {/* «Мы бережно относимся к времени наших клиентов» стоит в первом экране —
             здесь не повторяем: она жаловалась на однообразие страницы */}
-        <motion.p {...reveal} className="mx-auto mt-4 max-w-2xl leading-relaxed text-night/75">
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-2xl leading-relaxed text-night/85">
           Отдел заботы и его чат-бот берут подбор на себя. Ответьте на несколько
           коротких вопросов, и мы предложим три лучших варианта под ваш бюджет,
           сроки и пожелания. Коммерческое предложение подготовим за два рабочих
@@ -91,7 +91,7 @@ export default function CareDept() {
         <motion.p {...reveal} className="mt-14 text-xs uppercase tracking-[0.3em] text-bordeaux">
           Наши зоны ответственности
         </motion.p>
-        <motion.p {...reveal} className="mx-auto mt-3 max-w-xl text-sm text-night/70">
+        <motion.p {...reveal} className="mx-auto mt-3 max-w-xl text-sm text-night/85">
           Чтобы у вас был прозрачный и управляемый процесс
         </motion.p>
 
@@ -104,7 +104,7 @@ export default function CareDept() {
               className="rounded-2xl border border-night/10 bg-cream/85 p-6 shadow-[0_10px_36px_rgba(16,28,51,0.08)]"
             >
               <h3 className="font-display text-xl text-bordeaux md:text-2xl">{z.title}</h3>
-              <p className="mt-2 text-base leading-relaxed text-night/75">{z.text}</p>
+              <p className="mt-2 text-base leading-relaxed text-night/85">{z.text}</p>
             </motion.div>
           ))}
         </div>
@@ -123,7 +123,7 @@ export default function CareDept() {
                   <h3 className="mt-2 font-display text-xl text-bordeaux md:text-2xl">
                     {title}
                   </h3>
-                  <p className="mt-2 text-base leading-relaxed text-night/75">{text}</p>
+                  <p className="mt-2 text-base leading-relaxed text-night/85">{text}</p>
                 </div>
               ))}
             </div>

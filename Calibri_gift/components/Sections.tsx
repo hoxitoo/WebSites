@@ -148,7 +148,7 @@ export function CatalogTeaser() {
        шрифт (сейчас там два разных стиля шрифта) — чтобы в блоке был, включая
        заголовок, только 1 тип шрифта (не заголовочный)». Поэтому здесь нет
        font-display: и заголовок, и текст набраны корпусным Manrope. */
-    <section className="warm-glow relative py-28">
+    <section id="catalog" className="warm-glow relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
         <motion.h2
           {...reveal}

@@ -116,7 +116,7 @@ export function Filling() {
   ];
 
   return (
-    <section className="section-vignette relative py-28">
+    <section id="about" className="section-vignette relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
         <motion.h2 {...reveal} className="font-display text-3xl md:text-5xl">
           А внутри — <span className="glow-gold">только лучшее</span>
@@ -323,7 +323,7 @@ export function Delivery() {
   // светлая («зимняя») секция: бежевый фон и растворённые края —
   // см. .section-light в globals.css
   return (
-    <section className="section-light relative overflow-hidden py-32 text-center">
+    <section id="delivery" className="section-light relative overflow-hidden py-32 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Бесплатная доставка до дверей
@@ -335,7 +335,7 @@ export function Delivery() {
           Доставим бережно, <span className="text-bordeaux">с заботой о Вас</span>{" "}
           и Вашей компании!
         </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-night/70">
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-night/85">
           Отправляем из Краснодара по всей России. Собственный автопарк и прямые
           договоры с перевозчиками — дата поставки фиксируется в договоре.
         </motion.p>
@@ -371,7 +371,7 @@ export function Delivery() {
         <div
           className="mx-auto max-w-2xl rounded-3xl border border-night/10 bg-cream/80 p-6 text-left shadow-[0_18px_60px_rgba(16,28,51,0.12)] md:p-8"
         >
-          <p className="text-center text-sm text-night/70">
+          <p className="text-center text-sm text-night/85">
             В одну точку выгрузки — при заказе на сумму:
           </p>
           <dl className="mt-5 divide-y divide-night/10">
@@ -384,7 +384,7 @@ export function Delivery() {
               </div>
             ))}
           </dl>
-          <p className="mt-5 text-center text-xs leading-relaxed text-night/60">
+          <p className="mt-5 text-center text-xs leading-relaxed text-night/80">
             В остальные регионы доставку менеджер рассчитает индивидуально.
             Занос в помещение и подъём на этаж — дополнительная услуга,
             в стоимость доставки не входят.

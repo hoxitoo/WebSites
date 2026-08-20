@@ -320,10 +320,17 @@ export function Delivery() {
     ["Волгоградская область и Волгоград", "от 100 000 ₽"],
   ];
 
-  // светлая («зимняя») секция: бежевый фон и растворённые края —
-  // см. .section-light в globals.css
+  // Светлая («зимняя») секция — цвет приходит из градиента страницы,
+  // см. body и .section-light в globals.css.
+  //
+  // pb больше, чем pt: снизу начинается сцена с подарком, у неё свой
+  // непрозрачный фон, и переходу градиента нужно место, чтобы дойти
+  // до тёмного тона до её начала — иначе на стыке видна ступенька.
   return (
-    <section id="delivery" className="section-light relative overflow-hidden py-32 text-center">
+    <section
+      id="delivery"
+      className="section-light relative overflow-hidden py-44 text-center"
+    >
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Бесплатная доставка до дверей

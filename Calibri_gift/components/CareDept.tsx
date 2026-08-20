@@ -75,7 +75,7 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    <section id="care" className="section-light relative overflow-hidden py-32 text-center">
+    <section id="care" className="section-light relative overflow-hidden py-44 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
           Отдел заботы Деда Мороза

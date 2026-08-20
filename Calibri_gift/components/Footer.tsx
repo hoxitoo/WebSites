@@ -25,7 +25,7 @@ export default function Footer() {
           </p>
           <Link
             href="/merch"
-            className="mt-2 inline-block text-xs text-muted/60 underline-offset-4 transition-colors hover:text-gold"
+            className="mt-2 inline-block text-xs text-muted/80 underline-offset-4 transition-colors hover:text-gold"
           >
             Мерч и подарки к проф.праздникам — скоро
           </Link>
@@ -77,7 +77,7 @@ export default function Footer() {
           <CatalogRequest className="mx-auto cursor-pointer rounded-full border border-gold/40 px-6 py-2.5 text-gold transition-colors duration-200 hover:bg-gold/10 md:mx-0">
             Получить каталог
           </CatalogRequest>
-          <p className="mt-6 text-xs leading-relaxed text-muted/60">
+          <p className="mt-6 text-xs leading-relaxed text-muted/80">
             © {new Date().getFullYear()} ООО ТК «Колибри»
             <br />
             ИНН 2312230564 · ОГРН 1152312007473

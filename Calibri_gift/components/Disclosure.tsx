@@ -12,23 +12,24 @@ import { AnimatePresence, motion } from "motion/react";
  * с паровозом». Так страница становится короче: она жаловалась, что сайт
  * долго листать и «на середине уже устали».
  *
- * `tone` — под светлые секции («light») и тёмные («dark»).
+ * `tone` — под тёплые винные секции («warm») и синие («dark»). Раньше
+ * тёплые секции были светлыми бежевыми, отсюда прежнее имя «light».
  */
 export default function Disclosure({
   question,
   children,
-  tone = "light",
+  tone = "warm",
   className = "",
 }: {
   question: string;
   children: React.ReactNode;
-  tone?: "light" | "dark";
+  tone?: "warm" | "dark";
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
 
-  const light = tone === "light";
+  const warm = tone === "warm";
 
   return (
     <div className={"mx-auto max-w-3xl " + className}>
@@ -39,15 +40,15 @@ export default function Disclosure({
         aria-controls={id}
         className={
           "flex w-full cursor-pointer items-center justify-between gap-5 rounded-2xl border px-5 py-4 text-left transition-colors md:px-7 md:py-5 " +
-          (light
-            ? "border-night/15 bg-cream/70 hover:border-bordeaux/45"
+          (warm
+            ? "border-cream/12 bg-warm-soft/70 hover:border-gold/45"
             : "border-cream/15 bg-night-soft/50 hover:border-gold/45")
         }
       >
         <span
           className={
             "font-display text-lg leading-snug md:text-2xl " +
-            (light ? "text-night-deep" : "text-cream")
+            "text-cream"
           }
         >
           {question}
@@ -57,7 +58,7 @@ export default function Disclosure({
           aria-hidden
           className={
             "relative grid h-9 w-9 shrink-0 place-items-center rounded-full border text-2xl leading-none " +
-            (light ? "border-bordeaux/35 text-bordeaux" : "border-gold/40 text-gold")
+            (warm ? "border-gold/40 text-gold" : "border-gold/40 text-gold")
           }
         >
           <motion.span

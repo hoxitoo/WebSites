@@ -36,10 +36,10 @@ const reveal = {
 export function BotQrInline() {
   return (
     <motion.div {...reveal} className="mt-16">
-      <p className="text-xs uppercase tracking-[0.3em] text-bordeaux">
+      <p className="text-xs uppercase tracking-[0.3em] text-gold/85">
         Отсканируйте QR-код — и начнём подбор
       </p>
-      <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-night/85">
+      <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted">
         Или просто напишите «старт» в чат. Ответите на несколько коротких
         вопросов — и мы подберём три варианта под ваш бюджет и сроки.
       </p>
@@ -52,7 +52,7 @@ export function BotQrInline() {
             rel="noopener noreferrer"
             className="group block"
           >
-            <span className="block rounded-2xl border border-night/10 bg-cream p-3.5 shadow-[0_12px_40px_rgba(16,28,51,0.14)] transition-transform duration-300 group-hover:-translate-y-1.5">
+            <span className="block rounded-2xl border border-cream/15 bg-cream p-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:-translate-y-1.5">
               <img
                 src={asset(m.qr)}
                 alt={`QR-код: Отдел заботы Деда Мороза в ${m.name}`}
@@ -63,17 +63,17 @@ export function BotQrInline() {
                 draggable={false}
               />
             </span>
-            <span className="mt-3 block text-sm uppercase tracking-[0.2em] text-night/85 group-hover:text-bordeaux">
+            <span className="mt-3 block text-sm uppercase tracking-[0.2em] text-cream/85 group-hover:text-gold">
               {m.name}
             </span>
           </a>
         ))}
       </div>
-      <p className="mt-8 text-base text-night/85">
+      <p className="mt-8 text-base text-muted">
         Не пользуетесь мессенджерами?{" "}
         <a
           href="#lead"
-          className="text-bordeaux underline-offset-4 transition-colors hover:underline"
+          className="text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
         >
           Оставьте заявку на сайте
         </a>

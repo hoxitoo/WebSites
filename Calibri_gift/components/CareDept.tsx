@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import Disclosure from "./Disclosure";
 import { BotQrInline } from "./BotQr";
+import { asset } from "@/lib/asset";
 
 /**
  * «Отдел заботы Деда Мороза» и зоны ответственности.
@@ -12,9 +13,11 @@ import { BotQrInline } from "./BotQr";
  * её каталога: зоны ответственности + текст про чат-бот и подбор трёх
  * вариантов, КП за два рабочих дня.
  *
- * Секция светлая — вторая «зимняя» на странице. Заказчица жаловалась,
- * что сайт монотонный и «блоки эти» одинаковые, поэтому тёмные и светлые
- * секции чередуются.
+ * Секция тёплая — вторая такая на странице. Заказчица жаловалась, что сайт
+ * монотонный и «блоки эти» одинаковые, поэтому синие и винные секции
+ * чередуются. Раньше эти секции были светлыми бежевыми, но переход
+ * от тёмно-синего к светлому неизбежно проходил через грязно-серую
+ * середину — см. комментарий к палитре в globals.css.
  */
 
 const ZONES = [
@@ -75,31 +78,51 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    <section id="care" className="section-light relative overflow-hidden py-44 text-center">
+    <section id="care" className="section-warm relative overflow-hidden py-44 text-center">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
-        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
+        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-gold/85">
           Отдел заботы Деда Мороза
         </motion.p>
         <motion.h2
           {...reveal}
-          className="mx-auto mt-4 max-w-3xl font-display text-3xl leading-tight text-night-deep md:text-5xl"
+          className="mx-auto mt-4 max-w-3xl font-display text-3xl leading-tight text-cream md:text-5xl"
         >
           Чтобы декабрь прошёл{" "}
-          <span className="text-bordeaux">спокойно</span>
+          <span className="glow-gold">спокойно</span>
         </motion.h2>
         {/* «Мы бережно относимся к времени наших клиентов» стоит в первом экране —
             здесь не повторяем: она жаловалась на однообразие страницы */}
-        <motion.p {...reveal} className="mx-auto mt-4 max-w-2xl leading-relaxed text-night/85">
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-2xl leading-relaxed text-muted">
           Отдел заботы и его чат-бот берут подбор на себя. Ответьте на несколько
           коротких вопросов, и мы предложим три лучших варианта под ваш бюджет,
           сроки и пожелания. Коммерческое предложение подготовим за два рабочих
           дня — и только то, что реально можем сделать и поставить вовремя.
         </motion.p>
 
-        <motion.p {...reveal} className="mt-14 text-xs uppercase tracking-[0.3em] text-bordeaux">
+        {/* Стикер Деда Мороза — её правка, она отметила это место на скриншоте.
+            Встал ровно по смыслу: на стикере написано «Подберу для вас
+            3 лучших варианта!», а абзац выше — как раз про то, что бот
+            предложит три варианта. Лёгкий наклон и покачивание, чтобы
+            читался наклейкой, а не картинкой в рамке. Фон у него убран
+            скриптом scripts/make-sticker.mjs. */}
+        <motion.img
+          src={asset("/brand/santa-sticker.webp")}
+          alt="Дед Мороз: «Подберу для вас 3 лучших варианта!»"
+          width={640}
+          height={637}
+          loading="lazy"
+          draggable={false}
+          initial={{ opacity: 0, y: 24, rotate: -6 }}
+          whileInView={{ opacity: 1, y: 0, rotate: -4 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mt-10 w-[210px] drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)] sm:w-[250px] md:w-[290px]"
+        />
+
+        <motion.p {...reveal} className="mt-14 text-xs uppercase tracking-[0.3em] text-gold/85">
           Наши зоны ответственности
         </motion.p>
-        <motion.p {...reveal} className="mx-auto mt-3 max-w-xl text-sm text-night/85">
+        <motion.p {...reveal} className="mx-auto mt-3 max-w-xl text-sm text-muted">
           Чтобы у вас был прозрачный и управляемый процесс
         </motion.p>
 
@@ -109,10 +132,10 @@ export default function CareDept() {
               key={z.title}
               {...reveal}
               transition={{ ...reveal.transition, delay: (i % 2) * 0.1 }}
-              className="rounded-2xl border border-night/10 bg-cream/85 p-6 shadow-[0_10px_36px_rgba(16,28,51,0.08)]"
+              className="rounded-2xl border border-cream/10 bg-warm-soft/60 p-6 shadow-[0_10px_36px_rgba(0,0,0,0.25)]"
             >
-              <h3 className="font-display text-xl text-bordeaux md:text-2xl">{z.title}</h3>
-              <p className="mt-2 text-base leading-relaxed text-night/85">{z.text}</p>
+              <h3 className="font-display text-xl text-gold md:text-2xl">{z.title}</h3>
+              <p className="mt-2 text-base leading-relaxed text-muted">{z.text}</p>
             </motion.div>
           ))}
         </div>
@@ -124,27 +147,27 @@ export default function CareDept() {
           <Disclosure question="Хотите посмотреть, как собирается уникальный подарок?">
             <div className="grid gap-x-8 gap-y-8 text-left sm:grid-cols-2 lg:grid-cols-3">
               {STEPS.map(([title, text], i) => (
-                <div key={title} className="border-t-2 border-bordeaux/25 pt-4">
-                  <p className="font-display text-3xl leading-none text-bordeaux/45">
+                <div key={title} className="border-t-2 border-gold/25 pt-4">
+                  <p className="font-display text-3xl leading-none text-gold/40">
                     {String(i + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="mt-2 font-display text-xl text-bordeaux md:text-2xl">
+                  <h3 className="mt-2 font-display text-xl text-gold md:text-2xl">
                     {title}
                   </h3>
-                  <p className="mt-2 text-base leading-relaxed text-night/85">{text}</p>
+                  <p className="mt-2 text-base leading-relaxed text-muted">{text}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-night/10 bg-night-deep/[0.04] p-6 text-left md:p-8">
-              <p className="text-center text-xs uppercase tracking-[0.24em] text-bordeaux">
+            <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-cream/10 bg-warm-deep/50 p-6 text-left md:p-8">
+              <p className="text-center text-xs uppercase tracking-[0.24em] text-gold/85">
                 Ваш логотип на подарке
               </p>
-              <dl className="mt-5 divide-y divide-night/10">
+              <dl className="mt-5 divide-y divide-cream/10">
                 {BRANDING.map(([what, qty]) => (
                   <div key={what} className="flex items-baseline justify-between gap-4 py-2.5">
-                    <dt className="text-base text-night-deep">{what}</dt>
-                    <dd className="whitespace-nowrap text-base font-semibold text-bordeaux">
+                    <dt className="text-base text-cream/90">{what}</dt>
+                    <dd className="whitespace-nowrap text-base font-semibold text-gold">
                       {qty}
                     </dd>
                   </div>

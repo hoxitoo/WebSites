@@ -86,9 +86,12 @@ export function BusinessEffect() {
 }
 
 /* ————— Что внутри: наполнение и качество (слайд «100% качество») ————— */
-// Правка заказчицы: «давайте всё таки логотипы поставим?» — вместо
-// текстовых плашек настоящие логотипы фабрик из её каталога
-// (собраны скриптом scripts/extract-brand.mjs).
+// Логотипы поставщиков. Правка заказчицы: «давайте всё таки логотипы
+// поставим?» — вместо текстовых плашек. Сначала вырезал их из рендера
+// каталога, но она прислала архив с оригиналами: качество лучше, и в нём
+// нашлись те четыре фабрики, которых в каталоге не было и которые до этого
+// оставались текстом (Konti, Essen, Mars, Невский кондитер).
+// Собирает scripts/make-suppliers.mjs.
 const FACTORIES = [
   ["Красный Октябрь", "factory-krasnyy-oktyabr.webp"],
   ["РотФронт", "factory-rotfront.webp"],
@@ -100,12 +103,11 @@ const FACTORIES = [
   ["Победа", "factory-pobeda.webp"],
   ["Махеевъ", "factory-maheev.webp"],
   ["KDV", "factory-kdv.webp"],
+  ["Konti", "factory-konti.webp"],
+  ["Essen", "factory-essen.webp"],
+  ["Mars", "factory-mars.webp"],
+  ["Невский кондитер", "factory-nevskiy-konditer.webp"],
 ] as const;
-
-// Эти фабрики были в прежнем текстовом списке, но их логотипов в каталоге нет —
-// оставляем строкой, чтобы поставщики не пропали. Пришлёт логотипы — переедут
-// наверх, к остальным.
-const FACTORIES_TEXT = ["Konti", "Essen", "Mars", "Невский кондитер"];
 
 export function Filling() {
   const points = [
@@ -145,7 +147,7 @@ export function Filling() {
         </motion.p>
         {/* логотипы на светлых плашках — как в каталоге; на тёмном фоне
             фирменные цвета фабрик иначе теряются */}
-        <div className="mx-auto mt-7 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
+        <div className="mx-auto mt-7 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
           {FACTORIES.map(([name, file], i) => (
             <motion.div
               key={file}
@@ -163,19 +165,6 @@ export function Filling() {
             </motion.div>
           ))}
         </div>
-        <motion.p
-          {...reveal}
-          className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2"
-        >
-          {FACTORIES_TEXT.map((name) => (
-            <span
-              key={name}
-              className="rounded-full border border-cream/15 px-4 py-1.5 text-xs text-cream/75"
-            >
-              {name}
-            </span>
-          ))}
-        </motion.p>
       </div>
     </section>
   );
@@ -320,8 +309,8 @@ export function Delivery() {
     ["Волгоградская область и Волгоград", "от 100 000 ₽"],
   ];
 
-  // Светлая («зимняя») секция — цвет приходит из градиента страницы,
-  // см. body и .section-light в globals.css.
+  // Тёплая («винная») секция — цвет приходит из градиента страницы,
+  // см. body и .section-warm в globals.css.
   //
   // pb больше, чем pt: снизу начинается сцена с подарком, у неё свой
   // непрозрачный фон, и переходу градиента нужно место, чтобы дойти
@@ -329,20 +318,20 @@ export function Delivery() {
   return (
     <section
       id="delivery"
-      className="section-light relative overflow-hidden py-44 text-center"
+      className="section-warm relative overflow-hidden py-44 text-center"
     >
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
-        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-bordeaux">
+        <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-gold/85">
           Бесплатная доставка до дверей
         </motion.p>
         <motion.h2
           {...reveal}
-          className="mx-auto mt-4 max-w-3xl font-display text-3xl leading-tight text-night-deep md:text-5xl"
+          className="mx-auto mt-4 max-w-3xl font-display text-3xl leading-tight text-cream md:text-5xl"
         >
-          Доставим бережно, <span className="text-bordeaux">с заботой о Вас</span>{" "}
+          Доставим бережно, <span className="glow-gold">с заботой о Вас</span>{" "}
           и Вашей компании!
         </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-night/85">
+        <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
           Отправляем из Краснодара по всей России. Собственный автопарк и прямые
           договоры с перевозчиками — дата поставки фиксируется в договоре.
         </motion.p>
@@ -357,7 +346,7 @@ export function Delivery() {
             задуманным, а не обрезанной картинкой. */}
         <motion.div
           {...reveal}
-          className="mx-auto mt-6 w-full max-w-xl overflow-hidden rounded-[2rem] bg-cream/70 shadow-[0_18px_50px_rgba(16,28,51,0.10)]"
+          className="mx-auto mt-6 w-full max-w-xl overflow-hidden rounded-[2rem] bg-cream/90 shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
         >
           <img
             src={asset("/brand/train.webp")}
@@ -376,22 +365,22 @@ export function Delivery() {
         <motion.div {...reveal} className="mt-4">
         <Disclosure question="Куда и от какой суммы доставляем бесплатно?">
         <div
-          className="mx-auto max-w-2xl rounded-3xl border border-night/10 bg-cream/80 p-6 text-left shadow-[0_18px_60px_rgba(16,28,51,0.12)] md:p-8"
+          className="mx-auto max-w-2xl rounded-3xl border border-cream/10 bg-warm-deep/50 p-6 text-left shadow-[0_18px_60px_rgba(0,0,0,0.3)] md:p-8"
         >
-          <p className="text-center text-sm text-night/85">
+          <p className="text-center text-sm text-muted">
             В одну точку выгрузки — при заказе на сумму:
           </p>
-          <dl className="mt-5 divide-y divide-night/10">
+          <dl className="mt-5 divide-y divide-cream/10">
             {regions.map(([name, sum]) => (
               <div key={name} className="flex items-baseline justify-between gap-4 py-3">
-                <dt className="text-sm text-night-deep md:text-base">{name}</dt>
-                <dd className="whitespace-nowrap font-display text-lg text-bordeaux md:text-xl">
+                <dt className="text-sm text-cream/90 md:text-base">{name}</dt>
+                <dd className="whitespace-nowrap font-display text-lg text-gold md:text-xl">
                   {sum}
                 </dd>
               </div>
             ))}
           </dl>
-          <p className="mt-5 text-center text-xs leading-relaxed text-night/80">
+          <p className="mt-5 text-center text-xs leading-relaxed text-muted/75">
             В остальные регионы доставку менеджер рассчитает индивидуально.
             Занос в помещение и подъём на этаж — дополнительная услуга,
             в стоимость доставки не входят.

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { sendLead } from "@/lib/sendLead";
 import Portal from "./Portal";
+import { asset } from "@/lib/asset";
 
 /**
  * Кнопка «Получить каталог» и маленькое окно к ней.
@@ -171,9 +172,15 @@ export default function CatalogRequest({
                           позвоните: 8 (861) 250-65-51.
                         </p>
                       )}
-                      <p className="text-center text-xs text-muted/60">
-                        Нажимая кнопку, вы соглашаетесь с обработкой
-                        персональных данных.
+                      <p className="text-center text-xs text-muted/80">
+                        Нажимая кнопку, вы соглашаетесь с{" "}
+                        <a
+                          href={asset("/privacy")}
+                          className="text-gold underline underline-offset-4 hover:text-gold-soft"
+                        >
+                          обработкой персональных данных
+                        </a>
+                        .
                       </p>
                     </form>
                   </>

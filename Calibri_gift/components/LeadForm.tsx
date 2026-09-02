@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Magnetic from "./Magnetic";
 import { sendLead } from "@/lib/sendLead";
+import { asset } from "@/lib/asset";
 
 /**
  * Квиз-анкета — те же вопросы и в том же порядке, что задаёт бот
@@ -386,8 +387,15 @@ export default function LeadForm() {
                         8 (861) 250-65-51.
                       </p>
                     )}
-                    <p className="mt-4 text-xs text-muted/60">
-                      Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.
+                    <p className="mt-4 text-xs text-muted/80">
+                      Нажимая кнопку, вы соглашаетесь с{" "}
+                      <a
+                        href={asset("/privacy")}
+                        className="text-gold underline underline-offset-4 hover:text-gold-soft"
+                      >
+                        обработкой персональных данных
+                      </a>
+                      .
                     </p>
                   </div>
                 </form>

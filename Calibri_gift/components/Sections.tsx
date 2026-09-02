@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 import Magnetic from "./Magnetic";
 import Lightbox, { type Shot } from "./Lightbox";
 import CatalogRequest from "./CatalogRequest";
 import { asset } from "@/lib/asset";
 
-/* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) ————— */
+/* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) —————
+ *
+ * Начальное значение — сразу конечное, а не ноль. Это важно: цифры доверия
+ * (11 лет, 99,9%, 1000+) попадают в исходный HTML настоящими. Раньше там
+ * стояли нули, и если бы скрипты не загрузились — медленная сеть, блокировщик,
+ * старый браузер, — человек увидел бы «0 лет» и «0 клиентов». Анимация
+ * запускается уже поверх готовых цифр, когда блок доходит до экрана.
+ */
 function Counter({
   to,
   suffix = "",
@@ -19,10 +26,11 @@ function Counter({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.6 });
-  const [val, setVal] = useState(0);
+  const reduce = useReducedMotion();
+  const [val, setVal] = useState(to);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || reduce) return;
     const start = performance.now();
     const dur = 1800;
     let raf = 0;
@@ -31,10 +39,11 @@ function Counter({
       const eased = 1 - Math.pow(1 - t, 3);
       setVal(to * eased);
       if (t < 1) raf = requestAnimationFrame(tick);
+      else setVal(to); // добиваем ровно до конечного, без хвоста округления
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [inView, to]);
+  }, [inView, to, reduce]);
 
   return (
     <span ref={ref} className="glow-gold tabular-nums">

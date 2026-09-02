@@ -4,20 +4,11 @@ import { motion, useReducedMotion } from "motion/react";
 import Snow from "./Snow";
 import Magnetic from "./Magnetic";
 import CatalogRequest from "./CatalogRequest";
+import SiteHeader from "./SiteHeader";
 import { asset } from "@/lib/asset";
 
 // текст заголовка и подзаголовка — дословно по правке заказчицы
 const lines = ["Вы дарите самое важное —", "заботу и внимание"];
-
-// Меню в шапке — правка «вверху сайта о нас, доставка и т.д. шапкой».
-// Ведёт к разделам этой же страницы (id стоят на секциях).
-const NAV = [
-  { label: "О нас", href: "#about" },
-  { label: "Каталог", href: "#catalog" },
-  { label: "Отдел заботы", href: "#care" },
-  { label: "Доставка", href: "#delivery" },
-  { label: "Контакты", href: "#contacts" },
-] as const;
 
 export default function Hero() {
   const reduce = useReducedMotion();
@@ -50,93 +41,7 @@ export default function Hero() {
       />
       <Snow density={1} />
 
-      {/* Правка заказчицы: «контакты нужно и сверху и снизу». Раньше сверху
-          был только телефон, и на телефоне он вообще прятался — она этого
-          не увидела. Теперь полоса с обоими номерами, почтой и мессенджерами
-          стоит самой первой строкой и видна на любом экране. */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-20 border-b border-cream/10 bg-night-deep/45 px-4 py-2.5 backdrop-blur-sm"
-      >
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[0.78rem] text-cream/80 sm:gap-x-6 sm:text-sm">
-          <a href="tel:+78612506551" className="transition-colors hover:text-gold">
-            8 (861) 250-65-51
-          </a>
-          <a href="tel:+79882461551" className="transition-colors hover:text-gold">
-            8 (988) 246-15-51
-          </a>
-          <a
-            href="mailto:info@kolibri-ug.ru"
-            className="transition-colors hover:text-gold"
-          >
-            info@kolibri-ug.ru
-          </a>
-          {/* WhatsApp убран с сайта по правке заказчицы */}
-          <span className="hidden text-cream/25 sm:inline">·</span>
-          <a
-            href="https://telegram.me/+f0vDIlkA2yY3ODIy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-gold"
-          >
-            Telegram
-          </a>
-        </div>
-      </motion.div>
-
-      {/* шапка */}
-      <motion.header
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative z-10 flex flex-wrap items-center justify-between gap-y-3 px-6 py-5 md:px-12 md:py-6"
-      >
-        {/* «вывернутая» версия фирменного логотипа: кремово-золотая, без
-            плашки — собирается из оригинала скриптом scripts/make-logo.mjs */}
-        <a
-          href="#"
-          aria-label="Колибри — торговая компания"
-          className="inline-flex transition-opacity duration-300 hover:opacity-80"
-        >
-          <img
-            src={asset("/logo-kolibri-row.webp")}
-            alt="Торговая компания «Колибри»"
-            width={964}
-            height={400}
-            className="h-12 w-auto sm:h-14 md:h-20"
-            draggable={false}
-          />
-        </a>
-
-        {/* Правка заказчицы: «вверху сайта о нас, доставка и т.д. шапкой».
-            Меню ведёт к разделам страницы. На узком экране логотип и кнопка
-            занимают первую строку, а меню переносится под них — не в скролл
-            в сторону, а в две строки: так ни один пункт не спрятан. */}
-        <nav
-          aria-label="Разделы сайта"
-          className="order-3 w-full lg:order-none lg:w-auto"
-        >
-          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-cream/85 lg:flex-nowrap lg:gap-7">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="transition-colors duration-200 hover:text-gold"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* номер стоит строкой выше, в полосе контактов — здесь не дублируем */}
-        <CatalogRequest className="cursor-pointer whitespace-nowrap rounded-full border border-gold/40 px-5 py-2 text-sm text-gold transition-colors duration-200 hover:bg-gold/10">
-          Получить каталог
-        </CatalogRequest>
-      </motion.header>
+      <SiteHeader />
 
       {/* контент */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-20 md:px-12">

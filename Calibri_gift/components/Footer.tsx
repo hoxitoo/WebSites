@@ -84,6 +84,27 @@ export default function Footer() {
           </p>
         </div>
       </div>
+
+      {/* Правовая строка внизу. Политика обработки персональных данных
+          обязательна: на сайте есть формы, которые собирают имя, компанию,
+          почту и телефон, и под кнопками написано «нажимая кнопку, вы
+          соглашаетесь с обработкой персональных данных» — а согласия
+          с чем именно, до этого на сайте не было. Текст оговорки про оферту
+          и авторское право — с её действующего сайта kolibri-ug.ru. */}
+      <div className="mx-auto mt-12 max-w-6xl border-t border-cream/10 px-6 pt-6 md:px-12">
+        <p className="text-center text-xs leading-relaxed text-muted/75 md:text-left">
+          Сайт не является публичной офертой и носит информационный характер.
+          Все материалы сайта, включая дизайн, являются объектами авторского
+          права: копирование и иное использование без согласия
+          правообладателя запрещено.
+        </p>
+        <Link
+          href="/privacy"
+          className="mt-3 block text-center text-xs text-gold underline underline-offset-4 transition-colors hover:text-gold-soft md:text-left"
+        >
+          Политика обработки персональных данных
+        </Link>
+      </div>
     </footer>
   );
 }

@@ -172,13 +172,21 @@ export default function CatalogRequest({
                           позвоните: 8 (861) 250-65-51.
                         </p>
                       )}
-                      <p className="text-center text-xs text-muted/80">
-                        Нажимая кнопку, вы соглашаетесь с{" "}
+                      {/* два документа — как в форме на странице и в боте */}
+                      <p className="text-center text-xs leading-relaxed text-muted/80">
+                        Нажимая кнопку, вы даёте{" "}
+                        <a
+                          href={asset("/consent")}
+                          className="text-gold underline underline-offset-4 hover:text-gold-soft"
+                        >
+                          согласие на обработку персональных данных
+                        </a>{" "}
+                        и принимаете{" "}
                         <a
                           href={asset("/privacy")}
                           className="text-gold underline underline-offset-4 hover:text-gold-soft"
                         >
-                          обработкой персональных данных
+                          политику конфиденциальности
                         </a>
                         .
                       </p>

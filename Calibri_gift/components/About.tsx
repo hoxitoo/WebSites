@@ -90,13 +90,17 @@ export function BusinessEffect() {
 // поставим?» — вместо текстовых плашек. Сначала вырезал их из рендера
 // каталога, но она прислала архив с оригиналами: качество лучше, и в нём
 // нашлись те четыре фабрики, которых в каталоге не было и которые до этого
-// оставались текстом (Konti, Essen, Mars, Невский кондитер).
+// оставались текстом (Konti, Essen, Mars, Невский кондитер). Raffaello она
+// прислала отдельно позже — «добавить в логотипы этот, пропустили»; стоит
+// рядом с Ferrero, это их бренд. Пятнадцать логотипов — ровно три ряда по
+// пять на широком экране.
 // Собирает scripts/make-suppliers.mjs.
 const FACTORIES = [
   ["Красный Октябрь", "factory-krasnyy-oktyabr.webp"],
   ["РотФронт", "factory-rotfront.webp"],
   ["Бабаевский", "factory-babaevskiy.webp"],
   ["Ferrero", "factory-ferrero.webp"],
+  ["Raffaello", "factory-raffaello.webp"],
   ["Акконд", "factory-akkond.webp"],
   ["Славянка", "factory-slavyanka.webp"],
   ["Сладкий Орешек", "factory-sladkiy-oreshek.webp"],

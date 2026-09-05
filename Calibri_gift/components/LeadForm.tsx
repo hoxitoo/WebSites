@@ -387,13 +387,23 @@ export default function LeadForm() {
                         8 (861) 250-65-51.
                       </p>
                     )}
-                    <p className="mt-4 text-xs text-muted/80">
-                      Нажимая кнопку, вы соглашаетесь с{" "}
+                    {/* Два документа, а не один: согласие — на что соглашается
+                        человек, политика — что компания вообще делает
+                        с данными. Так же и в первом сообщении бота. */}
+                    <p className="mt-4 text-xs leading-relaxed text-muted/80">
+                      Нажимая кнопку, вы даёте{" "}
+                      <a
+                        href={asset("/consent")}
+                        className="text-gold underline underline-offset-4 hover:text-gold-soft"
+                      >
+                        согласие на обработку персональных данных
+                      </a>{" "}
+                      и принимаете{" "}
                       <a
                         href={asset("/privacy")}
                         className="text-gold underline underline-offset-4 hover:text-gold-soft"
                       >
-                        обработкой персональных данных
+                        политику конфиденциальности
                       </a>
                       .
                     </p>

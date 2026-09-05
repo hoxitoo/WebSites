@@ -1,9 +1,14 @@
 /**
  * Готовит логотипы поставщиков для блока «А внутри — только лучшее».
  *
- * Заказчица прислала архив «поставщики.zip» с оригиналами — все 14 фабрик,
+ * Заказчица прислала архив «поставщики.zip» с оригиналами — 14 фабрик,
  * включая те четыре, которых не было в каталоге и которые до этого висели
- * текстовыми плашками (Konti, Essen, Mars, Невский кондитер).
+ * текстовыми плашками (Konti, Essen, Mars, Невский кондитер). Пятнадцатым
+ * позже добавился Raffaello — его она прислала отдельной картинкой.
+ *
+ * Распакованные оригиналы лежат в design/suppliers/ (папка в .gitignore,
+ * 5 МБ сайту не нужны — нужны только готовые webp), запуск:
+ *   node scripts/make-suppliers.mjs design/suppliers
  *
  * Оригиналы лучше прежних картинок: те вырезались из рендера страницы PDF,
  * то есть были пережаты дважды. Здесь — исходные логотипы.
@@ -33,6 +38,12 @@ const OUT = path.resolve("public/brand");
 mkdirSync(OUT, { recursive: true });
 
 // файл в архиве → имя на сайте и подпись
+//
+// Raffaello она прислала отдельной картинкой позже («добавить в логотипы этот,
+// пропустили») — положите её в ту же папку под именем raffaello.png. В отличие
+// от архивных логотипов у неё нет прозрачности: фон залит белым. Такие файлы
+// скрипт узнаёт сам (см. `meta.hasAlpha` ниже) и приводит белый к кремовому
+// умножением, а не порогом: порог съел бы белую обводку букв.
 const MAP = [
   ["f09.png", "krasnyy-oktyabr", "Красный Октябрь"],
   ["f07.png", "rotfront", "РотФронт"],
@@ -49,6 +60,7 @@ const MAP = [
   ["f10.png", "essen", "Essen"],
   ["f13.png", "mars", "Mars"],
   ["f12.png", "nevskiy-konditer", "Невский кондитер"],
+  ["raffaello.png", "raffaello", "Raffaello"],
 ];
 
 const CREAM = { r: 247, g: 243, b: 236 };
@@ -60,7 +72,39 @@ for (const [file, name, human] of MAP) {
     process.exit(1);
   }
   const out = path.join(OUT, `factory-${name}.webp`);
-  const meta = await sharp(src)
+
+  let img = sharp(src);
+  const srcMeta = await img.metadata();
+  if (!srcMeta.hasAlpha) {
+    // Логотип на непрозрачном белом фоне. Обрезаем белые поля, а сам белый
+    // умножаем на кремовый: белая плашка внутри кремовой была бы видна
+    // прямоугольником. Умножение трогает только светлое — красный
+    // (227,30,54) становится (220,29,50), на глаз это тот же цвет.
+    const trimmed = await img
+      .trim({ background: "#ffffff", threshold: 6 })
+      .toBuffer({ resolveWithObject: true });
+    // отдельный проход: sharp применяет composite уже после resize, в одной
+    // цепочке кремовый слой не совпал бы по размеру с рамкой 420×220
+    const toned = await sharp(trimmed.data)
+      .composite([
+        {
+          input: {
+            create: {
+              width: trimmed.info.width,
+              height: trimmed.info.height,
+              channels: 3,
+              background: CREAM,
+            },
+          },
+          blend: "multiply",
+        },
+      ])
+      .png()
+      .toBuffer();
+    img = sharp(toned);
+  }
+
+  const meta = await img
     // вписываем в единую рамку с полями: логотипы разной пропорции,
     // без этого на плашках они прыгают по размеру
     .resize(420, 220, { fit: "contain", background: CREAM })

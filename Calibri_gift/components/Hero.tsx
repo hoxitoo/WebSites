@@ -1,19 +1,27 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import Snow from "./Snow";
 import Magnetic from "./Magnetic";
 import CatalogRequest from "./CatalogRequest";
-import SiteHeader from "./SiteHeader";
 import { asset } from "@/lib/asset";
 
 // текст заголовка и подзаголовка — дословно по правке заказчицы
 const lines = ["Вы дарите самое важное —", "заботу и внимание"];
 
+/**
+ * Первый экран. Текст и обе кнопки — как в её макете (они там дословно
+ * совпали с нашими). Фон оставили наш: «фон нравится текущий, можно
+ * оставить текущий».
+ *
+ * Шапка больше не внутри: в её переработке она липкая, поэтому живёт
+ * отдельным блоком выше (components/SiteHeader.tsx). Из-за этого экран
+ * перестал быть во всю высоту — как у неё: высота по содержимому
+ * с большими отступами, чтобы кнопки не уезжали за сгиб.
+ */
 export default function Hero() {
-  const reduce = useReducedMotion();
   return (
-    <section className="relative flex min-h-svh flex-col overflow-hidden">
+    <section id="hero" className="relative flex flex-col overflow-hidden">
       {/* фон: зимняя ночь — заказчица вернула синюю палитру */}
       <div
         className="absolute inset-0"
@@ -41,10 +49,8 @@ export default function Hero() {
       />
       <Snow density={1} />
 
-      <SiteHeader />
-
       {/* контент */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-20 md:px-12">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-24 pt-16 md:px-12 md:pb-28 md:pt-24">
         <div className="max-w-3xl">
           <motion.p
             initial={{ opacity: 0 }}
@@ -121,15 +127,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* индикатор скролла */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={reduce ? { opacity: 0.6 } : { opacity: [0, 1, 0] }}
-        transition={reduce ? { delay: 1.1, duration: 0.6 } : { delay: 1.1, duration: 2.2, repeat: Infinity }}
-        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-[0.3em] text-muted"
-      >
-        листайте
-      </motion.div>
+      {/* Подсказки «листайте» здесь больше нет: она вела к сцене с подарком,
+          а сцена по её правке уехала в самый низ страницы. */}
     </section>
   );
 }

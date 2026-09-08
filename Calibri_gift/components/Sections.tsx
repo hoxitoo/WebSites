@@ -2,10 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
-import Magnetic from "./Magnetic";
-import Lightbox, { type Shot } from "./Lightbox";
-import CatalogRequest from "./CatalogRequest";
-import { asset } from "@/lib/asset";
+
+/**
+ * Блок «О компании» с цифрами доверия.
+ *
+ * Раньше в этом файле жили ещё «Как рождается забота» и тизер каталога.
+ * После её переработки первый заменён блоком «Прозрачный и управляемый
+ * процесс» (Process.tsx), второй — разделом «Форматы новогодних подарков»
+ * (Formats.tsx). Прежний файл целиком есть в git — тег
+ * pre-redesign-2026-09-08.
+ */
 
 /* ————— Анимированный счётчик (поддерживает дробные, напр. 99,9) —————
  *
@@ -46,7 +52,8 @@ function Counter({
   }, [inView, to, reduce]);
 
   return (
-    <span ref={ref} className="glow-gold tabular-nums">
+    // whitespace-nowrap: «99,9 %» переносило знак процента на вторую строку
+    <span ref={ref} className="glow-gold tabular-nums whitespace-nowrap">
       {val.toLocaleString("ru-RU", {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
@@ -64,6 +71,9 @@ const reveal = {
 };
 
 /* ————— Цифры ————— */
+// Блок «О компании» — по её переработке: «у компании тут как у меня,
+// не как у Андрея». От её макета: заголовок-надпись «О компании» над
+// цифрами (раньше цифры стояли без него) и подписи по центру.
 export function Numbers() {
   const items = [
     { to: 11, suffix: "", decimals: 0, label: "лет выстраиваем систему, которая стабильно работает в декабре" },
@@ -71,7 +81,13 @@ export function Numbers() {
     { to: 1000, suffix: "+", decimals: 0, label: "постоянных клиентов, 85% из них с нами больше 9 лет" },
   ];
   return (
-    <section className="warm-glow relative mx-auto max-w-6xl px-6 py-28 md:px-12">
+    <section id="about" className="warm-glow relative mx-auto max-w-6xl px-6 py-28 md:px-12">
+      <motion.p
+        {...reveal}
+        className="mb-12 text-center text-lg uppercase tracking-[0.24em] text-gold"
+      >
+        О компании
+      </motion.p>
       <div className="grid gap-14 md:grid-cols-3">
         {items.map((it, i) => (
           <motion.div key={i} {...reveal} transition={{ ...reveal.transition, delay: i * 0.12 }} className="text-center">
@@ -81,156 +97,6 @@ export function Numbers() {
             <p className="mt-4 text-sm leading-relaxed text-muted">{it.label}</p>
           </motion.div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-/* ————— Как это работает ————— */
-export function HowItWorks() {
-  const steps = [
-    {
-      n: "01",
-      title: "Несколько вопросов в чат-боте",
-      text: "Отвечаете на короткие вопросы — мы понимаем задачу, бюджет и сроки. Пара минут.",
-    },
-    {
-      n: "02",
-      title: "3 готовых варианта",
-      text: "Вместо каталога из 200 позиций — три смысловые линейки под ваш запрос. Вы добавляете фирменные детали.",
-    },
-    {
-      n: "03",
-      title: "Фиксируем и реализуем",
-      text: "Наполнение не меняем без вашего подтверждения. Контроль качества и отгрузка точно в срок.",
-    },
-  ];
-  return (
-    <section className="section-vignette relative py-28">
-      <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.h2 {...reveal} className="mb-16 text-center font-display text-3xl md:text-5xl">
-          Как рождается <span className="candle-sweep">забота</span>
-        </motion.h2>
-        <div className="grid gap-10 md:grid-cols-3">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.n}
-              {...reveal}
-              transition={{ ...reveal.transition, delay: i * 0.15 }}
-              className="relative rounded-2xl border border-cream/10 bg-night-soft/50 p-8"
-            >
-              <span className="font-display text-5xl text-bordeaux-bright/70">
-                {s.n}
-              </span>
-              <h3 className="mt-4 mb-3 text-xl font-semibold text-cream">{s.title}</h3>
-              <p className="text-sm leading-relaxed text-muted">{s.text}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ————— Тизер каталога (без цен — намеренно) ————— */
-
-// Названия и порядок — по правке заказчицы. На плитках не вырезанные предметы,
-// а целые страницы-разделители каталога: «хочу, чтобы не только предмет был
-// в кадре, а целая страница». Собирает scripts/extract-catalog.mjs.
-const BOXES = [
-  { label: "Наборы", file: "tile-nabory.webp", hue: "#22375c",
-    alt: "Страница каталога: новогодние подарки в наборах" },
-  { label: "Картонная упаковка", file: "tile-karton.webp", hue: "#2b4470",
-    alt: "Страница каталога: новогодние подарки в картонной упаковке" },
-  { label: "Текстильная упаковка", file: "tile-tekstil.webp", hue: "#1e3557",
-    alt: "Страница каталога: новогодние подарки в текстильной упаковке" },
-  { label: "Комбинированная упаковка", file: "tile-kombi.webp", hue: "#2a3d63",
-    alt: "Страница каталога: новогодние подарки в комбинированной упаковке" },
-  { label: "Премиум упаковка", file: "tile-premium.webp", hue: "#3a2b52",
-    alt: "Страница каталога: новогодние подарки в премиум-упаковке" },
-] as const;
-
-export function CatalogTeaser() {
-  const [shot, setShot] = useState<Shot | null>(null);
-  const boxes = BOXES;
-  return (
-    /* Правка заказчицы: «сделать экспериментально только в этом блоке единый
-       шрифт (сейчас там два разных стиля шрифта) — чтобы в блоке был, включая
-       заголовок, только 1 тип шрифта (не заголовочный)». Поэтому здесь нет
-       font-display: и заголовок, и текст набраны корпусным Manrope. */
-    <section id="catalog" className="warm-glow relative py-28">
-      <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
-        <motion.h2
-          {...reveal}
-          className="text-[1.7rem] font-semibold leading-tight tracking-tight md:text-[2.6rem]"
-        >
-          Каталог — <span className="glow-gold">по личному запросу</span>
-        </motion.h2>
-        <motion.p {...reveal} className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted">
-          Мы не выкладываем каталог в открытый доступ: каждое предложение собираем
-          под компанию. Оставьте почту — и Отдел заботы пришлёт каталог и
-          персональное коммерческое предложение.
-        </motion.p>
-
-        {/* Плитки — целые страницы каталога, они горизонтальные, поэтому
-            не сетка из пяти столбцов (в ней страница выходила крохотной),
-            а свободный ряд по три: последняя строка центрируется сама. */}
-        <div className="mt-14 flex flex-wrap justify-center gap-5">
-          {boxes.map((b, i) => (
-            <motion.button
-              key={b.label}
-              type="button"
-              onClick={() =>
-                setShot({ src: asset(`/catalog/${b.file}`), alt: b.alt, caption: b.label })
-              }
-              {...reveal}
-              transition={{ ...reveal.transition, delay: i * 0.1 }}
-              whileHover={{ y: -8 }}
-              // ширина в долях, а не в пикселях: при фиксированной 330 px
-              // две плитки не влезали в контейнер буквально на 6 px и уезжали
-              // по одной в строку. Вычитаем из доли часть отступа gap-5.
-              className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-cream/10 p-4 text-center transition-colors duration-300 hover:border-gold/45 sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
-              style={{
-                background: `linear-gradient(160deg, ${b.hue} 0%, #16233d 120%)`,
-              }}
-            >
-              {/* страница каталога целиком — как лист, а не вырезка */}
-              <span className="mb-4 block overflow-hidden rounded-xl bg-cream">
-                <img
-                  src={asset(`/catalog/${b.file}`)}
-                  alt={b.alt}
-                  loading="lazy"
-                  className="block aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                />
-              </span>
-              {/* трекинг на узких экранах меньше: «КОМБИНИРОВАННАЯ» не влезала */}
-              <span className="block break-words text-xs uppercase leading-relaxed tracking-[0.07em] text-cream/85 group-hover:text-gold md:tracking-[0.14em]">
-                {b.label}
-              </span>
-              <span className="mt-1 block text-[0.65rem] text-muted/70 transition-colors group-hover:text-gold/70">
-                нажмите, чтобы увеличить
-              </span>
-            </motion.button>
-          ))}
-        </div>
-
-        <Lightbox shot={shot} onClose={() => setShot(null)} />
-
-        <motion.div {...reveal} className="mt-12">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Magnetic>
-              <a
-                href="#lead"
-                className="inline-block btn-ribbon rounded-full px-7 py-4 font-medium"
-              >
-                Получить индивидуальное предложение
-              </a>
-            </Magnetic>
-            <CatalogRequest className="cursor-pointer rounded-full border border-gold/50 px-7 py-4 font-medium text-gold transition-colors duration-300 hover:bg-gold/10">
-              Получить каталог на почту
-            </CatalogRequest>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

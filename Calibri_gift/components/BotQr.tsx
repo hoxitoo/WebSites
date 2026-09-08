@@ -69,14 +69,17 @@ export function BotQrInline() {
           </a>
         ))}
       </div>
+      {/* анкета теперь стоит сразу под этим блоком — её правка «чтобы под
+          этим блоком была форма анкеты сразу», поэтому и ссылка ведёт вниз */}
       <p className="mt-8 text-base text-muted">
         Не пользуетесь мессенджерами?{" "}
         <a
           href="#lead"
           className="text-gold underline-offset-4 transition-colors hover:text-gold-soft hover:underline"
         >
-          Оставьте заявку на сайте
-        </a>
+          Заполните анкету прямо здесь
+        </a>{" "}
+        — она сразу под этим блоком.
       </p>
     </motion.div>
   );

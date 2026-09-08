@@ -34,6 +34,19 @@ const PHOTOS = [
   { file: "kid-14.webp", alt: "Девочка с мягкой игрушкой в новогоднем костюме" },
   { file: "kid-15.webp", alt: "Девочка с подарком в комбинированной упаковке" },
   { file: "kid-16.webp", alt: "Мальчик с подарочной тубой" },
+  // Десять фото она добавила вместе со своей переработкой сайта:
+  // «добавила фото с детками», архив «отобранные фото для галереи».
+  // Готовит scripts/make-rework-assets.mjs.
+  { file: "kid-17.webp", alt: "Девочка в красном платье с игрушкой-овечкой и подарочным набором" },
+  { file: "kid-18.webp", alt: "Девочка с подарочным пакетом и мягкой игрушкой у ёлки" },
+  { file: "kid-19.webp", alt: "Мальчик в клетчатой рубашке с подарочным пакетом" },
+  { file: "kid-20.webp", alt: "Девочка в синем платье с подарочным пакетом" },
+  { file: "kid-21.webp", alt: "Мальчик с подарочным пакетом" },
+  { file: "kid-22.webp", alt: "Девочка в красном платье с ободком" },
+  { file: "kid-23.webp", alt: "Девочка с новогодней свечой у ёлки" },
+  { file: "kid-24.webp", alt: "Девочка с мягкой игрушкой-овечкой у камина" },
+  { file: "kid-25.webp", alt: "Мальчик в белой рубашке с подарочной коробкой" },
+  { file: "kid-26.webp", alt: "Девочка в синем платье с новогодними игрушками" },
 ] as const;
 
 const reveal = {
@@ -55,7 +68,7 @@ export default function KidsStrip() {
   };
 
   return (
-    <section className="section-band relative py-24">
+    <section id="gallery" className="section-band relative py-24">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
         <motion.h2 {...reveal} className="text-center font-display text-3xl md:text-5xl">
           Как выглядит <span className="candle-sweep">радость</span>
@@ -90,11 +103,21 @@ export default function KidsStrip() {
         </div>
       </div>
 
-      {/* лента шире контейнера — прокручивается до самого края экрана */}
+      {/* лента шире контейнера — прокручивается до самого края экрана.
+          Края растворяются маской: раньше поверх лежали две плашки цвета
+          #101c33, но фон страницы плывёт по градиенту, и в этом месте
+          плашка уже не совпадала с ним — был виден стык. Маска гасит
+          сами карточки и работает на любом фоне. */}
       <motion.div {...reveal} className="relative mt-5">
         <div
           ref={trackRef}
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-6 pb-4 md:px-12"
+          style={{
+            maskImage:
+              "linear-gradient(to right, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%)",
+          }}
         >
           {PHOTOS.map((p) => (
             <button
@@ -112,17 +135,6 @@ export default function KidsStrip() {
             </button>
           ))}
         </div>
-        {/* края растворяются в фоне, чтобы лента не обрубалась резко */}
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16"
-          style={{ background: "linear-gradient(to right, #101c33, transparent)" }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16"
-          style={{ background: "linear-gradient(to left, #101c33, transparent)" }}
-          aria-hidden
-        />
       </motion.div>
 
       <Lightbox shot={shot} onClose={() => setShot(null)} />

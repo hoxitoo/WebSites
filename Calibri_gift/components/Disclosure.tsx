@@ -14,16 +14,21 @@ import { AnimatePresence, motion } from "motion/react";
  *
  * `tone` — под тёплые винные секции («warm») и синие («dark»). Раньше
  * тёплые секции были светлыми бежевыми, отсюда прежнее имя «light».
+ *
+ * `full` — на всю ширину родителя вместо колонки по центру: так блок
+ * стоит внутри карточки доставки, где своя ширина.
  */
 export default function Disclosure({
   question,
   children,
   tone = "warm",
+  full = false,
   className = "",
 }: {
   question: string;
   children: React.ReactNode;
   tone?: "warm" | "dark";
+  full?: boolean;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -32,7 +37,7 @@ export default function Disclosure({
   const warm = tone === "warm";
 
   return (
-    <div className={"mx-auto max-w-3xl " + className}>
+    <div className={(full ? "" : "mx-auto max-w-3xl ") + className}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

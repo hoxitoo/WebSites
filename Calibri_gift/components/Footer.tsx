@@ -4,8 +4,10 @@ import CatalogRequest from "./CatalogRequest";
 
 export default function Footer() {
   return (
-    // id — цель пункта «Контакты» в меню шапки
-    <footer id="contacts" className="border-t border-cream/10 py-14">
+    // якорь #contacts теперь у блока «Обсудим ваш новогодний заказ» —
+    // в её переработке контакты стали полноценной секцией, а подвал
+    // остался правовой строкой и дублем телефонов
+    <footer className="border-t border-cream/10 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 text-center md:grid-cols-3 md:px-12 md:text-left">
         <div>
           {/* фирменный логотип в «вывернутой» кремово-золотой версии */}

@@ -111,47 +111,93 @@ body {
   50% { background-position: 100% 0; }
 }
 
-/* Мягкая виньетка секций.
-   Центры свечений вынесены за границы секции (-12% и 112%): раньше они
-   стояли ровно на краю, а там свечение самое яркое — и обрезалось краем
-   секции ровно посередине себя. На стыке двух секций получалась тонкая
-   светлая линия, та самая «жёсткая граница». Сдвинутый центр обрезается
-   уже в слабой части, и линии нет. */
-.section-vignette {
-  background:
-    radial-gradient(1200px 700px at 50% -12%, rgba(46, 74, 120, 0.3), transparent 68%),
-    radial-gradient(900px 620px at 50% 112%, rgba(232, 185, 104, 0.08), transparent 65%);
+/* ————— Подложки секций —————
+ *
+ * Правка заказчицы: «нужно сделать переходы более размытыми, чтобы
+ * не было линий переходов».
+ *
+ * Раньше каждая секция красила фон сама на себе — и любой её слой
+ * обрывался ровно на границе. Даже очень слабое свечение на краю даёт
+ * тонкую светлую линию: глаз ловит не яркость, а именно скачок.
+ *
+ * Теперь подложка живёт отдельным слоем (::before), у неё три свойства:
+ *  • слой выходит за края секции на 120 px, поэтому граница секции
+ *    проходит по его середине, а не по обрыву;
+ *  • маска гасит слой сверху и снизу на 260 px — обрыва нет вообще,
+ *    рисунок просто сходит на нет;
+ *  • `z-index: -1` вместе с `isolation: isolate` кладёт слой под текст
+ *    секции, но над фоном страницы.
+ *
+ * Так стык двух секций — это наложение двух растворяющихся слоёв
+ * на общем градиенте страницы, и границы не видно ни при каком цвете.
+ */
+.section-vignette,
+.section-band,
+.warm-glow {
+  position: relative;
+  isolation: isolate;
 }
 
-/* «Зебра» ритма: чуть более светлая панель для чередующихся секций.
-   Правка заказчицы к переработке: «все жёсткие переходы убрать, сделать
-   размытые». Верхний слой раньше начинался сразу с непрозрачного
-   значения — на границе секции была видна тонкая светлая линия. Теперь
-   он и появляется, и исчезает плавно, поэтому панель втекает в фон
-   и вытекает из него без стыка. */
-.section-band {
+.section-vignette::before,
+.section-band::before,
+.warm-glow::before {
+  content: "";
+  position: absolute;
+  inset: -120px 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 260px,
+    #000 calc(100% - 260px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 260px,
+    #000 calc(100% - 260px),
+    transparent 100%
+  );
+}
+
+/* Мягкая виньетка секций */
+.section-vignette::before {
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(46, 74, 120, 0.32), transparent 70%),
+    radial-gradient(900px 620px at 50% 110%, rgba(232, 185, 104, 0.09), transparent 68%);
+}
+
+/* «Зебра» ритма: чуть более светлая панель для чередующихся секций */
+.section-band::before {
   background:
     linear-gradient(
       180deg,
       transparent 0,
-      rgba(214, 230, 255, 0.045) 22%,
-      rgba(214, 230, 255, 0.03) 55%,
+      rgba(214, 230, 255, 0.05) 30%,
+      rgba(214, 230, 255, 0.035) 60%,
       transparent 100%
     ),
-    radial-gradient(1100px 640px at 50% 112%, rgba(40, 66, 112, 0.26), transparent 66%);
+    radial-gradient(1100px 640px at 50% 110%, rgba(40, 66, 112, 0.28), transparent 68%);
 }
 
 /* Тёплое свечение — оживляет «холодные» секции (амбер снизу) */
-.warm-glow {
-  position: relative;
-}
-.warm-glow::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.warm-glow::before {
   background:
-    radial-gradient(700px 340px at 50% 118%, rgba(232, 185, 104, 0.10), transparent 60%);
+    radial-gradient(700px 340px at 50% 112%, rgba(232, 185, 104, 0.11), transparent 62%);
+}
+
+/* Лента фотографий листается свайпом, стрелками и колесом, поэтому
+   системная полоса прокрутки не нужна. А выглядела она хуже всего:
+   светло-серая полоса во всю ширину под фотографиями читалась именно
+   как «линия перехода» между блоками. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Editorial-заголовок с золотым кикером (для левых секций — ломает монотонность) */
@@ -183,11 +229,13 @@ body {
   background: linear-gradient(
     180deg,
     transparent 0,
-    color-mix(in oklab, var(--color-warm) 35%, transparent) 110px,
-    var(--color-warm) 260px,
+    color-mix(in oklab, var(--color-warm) 12%, transparent) 90px,
+    color-mix(in oklab, var(--color-warm) 45%, transparent) 190px,
+    var(--color-warm) 340px,
     var(--color-warm-soft) 50%,
-    var(--color-warm) calc(100% - 260px),
-    color-mix(in oklab, var(--color-warm) 35%, transparent) calc(100% - 110px),
+    var(--color-warm) calc(100% - 340px),
+    color-mix(in oklab, var(--color-warm) 45%, transparent) calc(100% - 190px),
+    color-mix(in oklab, var(--color-warm) 12%, transparent) calc(100% - 90px),
     transparent 100%
   );
 }

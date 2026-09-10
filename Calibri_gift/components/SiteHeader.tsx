@@ -14,6 +14,15 @@ import { asset } from "@/lib/asset";
  * «контакты сверху и снизу». Полоса не липкая: уезжает при прокрутке,
  * а сама шапка остаётся. На узких экранах полоса уходит в меню целиком,
  * иначе занимает две строки из трёх видимых на телефоне 360×600.
+ *
+ * Правка: «бургер нужен только на мобильной версии и на маленьких
+ * дисплеях, на пк нужно, чтобы полностью было видно верхний заголовок».
+ * Поэтому меню разворачивается уже с 768 px (md), а не с 1024 (lg) —
+ * бургер остаётся только на телефонах. Чтобы всё влезло на узком
+ * ноутбуке, лишнее убирается по одному, а не всё сразу:
+ *   • от md — логотип, меню и кнопка «Оставить заявку»;
+ *   • от lg — плюс полоса контактов сверху;
+ *   • от xl — плюс телефон в самой шапке (до этого он в полосе).
  */
 
 const NAV = [
@@ -86,8 +95,8 @@ export default function SiteHeader() {
             />
           </a>
 
-          <nav aria-label="Разделы сайта" className="hidden lg:block">
-            <ul className="flex items-center gap-7 whitespace-nowrap text-sm font-semibold text-cream/85">
+          <nav aria-label="Разделы сайта" className="hidden md:block">
+            <ul className="flex items-center gap-4 whitespace-nowrap text-[0.82rem] font-semibold text-cream/85 lg:gap-6 lg:text-sm xl:gap-7">
               {NAV.map((item) => (
                 <li key={item.href}>
                   <a
@@ -103,7 +112,7 @@ export default function SiteHeader() {
 
           <a
             href={telHref(PHONES[0])}
-            className="hidden items-center gap-2 whitespace-nowrap font-semibold text-cream transition-colors hover:text-gold lg:flex"
+            className="hidden items-center gap-2 whitespace-nowrap font-semibold text-cream transition-colors hover:text-gold xl:flex"
           >
             <svg viewBox="0 0 24 24" aria-hidden className="h-[18px] w-[18px] text-gold">
               <path
@@ -119,7 +128,7 @@ export default function SiteHeader() {
               анкету форму» */}
           <a
             href="#lead"
-            className="btn-ribbon hidden whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-semibold lg:block"
+            className="btn-ribbon hidden whitespace-nowrap rounded-full px-4 py-2.5 text-[0.82rem] font-semibold md:block lg:px-6 lg:text-sm"
           >
             Оставить заявку
           </a>
@@ -131,7 +140,7 @@ export default function SiteHeader() {
             aria-expanded={open}
             aria-controls="site-menu"
             aria-label={open ? "Закрыть меню" : "Меню и контакты"}
-            className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-gold/40 text-gold transition-colors hover:bg-gold/10 lg:hidden"
+            className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-gold/40 text-gold transition-colors hover:bg-gold/10 md:hidden"
           >
             {/* три полоски превращаются в крестик */}
             <span className="relative block h-4 w-5" aria-hidden>
@@ -162,7 +171,7 @@ export default function SiteHeader() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden border-t border-cream/10 bg-night-deep/95 backdrop-blur-sm lg:hidden"
+              className="overflow-hidden border-t border-cream/10 bg-night-deep/95 backdrop-blur-sm md:hidden"
             >
               <nav aria-label="Разделы сайта" className="px-5 py-4">
                 <ul className="flex flex-col">

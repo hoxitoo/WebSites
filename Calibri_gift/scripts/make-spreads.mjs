@@ -114,7 +114,8 @@ async function cleanPage(pageNumber, targetW, targetH) {
     }
   }
 
-  // страницы в макете вытянуты по вертикали относительно PDF — подгоняем
+  // Рамка в макете уже подогнана под настоящую пропорцию страницы (см. цикл
+  // ниже), поэтому здесь растяжение — округление на пару пикселей, не больше.
   return {
     buf: await sharp(buf).resize(targetW, targetH, { fit: "fill" }).png().toBuffer(),
     bands: bands.length,
@@ -129,11 +130,30 @@ for (const file of files) {
   const src = path.join(SRC, file);
   const { width: W, height: H } = await sharp(src).metadata();
 
+  // ПРОПОРЦИИ. Правка заказчицы: «в „Полистайте наш каталог“ растянуто
+  // опять — должно быть как в оригинале». Место под разворот в её шаблоне
+  // вытянуто по вертикали: половина рамки 1257×1074 (1,17), а страница
+  // каталога в PDF — 765×567 (1,35). Раньше страницы вклеивались растяжением
+  // по этой рамке, и вся книга выходила выше настоящей на 15%: разворот
+  // 2,34 : 1 вместо 2,70 : 1. Прошлая правка лишь обрезала белые поля —
+  // причину она не трогала.
+  //
+  // Теперь наоборот: сначала сам шаблон сжимается по вертикали ровно
+  // настолько, чтобы его рамка получила пропорцию страниц из PDF, и уже
+  // в неё страницы вклеиваются без растяжения. Текст на страницах не
+  // пересжимается дважды — он рисуется сразу нужного размера.
+  const [, , pw, ph] = doc.loadPage(leftPage - 1).getBounds();
+  const PAGE_ASPECT = pw / ph;
   const fx0 = Math.round(FRAME.x0 * W);
   const fx1 = Math.round(FRAME.x1 * W);
-  const fy0 = Math.round(FRAME.y0 * H);
-  const fy1 = Math.round(FRAME.y1 * H);
   const halfW = Math.round((fx1 - fx0) / 2);
+  const rawFrameH = Math.round((FRAME.y1 - FRAME.y0) * H);
+  const K = halfW / rawFrameH / PAGE_ASPECT; // во сколько раз сжать по вертикали
+  const Hs = Math.round(H * K);
+  const mockup = await sharp(src).resize(W, Hs, { fit: "fill" }).png().toBuffer();
+
+  const fy0 = Math.round(FRAME.y0 * Hs);
+  const fy1 = Math.round(FRAME.y1 * Hs);
   const frameH = fy1 - fy0;
 
   const left = await cleanPage(leftPage, halfW, frameH);
@@ -165,7 +185,8 @@ for (const file of files) {
      </svg>`
   );
 
-  let buf = await sharp(src)
+  // вклеиваем в уже сжатый шаблон — его рамка совпадает со страницами
+  let buf = await sharp(mockup)
     .composite([
       { input: left.buf, left: fx0, top: fy0 },
       { input: right.buf, left: fx0 + halfW, top: fy0 },
@@ -174,22 +195,26 @@ for (const file of files) {
     .png()
     .toBuffer();
 
-  // Обрезаем пустое поле макета: в исходнике разворот занимает меньше
-  // половины кадра, а на сайте плитка узкая. Небольшой запас оставляем —
-  // в нём лежит тень, благодаря которой разворот читается как бумага.
-  const m = Math.round(W * 0.022);
-  const cropLeft = Math.max(0, fx0 - m);
-  const cropTop = Math.max(0, fy0 - m);
+  // Обрезаем пустое поле макета, но не вплотную к книге: в поле лежит тень,
+  // благодаря которой разворот читается как бумага. Размеры полей — как
+  // в разворотах её макета (замерено по её файлам): по бокам ≈2,5% ширины
+  // книги, сверху ≈5% высоты, снизу ≈10% — там тень под книгой заметнее.
+  const frameW = fx1 - fx0;
+  const mx = Math.round(frameW * 0.025);
+  const mt = Math.round(frameH * 0.048);
+  const mb = Math.round(frameH * 0.1);
+  const cropLeft = Math.max(0, fx0 - mx);
+  const cropTop = Math.max(0, fy0 - mt);
   const out = path.join(OUT, `spread-${leftPage}-${rightPage}.webp`);
   const meta = await sharp(buf)
     .extract({
       left: cropLeft,
       top: cropTop,
-      width: Math.min(W - cropLeft, fx1 - fx0 + m * 2),
-      height: Math.min(H - cropTop, frameH + m * 3), // снизу тень заметнее
+      width: Math.min(W - cropLeft, frameW + mx * 2),
+      height: Math.min(Hs - cropTop, frameH + mt + mb),
     })
     .resize({ width: 1600, withoutEnlargement: true })
-    .webp({ quality: 82 })
+    .webp({ quality: 86 })
     .toFile(out);
 
   console.log(

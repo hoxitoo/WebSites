@@ -150,12 +150,13 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
         <button
           type="button"
           onClick={() => onZoom({ src: asset(`/catalog/${file}`), alt, caption: `Стр. ${pages}` })}
-          // Финальная правка: «почему сжато сильно по ширине и вытянуто вверх —
-          // так не должно быть». Две причины: колонка была max-w-3xl (768 px)
-          // против 920 у неё, и вокруг книги в самих файлах стояли белые поля
-          // (40 px сверху и по бокам, 80 снизу) — на кремовой подложке они
-          // читались частью листа. Колонка расширена, поля обрезаны
-          // (scripts/crop-spreads.mjs), пропорция теперь 2,3 : 1, как у неё.
+          // Правки заказчицы: «сжато по ширине и вытянуто вверх» и затем
+          // «растянуто опять — должно быть как в оригинале». Колонка — 920 px,
+          // как у неё. А главная причина была в самих файлах: шаблон макета
+          // вытягивал страницы по вертикали, книга выходила 2,34 : 1 вместо
+          // настоящих 2,70 : 1. scripts/make-spreads.mjs теперь собирает
+          // развороты в пропорциях PDF-каталога (книга 2,71 : 1), поля вокруг
+          // книги — как в её макете.
           className="relative w-full max-w-[920px] cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
         >
           {/* ключ по файлу — картинка проявляется, а не подменяется рывком */}
@@ -166,8 +167,8 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
             transition={{ duration: 0.3 }}
             src={asset(`/catalog/${file}`)}
             alt={alt}
-            width={1528}
-            height={664}
+            width={1600}
+            height={648}
             className="block h-auto w-full"
             draggable={false}
           />

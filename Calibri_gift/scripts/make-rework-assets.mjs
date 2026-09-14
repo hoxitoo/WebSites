@@ -59,19 +59,20 @@ for (let i = 0; i < KIDS.length; i++) {
   console.log(`${name}  ${meta.width}×${meta.height}`);
 }
 
-// дописываем происхождение в тот же файл, где записаны первые шестнадцать
-const provPath = path.join(KIDS_OUT, "kids-source.json");
-if (existsSync(provPath)) {
-  const prov = JSON.parse(readFileSync(provPath, "utf8"));
-  prov.extra = {
+// Происхождение кадров — в отдельный файл kids-source-extra.json.
+// Раньше скрипт дописывал поле в kids-source.json, но тот хранит массив
+// (его пишет scripts/fetch-kids.mjs), а у массива JSON.stringify
+// нечисловые поля молча отбрасывает — запись терялась без ошибки.
+// Файл собирается целиком за один запуск, из обеих партий ниже.
+const provPath = path.join(KIDS_OUT, "kids-source-extra.json");
+const prov = {
+  gallery: {
     note:
       "Десять фото из архива «отобранные фото для галереи» — прислала заказчица " +
       "вместе со своим макетом в сентябре 2026. Оригиналы: design/rework-2026-09/gallery/",
     files: extra,
-  };
-  writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
-  console.log("происхождение дописано в kids-source.json");
-}
+  },
+};
 
 /* ————— 2. Шесть картинок разделов без надписей ————— */
 // Соответствие «файл → раздел» опознавал по её скриншоту с подписями:
@@ -114,5 +115,49 @@ if (existsSync(cover)) {
     .toFile(path.resolve("public/catalog/cover-2027.webp"));
   console.log(`cover-2027.webp  ${meta.width}×${meta.height}`);
 }
+
+/* ————— 4. Девять фото из финальных правок (14.09) ————— */
+// Архив «фото.zip» из папки «финальные правки». Часть кадров — те же дети
+// и игрушки, что уже есть в галерее, но на новом, более праздничном фоне.
+// Решение: «добавь новые в начало, а старые оставь все». Нумерация
+// продолжается с 27. Подписи составлены по самим фотографиям.
+const FINAL = [
+  ["84b37198-e744-4a12-8c61-23e42536671d.png", "Девочка с двумя игрушками-овечками в очках и свитерах"],
+  ["95ea8705-10cf-4a4a-a3bc-948c5086b56d.png", "Девочка с подушкой с новогодним рисунком домика и овечек"],
+  ["994510ef-972d-4787-b6a5-d870523285cb.png", "Девочка с тремя игрушками-овечками в полосатых шарфах"],
+  ["aacfd624-a2a6-447b-8d8e-bf9fd964a1db.png", "Девочка с двумя мягкими снеговиками в шапках-ушанках"],
+  ["d31e5307-0eec-4036-8247-89893d7c7cfc.png", "Мальчик с книгой, игрушкой-овечкой и рюкзаком «Чудеса там, где в них верят»"],
+  ["de3c78a2-60ca-4e0c-996f-c2f073b76bf8.png", "Девочка с игрушкой-овечкой на плече и подарочной сумкой"],
+  ["бараш игрушка.png", "Девочка в красном платье с игрушкой-барашком"],
+  ["бараш.png", "Мальчик в белой рубашке с игрушкой-барашком"],
+  ["игрушка.png", "Девочка в красном платье с игрушкой-козочкой в шарфе"],
+];
+
+const finalFiles = [];
+for (let i = 0; i < FINAL.length; i++) {
+  const [file, alt] = FINAL[i];
+  const src = path.join(SRC, "gallery-final", file);
+  if (!existsSync(src)) {
+    console.error(`нет файла ${file} — положите архив «фото.zip» в design/rework-2026-09/gallery-final/`);
+    process.exit(1);
+  }
+  const name = `kid-${String(27 + i).padStart(2, "0")}.webp`;
+  // оригиналы 1024×1536 — та же пропорция 2:3, что у остальных кадров ленты
+  const meta = await sharp(src)
+    .resize(700, 1049, { fit: "cover" })
+    .webp({ quality: 82 })
+    .toFile(path.join(KIDS_OUT, name));
+  finalFiles.push({ file: name, alt, source: `архив «фото.zip» (финальные правки): ${file}` });
+  console.log(`${name}  ${meta.width}×${meta.height}`);
+}
+
+prov.galleryFinal = {
+  note:
+    "Девять фото из финальных правок заказчицы (14.09.2026), стоят в начале ленты. " +
+    "Оригиналы: design/rework-2026-09/gallery-final/",
+  files: finalFiles,
+};
+writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
+console.log(`происхождение кадров записано в ${path.basename(provPath)}`);
 
 console.log("готово");

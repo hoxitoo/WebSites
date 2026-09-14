@@ -29,13 +29,19 @@ const FRAME_COUNT = 101;
 // дальше держим финальный кадр — чтобы шары успели вылететь ДО появления карточек
 const VIDEO_END = 0.72;
 // фон сцены = тёмная навигация, совпадает с фоном самих кадров по краям
-const SCENE_BG = "#101c33";
-const SCENE_BG_T = "rgba(16,28,51,0)";
+const SCENE_BG = "#0a1230";
+const SCENE_BG_T = "rgba(10,18,48,0)";
 // Коробка стоит не в середине кадра, а правее (её центр ≈ 0,575 ширины),
 // слева — пустое боке. Поэтому рисуем не весь кадр, а его часть: коробка
 // встаёт по центру экрана, лишний воздух слева уходит.
 const CROP_CX = 0.575;
 const CROP_W = 0.85;
+// Финальная правка: «форма не соответствует реальности — можно коробку
+// растянуть в сторону, чтобы она была более квадратной». Кадр рисуется
+// шире своей пропорции на 18%: коробка в видео получилась у́же, чем
+// настоящая. Больше не растягиваем — дальше начинают заметно
+// сплющиваться лица детей на коробке и круги боке.
+const BOX_STRETCH = 1.18;
 const frameSrc = (i: number) =>
   asset(`/gift/seq/frame_${String(i + 1).padStart(3, "0")}.webp`);
 
@@ -145,17 +151,15 @@ function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
 
 /* ————— сторителлинг ————— */
 
-// Правка заказчицы к её переработке: «после доставки коробку оставить,
-// текст поменять, убрать „команде“». Речь про людей и их семьи, а слово
-// «команда» звучало по-офисному — теперь его нет ни в первой строке,
-// ни в карточке для руководителя ниже.
+// Тексты — финальная правка заказчицы, дословно: заголовок и вторая строка
+// новые, третья и четвёртая без изменений («уже универсально»).
 const storyLines = [
   {
-    text: "Как сказать «спасибо» тем, кто работает с вами?",
+    text: "Как сказать «спасибо» по-настоящему?",
     window: [0.02, 0.2] as const,
   },
   {
-    text: "Не общими словами на планёрке — а тёплым знаком внимания каждому.",
+    text: "Не общими словами — а тёплым знаком внимания каждому.",
     window: [0.21, 0.4] as const,
   },
   {
@@ -201,18 +205,20 @@ function StoryLine({
   );
 }
 
+// Три карточки — её текст: вместо «Сотрудникам / Детям сотрудников /
+// Руководителю» она «расширила на партнёров».
 const cards = [
   {
-    title: "Сотрудникам",
-    text: "Тёплый знак: ваш вклад видят и ценят. Подарок, который говорит это без слов.",
+    title: "Команде",
+    text: "Тёплый знак: вклад каждого видят и ценят.",
   },
   {
-    title: "Детям сотрудников",
-    text: "Настоящее новогоднее чудо — забота компании приходит домой, в семью.",
+    title: "Семьям",
+    text: "Настоящее новогоднее чудо — забота приходит домой.",
   },
   {
-    title: "Руководителю",
-    text: "Люди, которые чувствуют заботу, отвечают доверием и работают сердцем.",
+    title: "Партнёрам и клиентам",
+    text: "Крепкие отношения начинаются с внимания к деталям.",
   },
 ];
 
@@ -283,8 +289,8 @@ export default function GiftScene() {
       const avail = ch - band;
       // ×0.94 — воздух по краям и меньше апскейла (выше чёткость).
       // Без blur — он и давал лаги на ПК.
-      const scale = Math.min(cw / sw, avail / sh) * 0.94;
-      const dw = sw * scale;
+      const scale = Math.min(cw / (sw * BOX_STRETCH), avail / sh) * 0.94;
+      const dw = sw * scale * BOX_STRETCH;
       const dh = sh * scale;
       const dx = (cw - dw) / 2;
       const dy = band + (avail - dh) / 2;
@@ -373,14 +379,14 @@ export default function GiftScene() {
 
   return (
     <>
-      {/* Подводка к сцене. У сцены непрозрачный фон #101c33, а фон страницы
+      {/* Подводка к сцене. У сцены непрозрачный фон #0a1230, а фон страницы
           в этом месте чуть светлее — на верхней кромке был виден шаг.
           Правка заказчицы: «все жёсткие переходы убрать, сделать размытые»,
           поэтому страница дотягивается до цвета сцены заранее. */}
       <div
         aria-hidden
         className="h-40"
-        style={{ background: "linear-gradient(to bottom, transparent, #101c33)" }}
+        style={{ background: "linear-gradient(to bottom, transparent, #0a1230)" }}
       />
       {/* 400vh вместо 460: сцена и так читалась как «долгая», а прокрутка
           на 3,6 экрана усиливала ощущение, что страница подвисла */}
@@ -394,6 +400,8 @@ export default function GiftScene() {
           className={`absolute inset-x-0 bottom-0 top-[18%] w-full object-contain transition-opacity duration-500 ${
             hasDrawn ? "opacity-0" : "opacity-100"
           }`}
+          // та же растяжка, что у канваса, — иначе при подмене коробка «прыгнет»
+          style={{ transform: `scaleX(${BOX_STRETCH})` }}
           draggable={false}
         />
         {/* видео-секвенция */}
@@ -422,12 +430,12 @@ export default function GiftScene() {
         {/* сшивка с фоном страницы */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-10 h-36"
-          style={{ background: "linear-gradient(to bottom, #101c33, transparent)" }}
+          style={{ background: "linear-gradient(to bottom, #0a1230, transparent)" }}
           aria-hidden
         />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-36"
-          style={{ background: "linear-gradient(to top, #101c33, transparent)" }}
+          style={{ background: "linear-gradient(to top, #0a1230, transparent)" }}
           aria-hidden
         />
 
@@ -489,7 +497,7 @@ export default function GiftScene() {
       <div
         aria-hidden
         className="h-40"
-        style={{ background: "linear-gradient(to top, transparent, #101c33)" }}
+        style={{ background: "linear-gradient(to top, transparent, #0a1230)" }}
       />
     </>
   );

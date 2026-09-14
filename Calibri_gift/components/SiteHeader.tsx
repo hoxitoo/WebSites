@@ -10,19 +10,20 @@ import { asset } from "@/lib/asset";
  * меню из четырёх разделов, телефон с иконкой и главная кнопка «Оставить
  * заявку», которая ведёт в анкету.
  *
- * Над ней осталась наша узкая полоса контактов — по её же прежней правке
- * «контакты сверху и снизу». Полоса не липкая: уезжает при прокрутке,
- * а сама шапка остаётся. На узких экранах полоса уходит в меню целиком,
- * иначе занимает две строки из трёх видимых на телефоне 360×600.
+ * Полосы контактов над шапкой больше нет. Финальная правка: сравнила
+ * шапку «у Клода» (всё в одну строку) и нашу (сверху ещё строка с двумя
+ * телефонами, почтой и Telegram) — «мне больше нравится как у Клода,
+ * в одну строчку». Контакт наверху при этом остался: телефон стоит
+ * в самой шапке, а почта, второй телефон и Telegram — в меню на телефоне,
+ * в блоке «Контакты» и в подвале.
  *
  * Правка: «бургер нужен только на мобильной версии и на маленьких
  * дисплеях, на пк нужно, чтобы полностью было видно верхний заголовок».
- * Поэтому меню разворачивается уже с 768 px (md), а не с 1024 (lg) —
- * бургер остаётся только на телефонах. Чтобы всё влезло на узком
- * ноутбуке, лишнее убирается по одному, а не всё сразу:
+ * Поэтому меню разворачивается уже с 768 px (md) — бургер остаётся только
+ * на телефонах. Чтобы всё влезло на узком ноутбуке, лишнее убирается
+ * по одному, а не всё сразу:
  *   • от md — логотип, меню и кнопка «Оставить заявку»;
- *   • от lg — плюс полоса контактов сверху;
- *   • от xl — плюс телефон в самой шапке (до этого он в полосе).
+ *   • от lg — плюс телефон.
  */
 
 const NAV = [
@@ -52,30 +53,6 @@ export default function SiteHeader() {
 
   return (
     <>
-      {/* Полоса контактов — только на широком экране */}
-      <div className="relative z-40 hidden border-b border-cream/10 bg-night-deep/60 px-4 py-2 backdrop-blur-sm lg:block">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-sm text-cream/80">
-          {PHONES.map((p) => (
-            <a key={p} href={telHref(p)} className="transition-colors hover:text-gold">
-              {p}
-            </a>
-          ))}
-          <a href="mailto:info@kolibri-ug.ru" className="transition-colors hover:text-gold">
-            info@kolibri-ug.ru
-          </a>
-          <span className="text-cream/25">·</span>
-          {/* WhatsApp убран с сайта по правке заказчицы */}
-          <a
-            href={TG}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-gold"
-          >
-            Telegram
-          </a>
-        </div>
-      </div>
-
       <header className="sticky top-0 z-40 border-b border-cream/10 bg-night-deep/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3 md:px-12">
           {/* «вывернутая» версия фирменного логотипа: кремово-золотая, без
@@ -112,7 +89,7 @@ export default function SiteHeader() {
 
           <a
             href={telHref(PHONES[0])}
-            className="hidden items-center gap-2 whitespace-nowrap font-semibold text-cream transition-colors hover:text-gold xl:flex"
+            className="hidden items-center gap-2 whitespace-nowrap text-[0.9rem] font-semibold text-cream transition-colors hover:text-gold lg:flex xl:text-base"
           >
             <svg viewBox="0 0 24 24" aria-hidden className="h-[18px] w-[18px] text-gold">
               <path

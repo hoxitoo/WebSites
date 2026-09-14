@@ -36,8 +36,10 @@ const reveal = {
 export function BotQrInline() {
   return (
     <motion.div {...reveal} className="mt-16">
-      <p className="text-xs uppercase tracking-[0.3em] text-gold/85">
-        Отсканируйте QR-код — и начнём подбор
+      {/* надпись в общей плашке разделов — финальная правка про единую
+          стилистику заголовков */}
+      <p>
+        <span className="eyebrow-pill">Отсканируйте QR-код — и начнём подбор</span>
       </p>
       <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted">
         Или просто напишите «старт» в чат. Ответите на несколько коротких

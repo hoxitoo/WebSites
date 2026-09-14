@@ -27,7 +27,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1400px 800px at 70% -10%, #1f2f4d 0%, #16233d 45%, #101c33 100%)," +
+            "radial-gradient(1400px 800px at 70% -10%, #172552 0%, #0f1a3d 45%, #0a1230 100%)," +
             "radial-gradient(900px 500px at 30% 115%, rgba(60,104,168,0.32), transparent 60%)",
         }}
       />
@@ -43,7 +43,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(8,14,30,0.55) 0%, rgba(8,14,30,0.35) 55%, #101c33 100%)",
+            "linear-gradient(to bottom, rgba(8,14,30,0.55) 0%, rgba(8,14,30,0.35) 55%, #0a1230 100%)",
         }}
         aria-hidden
       />
@@ -56,9 +56,11 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="mb-6 text-xs uppercase tracking-[0.3em] text-gold/80"
+            className="mb-6"
           >
-            Новогодние корпоративные подарки · 11 лет на рынке
+            <span className="eyebrow-pill">
+              Новогодние корпоративные подарки · 11 лет на рынке
+            </span>
           </motion.p>
 
           <h1 className="font-display text-[2rem] leading-[1.12] sm:text-5xl sm:leading-[1.08] md:text-7xl">
@@ -79,7 +81,9 @@ export default function Hero() {
                       <span className="candle-sweep">заботу</span> и внимание
                     </>
                   ) : (
-                    line
+                    // пробел в конце строки: строки — отдельные блоки, и без
+                    // него поисковик читал заголовок как «важное —заботу»
+                    line + " "
                   )}
                 </motion.span>
               </span>

@@ -58,7 +58,10 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    <section id="care" className="section-warm relative overflow-hidden py-44 text-center">
+    // Верхний отступ меньше нижнего: финальная правка «здесь можно сделать
+    // короче расстояние» — между карточками блока выше и стикером была
+    // пустота почти в 300 px. Теперь около 150.
+    <section id="care" className="section-warm relative overflow-hidden pb-44 pt-24 text-center md:pt-28">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         {/* Стикер Деда Мороза — её правка. На стикере написано «Подберу
             для вас 3 лучших варианта!», а текст ниже — как раз про то,
@@ -79,7 +82,7 @@ export default function CareDept() {
         />
 
         <motion.p {...reveal} className="mt-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold/45 bg-night-deep/30 px-5 py-2 text-xs uppercase tracking-[0.24em] text-gold">
+          <span className="eyebrow-pill">
             <svg viewBox="0 0 24 24" aria-hidden className="h-3.5 w-3.5">
               <path fill="currentColor" d="M12 2l1.6 5.2L19 9l-5.4 1.8L12 16l-1.6-5.2L5 9l5.4-1.8z" />
               <path fill="currentColor" d="M19 15l.8 2.6L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.4z" />
@@ -106,7 +109,12 @@ export default function CareDept() {
           {...reveal}
           className="mx-auto mt-16 max-w-2xl font-display text-2xl leading-snug text-cream md:text-3xl"
         >
-          Нам достаточно четырёх ориентиров, дальше мы всё сделаем сами
+          {/* финальная правка: вторая половина — с новой строки */}
+          {/* пробел перед переносом — иначе в тексте страницы (его читают
+              поисковики) выходит «ориентиров,дальше» */}
+          Нам достаточно четырёх ориентиров,{" "}
+          <br />
+          дальше мы всё сделаем сами
         </motion.h3>
 
         <ol className="mt-8 grid gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">

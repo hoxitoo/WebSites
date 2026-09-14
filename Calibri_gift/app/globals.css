@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  /* Палитра «зимняя ночь» — заказчица вернула синий, но попросила
-     «не такой тёмный», поэтому базовый тон осветлён на два шага
-     против первой версии. Углы кадров в сцене с подарком — #050c1c,
-     то есть синий ещё и совпадает с ними по тону (шоколадный не совпадал,
-     и на стыке была видна рамка кадра). */
-  --color-night: #16233d;
-  --color-night-deep: #101c33;
-  --color-night-soft: #1f2f4d;
+  /* Палитра «зимняя ночь».
+     Финальная правка заказчицы: «изменить цвет фона на мой» — она сравнила
+     коды: у нас был #101C33, у её макета #0A1230 («тёмный, почти чёрно-
+     синий»). Поэтому вся тройка взята из её макета: #0A1230 / #0F1A3D /
+     #172552 (navy-950/900/800). Углы кадров в сцене с подарком — #050c1c,
+     новый фон к ним даже ближе прежнего, рамка кадра не проступит. */
+  --color-night: #0f1a3d;
+  --color-night-deep: #0a1230;
+  --color-night-soft: #172552;
   --color-bordeaux: #7a2438;
   --color-bordeaux-deep: #521626;
   --color-bordeaux-bright: #a03049;
@@ -240,19 +241,97 @@ body {
   );
 }
 
-/* Главная кнопка — в цвет ленты «Создаём подарки 11 лет».
-   Правка заказчицы: «обведённую кнопку перекрасить в цвет плашки
-   „создаем подарки 11 лет“». Один класс на все главные кнопки сайта,
-   чтобы они не разъезжались по цвету. */
+/* ————— Оранжевые плашки: кнопки и лента «Создаём подарки 11 лет» —————
+ *
+ * Финальная правка: «у Клода все оранжевые плашки и двигаются
+ * и переливаются — сделайте так же». Взято из её макета один в один:
+ * градиент #DD3F2C → #F4993C, объём за счёт внутренних теней и блик,
+ * который раз в 3,4 с пробегает по плашке слева направо.
+ *
+ * Два класса на одной основе: .btn-ribbon — кнопки (приподнимаются при
+ * наведении), .ribbon-plate — лента «11 лет» (она не кликается, поэтому
+ * без подъёма: иначе обещала бы действие, которого нет). */
+.btn-ribbon,
+.ribbon-plate {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(100deg, #dd3f2c, #f4993c);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.22),
+    0 10px 20px -8px rgba(0, 0, 0, 0.55);
+}
+.btn-ribbon::after,
+.ribbon-plate::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-20deg);
+  animation: btn-shine 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+/* лента бликует со сдвигом — чтобы не вспыхивала синхронно с кнопками */
+.ribbon-plate::after {
+  animation-delay: 1.3s;
+}
 .btn-ribbon {
-  background: linear-gradient(96deg, #8f1f2e 0%, #c0392b 45%, #e8813a 100%);
-  color: var(--color-cream);
-  box-shadow: 0 14px 40px rgba(192, 57, 43, 0.35);
-  transition: box-shadow 0.3s, filter 0.3s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-ribbon:hover {
-  box-shadow: 0 18px 54px rgba(232, 129, 58, 0.45);
-  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.22),
+    0 16px 30px -10px rgba(221, 63, 44, 0.55);
+}
+@keyframes btn-shine {
+  0% { left: -60%; }
+  38% { left: 130%; }
+  100% { left: 130%; }
+}
+
+/* ————— Надписи над заголовками разделов —————
+ *
+ * Финальная правка: «давайте выработаем единую стилистику по заголовкам
+ * разделов, все их сделаем в таком стиле, а то получается разнопланово
+ * по всему сайту» — образцом она показала плашку «Зачем это бизнесу».
+ * Раньше половина надписей была плашками, половина — просто золотым
+ * текстом разного размера и разрядки. Теперь одна плашка на всех. */
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--color-gold) 40%, transparent);
+  background: color-mix(in oklab, var(--color-gold) 10%, transparent);
+  /* справа отступ меньше на величину разрядки: у последней буквы тоже есть
+     хвост разрядки, и без поправки текст визуально съезжал влево */
+  padding: 0.375rem calc(1.25rem - 0.2em) 0.375rem 1.25rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-gold);
+}
+@media (min-width: 640px) {
+  .eyebrow-pill {
+    padding-right: calc(1.25rem - 0.28em);
+    letter-spacing: 0.28em;
+  }
+}
+/* «О компании» — крупнее и переливается: «пусть слово тоже будет
+   анимированным» (переливаются и золотые слова в заголовках) */
+.eyebrow-pill--lg {
+  padding: 0.55rem calc(1.6rem - 0.24em) 0.55rem 1.6rem;
+  font-size: 1rem;
+  letter-spacing: 0.24em;
 }
 
 ::selection {
@@ -266,5 +345,10 @@ body {
   }
   .candle-sweep {
     animation: none;
+  }
+  .btn-ribbon::after,
+  .ribbon-plate::after {
+    animation: none;
+    display: none;
   }
 }

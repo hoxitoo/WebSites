@@ -155,7 +155,9 @@ export default function Contacts() {
       <div className="mx-auto max-w-6xl px-6 md:px-12">
         <div className="grid items-start gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <motion.div {...reveal}>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/85">Контакты</p>
+            <p>
+              <span className="eyebrow-pill">Контакты</span>
+            </p>
             <h2 className="mt-4 font-display text-3xl leading-tight md:text-5xl">
               Обсудим ваш <span className="glow-gold">новогодний заказ</span>
             </h2>
@@ -223,8 +225,8 @@ export default function Contacts() {
           className="mt-14 flex flex-col items-center gap-9 rounded-3xl border border-cream/10 bg-night-soft/45 p-7 md:p-9 lg:flex-row"
         >
           <div className="flex-[1.1]">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/85">
-              Доставка до дверей
+            <p>
+              <span className="eyebrow-pill">Доставка до дверей</span>
             </p>
             <h3 className="mt-3 font-display text-2xl leading-snug md:text-3xl">
               Доставим бережно, <span className="glow-gold">с заботой о вас</span> и вашей

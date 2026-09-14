@@ -21,15 +21,15 @@ export default function BotPage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 700px at 50% -10%, #263f66 0%, #16233d 55%, #101c33 100%)," +
+            "radial-gradient(1200px 700px at 50% -10%, #22336b 0%, #0f1a3d 55%, #0a1230 100%)," +
             "radial-gradient(800px 500px at 50% 115%, rgba(122,36,56,0.4), transparent 60%)",
         }}
       />
       <Snow density={0.8} />
 
       <div className="relative z-10 w-full max-w-lg text-center">
-        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold/80">
-          ТК «Колибри» представляет
+        <p className="mb-4">
+          <span className="eyebrow-pill">ТК «Колибри» представляет</span>
         </p>
         <h1 className="font-display text-4xl leading-tight md:text-5xl">
           Отдел заботы <span className="glow-gold">Деда Мороза</span>

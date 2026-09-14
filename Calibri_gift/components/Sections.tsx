@@ -82,11 +82,12 @@ export function Numbers() {
   ];
   return (
     <section id="about" className="warm-glow relative mx-auto max-w-6xl px-6 py-28 md:px-12">
-      <motion.p
-        {...reveal}
-        className="mb-12 text-center text-lg uppercase tracking-[0.24em] text-gold"
-      >
-        О компании
+      {/* Финальные правки: надпись в общей плашке разделов и переливается —
+          «пусть слово тоже будет анимированным» */}
+      <motion.p {...reveal} className="mb-12 text-center">
+        <span className="eyebrow-pill eyebrow-pill--lg">
+          <span className="candle-sweep">О компании</span>
+        </span>
       </motion.p>
       <div className="grid gap-14 md:grid-cols-3">
         {items.map((it, i) => (

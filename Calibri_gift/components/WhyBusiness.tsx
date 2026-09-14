@@ -44,7 +44,7 @@ export default function WhyBusiness() {
         {/* кикер заказчица просила сделать заметнее: «плохо читабельно,
             сразу не видно этого, акцент сделать» — поэтому плашка */}
         <motion.p {...reveal}>
-          <span className="inline-block rounded-full border border-gold/40 bg-gold/10 px-5 py-1.5 text-xs uppercase tracking-[0.28em] text-gold">
+          <span className="eyebrow-pill">
             Зачем это бизнесу
           </span>
         </motion.p>
@@ -52,7 +52,11 @@ export default function WhyBusiness() {
           {...reveal}
           className="mx-auto mt-5 max-w-2xl font-display text-3xl leading-tight md:text-5xl"
         >
-          Забота о людях. <span className="glow-gold">Удобство для бизнеса.</span>
+          {/* финальная правка: «удобство для бизнеса» — с новой строки */}
+          {/* пробел перед переносом — иначе поисковик читает «людях.Удобство» */}
+          Забота о людях.{" "}
+          <br />
+          <span className="glow-gold">Удобство для бизнеса.</span>
         </motion.h2>
         <motion.p {...reveal} className="mx-auto mt-4 max-w-md leading-relaxed text-muted">
           Подарок — это больше, чем новогодняя традиция.

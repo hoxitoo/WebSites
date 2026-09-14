@@ -6,6 +6,7 @@ import Lightbox, { type Shot } from "./Lightbox";
 import Disclosure from "./Disclosure";
 import CatalogRequest from "./CatalogRequest";
 import Magnetic from "./Magnetic";
+import Banner11 from "./Banner11";
 import { asset } from "@/lib/asset";
 
 /**
@@ -123,15 +124,15 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
 
   return (
     <div className="mt-20 text-center">
-      <motion.p {...reveal} className="text-xs uppercase tracking-[0.3em] text-gold/85">
-        Коллекция 2027
+      <motion.p {...reveal}>
+        <span className="eyebrow-pill">Коллекция 2027</span>
       </motion.p>
       <motion.h3 {...reveal} className="mt-4 font-display text-2xl md:text-4xl">
         Полистайте наш <span className="candle-sweep">каталог</span>
       </motion.h3>
       <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
-        Внутри — наборы, картонная, текстильная и премиум-упаковка, а также
-        составы подарков.
+        {/* финальная правка: «а также составы подарков — убираем вообще» */}
+        Внутри — наборы, картонная, текстильная и премиум-упаковка.
         <br className="hidden sm:block" /> Это лишь малая часть каталога —
         остальное покажем по запросу.
       </motion.p>
@@ -149,7 +150,13 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
         <button
           type="button"
           onClick={() => onZoom({ src: asset(`/catalog/${file}`), alt, caption: `Стр. ${pages}` })}
-          className="relative w-full max-w-3xl cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
+          // Финальная правка: «почему сжато сильно по ширине и вытянуто вверх —
+          // так не должно быть». Две причины: колонка была max-w-3xl (768 px)
+          // против 920 у неё, и вокруг книги в самих файлах стояли белые поля
+          // (40 px сверху и по бокам, 80 снизу) — на кремовой подложке они
+          // читались частью листа. Колонка расширена, поля обрезаны
+          // (scripts/crop-spreads.mjs), пропорция теперь 2,3 : 1, как у неё.
+          className="relative w-full max-w-[920px] cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
         >
           {/* ключ по файлу — картинка проявляется, а не подменяется рывком */}
           <motion.img
@@ -159,7 +166,9 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
             transition={{ duration: 0.3 }}
             src={asset(`/catalog/${file}`)}
             alt={alt}
-            className="block w-full"
+            width={1528}
+            height={664}
+            className="block h-auto w-full"
             draggable={false}
           />
           <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-night-deep/75 px-3 py-1.5 text-[0.72rem] font-semibold tracking-wide text-gold">
@@ -212,11 +221,12 @@ export default function Formats() {
   return (
     <section id="services" className="warm-glow relative py-24 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
-        <motion.p
-          {...reveal}
-          className="text-center text-xs uppercase tracking-[0.3em] text-gold/85"
-        >
-          Услуги и продукция · Коллекция 2027
+        {/* лента «Создаём подарки 11 лет» — прямо над заголовком раздела:
+            «просится ниже, тут же» */}
+        <Banner11 />
+
+        <motion.p {...reveal} className="mt-8 text-center">
+          <span className="eyebrow-pill">Услуги и продукция · Коллекция 2027</span>
         </motion.p>
         <motion.h2 {...reveal} className="mt-4 text-center font-display text-3xl md:text-5xl">
           Форматы <span className="glow-gold">новогодних подарков</span>

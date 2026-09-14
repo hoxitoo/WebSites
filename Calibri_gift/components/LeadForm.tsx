@@ -222,7 +222,11 @@ export default function LeadForm() {
           transition={{ duration: 0.7 }}
           className="text-center font-display text-3xl md:text-5xl"
         >
-          Соберём подарок <span className="candle-sweep">под ваш запрос</span>
+          {/* финальная правка: «под ваш запрос» — с новой строки */}
+          {/* пробел перед переносом — иначе поисковик читает «подарокпод» */}
+          Соберём подарок{" "}
+          <br />
+          <span className="candle-sweep">под ваш запрос</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}

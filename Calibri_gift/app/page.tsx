@@ -7,7 +7,6 @@ import CareDept from "@/components/CareDept";
 import LeadForm from "@/components/LeadForm";
 import WhyBusiness from "@/components/WhyBusiness";
 import Filling from "@/components/Filling";
-import Banner11 from "@/components/Banner11";
 import Formats from "@/components/Formats";
 import Contacts from "@/components/Contacts";
 import GiftScene from "@/components/GiftScene";
@@ -56,7 +55,8 @@ export default function Home() {
         <LeadForm />
         <WhyBusiness />
         <Filling />
-        <Banner11 />
+        {/* лента «Создаём подарки 11 лет» теперь внутри Formats, над его
+            заголовком: финальная правка «просится ниже, тут же» */}
         <Formats />
         <Contacts />
         <GiftScene />

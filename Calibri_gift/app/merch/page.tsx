@@ -16,14 +16,14 @@ export default function MerchPage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 700px at 50% -10%, #16203a 0%, #16233d 50%, #101c33 100%)",
+            "radial-gradient(1200px 700px at 50% -10%, #172552 0%, #0f1a3d 50%, #0a1230 100%)",
         }}
       />
       <Snow density={0.6} />
 
       <div className="relative z-10 w-full max-w-lg text-center">
-        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold/80">
-          ТК «Колибри»
+        <p className="mb-4">
+          <span className="eyebrow-pill">ТК «Колибри»</span>
         </p>
         <h1 className="font-display text-4xl leading-tight md:text-5xl">
           Мерч и подарки <span className="glow-gold">круглый год</span>

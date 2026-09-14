@@ -213,7 +213,9 @@ export default function LeadForm() {
   const pr = progress(step, answers);
 
   return (
-    <section id="lead" className="section-vignette relative py-28">
+    // верхний отступ маленький: финальная правка «уменьшить расстояние» —
+    // между QR-кодами «Отдела заботы» и этим заголовком было почти 300 px
+    <section id="lead" className="section-vignette relative pb-28 pt-8 md:pt-10">
       <div className="mx-auto max-w-2xl px-6 md:px-12">
         <motion.h2
           initial={{ opacity: 0, y: 36 }}

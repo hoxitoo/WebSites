@@ -58,10 +58,13 @@ const reveal = {
 
 export default function CareDept() {
   return (
-    // Верхний отступ меньше нижнего: финальная правка «здесь можно сделать
-    // короче расстояние» — между карточками блока выше и стикером была
-    // пустота почти в 300 px. Теперь около 150.
-    <section id="care" className="section-warm relative overflow-hidden pb-44 pt-24 text-center md:pt-28">
+    // Отступы сверху и снизу ужаты дважды. Финальные правки: «здесь можно
+    // сделать короче расстояние» (между карточками блока выше и стикером
+    // было почти 300 px), затем «уменьшить расстояние» ещё раз — и сверху,
+    // и снизу, до анкеты. Растворение тёплого фона (340 px, см. .section-warm)
+    // теперь проходит под стикером и QR-кодами — кремовый текст на любой
+    // его стадии читается одинаково.
+    <section id="care" className="section-warm relative overflow-hidden pb-16 pt-10 text-center md:pb-20 md:pt-12">
       <div className="relative mx-auto max-w-5xl px-6 md:px-12">
         {/* Стикер Деда Мороза — её правка. На стикере написано «Подберу
             для вас 3 лучших варианта!», а текст ниже — как раз про то,
@@ -82,13 +85,9 @@ export default function CareDept() {
         />
 
         <motion.p {...reveal} className="mt-6">
-          <span className="eyebrow-pill">
-            <svg viewBox="0 0 24 24" aria-hidden className="h-3.5 w-3.5">
-              <path fill="currentColor" d="M12 2l1.6 5.2L19 9l-5.4 1.8L12 16l-1.6-5.2L5 9l5.4-1.8z" />
-              <path fill="currentColor" d="M19 15l.8 2.6L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.4z" />
-            </svg>
-            Отдел заботы Деда Мороза
-          </span>
+          {/* без звёздочки: «привести заголовки к одному формату» — у
+              остальных плашек значка нет */}
+          <span className="eyebrow-pill">Отдел заботы Деда Мороза</span>
         </motion.p>
 
         <motion.h2

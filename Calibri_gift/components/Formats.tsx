@@ -221,14 +221,18 @@ export default function Formats() {
   return (
     <section id="services" className="warm-glow relative py-24 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
-        {/* лента «Создаём подарки 11 лет» — прямо над заголовком раздела:
-            «просится ниже, тут же» */}
-        <Banner11 />
-
-        <motion.p {...reveal} className="mt-8 text-center">
+        <motion.p {...reveal} className="text-center">
           <span className="eyebrow-pill">Услуги и продукция · Коллекция 2027</span>
         </motion.p>
-        <motion.h2 {...reveal} className="mt-4 text-center font-display text-3xl md:text-5xl">
+
+        {/* лента «Создаём подарки 11 лет» — под надписью «Услуги и продукция»,
+            между ней и заголовком: финальная правка «под услуги и сделать
+            эту плашку чуть меньше» */}
+        <div className="mt-5">
+          <Banner11 />
+        </div>
+
+        <motion.h2 {...reveal} className="mt-6 text-center font-display text-3xl md:text-5xl">
           Форматы <span className="glow-gold">новогодних подарков</span>
         </motion.h2>
         <motion.p

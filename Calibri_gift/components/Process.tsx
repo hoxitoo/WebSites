@@ -110,14 +110,15 @@ const reveal = {
 
 export default function Process() {
   return (
-    <section className="section-vignette relative pb-12 pt-24 md:pb-14 md:pt-28">
+    <section className="section-vignette relative pb-4 pt-24 md:pb-6 md:pt-28">
       <div className="mx-auto max-w-6xl px-6 md:px-12">
         <motion.p {...reveal} className="text-center">
           <span className="eyebrow-pill">Как мы работаем</span>
         </motion.p>
         <motion.h2
           {...reveal}
-          className="mx-auto mt-5 max-w-4xl text-center font-display text-3xl leading-tight md:text-5xl"
+          // h2-one-line — правка «в одну строку», размер считается в globals.css
+          className="h2-one-line mx-auto mt-5 max-w-4xl text-center font-display text-3xl leading-tight md:text-5xl lg:max-w-none"
         >
           Прозрачный процесс —{" "}
           <span className="candle-sweep">от подбора подарка до доставки</span>

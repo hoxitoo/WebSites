@@ -85,7 +85,7 @@ export function Numbers() {
       {/* Финальные правки: надпись в общей плашке разделов и переливается —
           «пусть слово тоже будет анимированным» */}
       <motion.p {...reveal} className="mb-12 text-center">
-        <span className="eyebrow-pill eyebrow-pill--lg">
+        <span className="eyebrow-pill">
           <span className="candle-sweep">О компании</span>
         </span>
       </motion.p>

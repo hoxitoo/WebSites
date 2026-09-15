@@ -160,4 +160,35 @@ prov.galleryFinal = {
 writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
 console.log(`происхождение кадров записано в ${path.basename(provPath)}`);
 
+/* ————— 5. Три девочки — «разбавить мальчиков» ————— */
+// Правка: «добавить фото 3 девочек между мальчиками, разбавить мальчиков».
+// Исходники разного размера (2500×3746 и 1024×1536), пропорция у всех 2:3.
+// Место в ленте — в components/KidsStrip.tsx.
+const GIRLS = [
+  ["девочка1.jpg", "Девочка с ободком-мишками и подушкой «Волшебного Нового года» с Дедом Морозом"],
+  ["девочка2.png", "Девочка с ободком-мишками и подарочной коробкой с барашками"],
+  ["девочка3.jpg", "Девочка с подушкой «С Новым годом!» с барашками в очках"],
+];
+const girlsFiles = [];
+for (let i = 0; i < GIRLS.length; i++) {
+  const [file, alt] = GIRLS[i];
+  const src = path.join(SRC, "gallery-girls", file);
+  if (!existsSync(src)) {
+    console.error(`нет файла ${file} — положите фото в design/rework-2026-09/gallery-girls/`);
+    process.exit(1);
+  }
+  const name = `kid-${String(36 + i).padStart(2, "0")}.webp`;
+  const meta = await sharp(src)
+    .resize(700, 1049, { fit: "cover" })
+    .webp({ quality: 82 })
+    .toFile(path.join(KIDS_OUT, name));
+  girlsFiles.push({ file: name, alt, source: `папка «финальные правки2»: ${file}` });
+  console.log(`${name}  ${meta.width}×${meta.height}`);
+}
+prov.galleryGirls = {
+  note: "Три девочки «между мальчиками» (финальные правки 2). Оригиналы: design/rework-2026-09/gallery-girls/",
+  files: girlsFiles,
+};
+writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
+
 console.log("готово");

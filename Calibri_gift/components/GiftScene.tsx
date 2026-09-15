@@ -154,18 +154,17 @@ function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
 // Тексты — финальная правка заказчицы, дословно: заголовок и вторая строка
 // новые, третья и четвёртая без изменений («уже универсально»).
 const storyLines = [
-  // окна сдвинуты: в начале сцены теперь стоит вступление (IntroLine ниже)
   {
     text: "Как сказать «спасибо» по-настоящему?",
-    window: [0.15, 0.29] as const,
+    window: [0.02, 0.2] as const,
   },
   {
     text: "Не общими словами — а тёплым знаком внимания каждому.",
-    window: [0.3, 0.44] as const,
+    window: [0.21, 0.4] as const,
   },
   {
     text: "Забота не бывает громкой. Она — в тепле, которое можно взять в руки.",
-    window: [0.45, 0.58] as const,
+    window: [0.41, 0.58] as const,
   },
   {
     text: "Внутри — больше, чем подарок. Внутри — «мы вас ценим».",
@@ -207,37 +206,30 @@ function StoryLine({
   );
 }
 
-// Вступление над коробкой. Правка «переместить текст»: в её макете эти слова
-// стоят после блока доставки, а она попросила поставить их сюда — в начало
-// сцены, над коробкой. Видны сразу, пока сцена въезжает на экран, и гаснут,
-// как только человек начал листать: место уступают первой строке истории.
-const INTRO_END = 0.13;
-
-function IntroLine({ progress }: { progress: MotionValue<number> }) {
-  const opacity = useTransform(progress, [0, INTRO_END - 0.04, INTRO_END], [1, 1, 0]);
-  const y = useTransform(progress, [0, INTRO_END], [0, -24]);
+// Вступление перед сценой. Правки: сначала «переместить текст» — поставить
+// его над коробкой; затем «привязать не к подарку, а просто между подарком
+// и прошлым блоком». Поэтому это обычный неподвижный блок перед сценой:
+// он прокручивается вместе со страницей и не гаснет от прокрутки сцены.
+function Intro() {
   return (
     <motion.div
-      style={{ opacity, y }}
-      className="absolute inset-x-0 top-[calc(5.25rem+max(2vh,10px))] z-20 px-6 text-center"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.5 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="relative mx-auto max-w-3xl px-6 pb-6 pt-16 text-center md:pt-20"
     >
       <span
         aria-hidden
-        className="mx-auto mb-3 block h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent"
+        className="mx-auto mb-4 block h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent"
       />
-      <p
-        className="mx-auto max-w-2xl font-display italic leading-snug text-gold [text-shadow:0_2px_24px_rgba(8,14,30,0.95)]"
-        style={{ fontSize: "clamp(1rem, 0.9vh + 0.9vw, 1.55rem)" }}
-      >
+      <p className="mx-auto max-w-2xl font-display text-xl italic leading-snug text-gold md:text-2xl">
         Позвольте профессионалам позаботиться о вашем решении — и ваши коллеги
         с благодарностью оценят результат
       </p>
       {/* подпись рукописным шрифтом, как у неё; пробел перед переносом —
           чтобы в тексте страницы не склеилось «волшебниковООО» */}
-      <p
-        className="mt-2 font-script leading-tight text-cream/80 [text-shadow:0_2px_18px_rgba(8,14,30,0.95)]"
-        style={{ fontSize: "clamp(1.05rem, 0.8vh + 0.8vw, 1.45rem)" }}
-      >
+      <p className="mt-3 font-script text-xl leading-tight text-cream/80 md:text-2xl">
         С теплом, команда волшебников{" "}
         <br />
         ООО ТК «Колибри»
@@ -425,6 +417,8 @@ export default function GiftScene() {
 
   return (
     <>
+      {/* текст «Позвольте профессионалам…» — между контактами и подарком */}
+      <Intro />
       {/* Подводка к сцене. У сцены непрозрачный фон #0a1230, а фон страницы
           в этом месте чуть светлее — на верхней кромке был виден шаг.
           Правка заказчицы: «все жёсткие переходы убрать, сделать размытые»,
@@ -484,9 +478,6 @@ export default function GiftScene() {
           style={{ background: "linear-gradient(to top, #0a1230, transparent)" }}
           aria-hidden
         />
-
-        {/* вступление — правка «переместить текст» */}
-        <IntroLine progress={p} />
 
         {/* сторителлинг */}
         {storyLines.map((line, i) => (

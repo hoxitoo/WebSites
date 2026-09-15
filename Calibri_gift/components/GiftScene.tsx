@@ -154,17 +154,18 @@ function useSequence(wrapRef: React.RefObject<HTMLDivElement | null>) {
 // Тексты — финальная правка заказчицы, дословно: заголовок и вторая строка
 // новые, третья и четвёртая без изменений («уже универсально»).
 const storyLines = [
+  // окна сдвинуты: в начале сцены теперь стоит вступление (IntroLine ниже)
   {
     text: "Как сказать «спасибо» по-настоящему?",
-    window: [0.02, 0.2] as const,
+    window: [0.15, 0.29] as const,
   },
   {
     text: "Не общими словами — а тёплым знаком внимания каждому.",
-    window: [0.21, 0.4] as const,
+    window: [0.3, 0.44] as const,
   },
   {
     text: "Забота не бывает громкой. Она — в тепле, которое можно взять в руки.",
-    window: [0.41, 0.58] as const,
+    window: [0.45, 0.58] as const,
   },
   {
     text: "Внутри — больше, чем подарок. Внутри — «мы вас ценим».",
@@ -192,8 +193,9 @@ function StoryLine({
       style={{ opacity, y }}
       // Отступ и кегль зависят и от высоты окна: на низком окне (панели
       // браузера + таскбар) крупный текст съедал экран и налезал на коробку.
-      // Плюс 76 px — липкая шапка: без этого первая строка уезжала под неё.
-      className="absolute inset-x-0 top-[calc(76px+max(2.5vh,12px))] z-20 px-6 text-center"
+      // Плюс 5,25rem — липкая шапка: без этого первая строка уезжала под неё.
+      // В rem, а не в px: шапка растёт вместе с базовым шрифтом.
+      className="absolute inset-x-0 top-[calc(5.25rem+max(2.5vh,12px))] z-20 px-6 text-center"
     >
       <Tag
         className="mx-auto max-w-3xl font-display leading-snug text-cream [text-shadow:0_2px_28px_rgba(8,14,30,0.95),0_0_60px_rgba(8,14,30,0.6)]"
@@ -201,6 +203,45 @@ function StoryLine({
       >
         {text}
       </Tag>
+    </motion.div>
+  );
+}
+
+// Вступление над коробкой. Правка «переместить текст»: в её макете эти слова
+// стоят после блока доставки, а она попросила поставить их сюда — в начало
+// сцены, над коробкой. Видны сразу, пока сцена въезжает на экран, и гаснут,
+// как только человек начал листать: место уступают первой строке истории.
+const INTRO_END = 0.13;
+
+function IntroLine({ progress }: { progress: MotionValue<number> }) {
+  const opacity = useTransform(progress, [0, INTRO_END - 0.04, INTRO_END], [1, 1, 0]);
+  const y = useTransform(progress, [0, INTRO_END], [0, -24]);
+  return (
+    <motion.div
+      style={{ opacity, y }}
+      className="absolute inset-x-0 top-[calc(5.25rem+max(2vh,10px))] z-20 px-6 text-center"
+    >
+      <span
+        aria-hidden
+        className="mx-auto mb-3 block h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent"
+      />
+      <p
+        className="mx-auto max-w-2xl font-display italic leading-snug text-gold [text-shadow:0_2px_24px_rgba(8,14,30,0.95)]"
+        style={{ fontSize: "clamp(1rem, 0.9vh + 0.9vw, 1.55rem)" }}
+      >
+        Позвольте профессионалам позаботиться о вашем решении — и ваши коллеги
+        с благодарностью оценят результат
+      </p>
+      {/* подпись рукописным шрифтом, как у неё; пробел перед переносом —
+          чтобы в тексте страницы не склеилось «волшебниковООО» */}
+      <p
+        className="mt-2 font-script leading-tight text-cream/80 [text-shadow:0_2px_18px_rgba(8,14,30,0.95)]"
+        style={{ fontSize: "clamp(1.05rem, 0.8vh + 0.8vw, 1.45rem)" }}
+      >
+        С теплом, команда волшебников{" "}
+        <br />
+        ООО ТК «Колибри»
+      </p>
     </motion.div>
   );
 }
@@ -217,7 +258,9 @@ const cards = [
     text: "Настоящее новогоднее чудо — забота приходит домой.",
   },
   {
-    title: "Партнёрам и клиентам",
+    // правка «убрать „и клиентам“, только партнёрам»: длинный заголовок
+    // переносился на две строки, и карточки выходили разной высоты
+    title: "Партнёрам",
     text: "Крепкие отношения начинаются с внимания к деталям.",
   },
 ];
@@ -283,9 +326,12 @@ export default function GiftScene() {
       // Верхнюю полосу отдаём заголовку сторителлинга. Без этого на низких
       // окнах (браузер с панелями + таскбар) кадр занимал всю высоту и текст
       // ложился прямо на коробку — заказчица это и увидела.
-      // + высота липкой шапки (76 px): текст сторителлинга опустился под неё,
-      // и полоса под него должна была вырасти ровно на столько же
-      const band = Math.max(150, Math.min(ch * 0.24 + 76, 250));
+      // + высота липкой шапки: текст сторителлинга опустился под неё, и полоса
+      // под него должна вырасти ровно на столько же. Высоту меряем, а не
+      // задаём числом: логотип в шапке увеличен, а на широких экранах шапка
+      // растёт вместе с базовым размером шрифта.
+      const headerH = document.querySelector("header")?.getBoundingClientRect().height ?? 76;
+      const band = Math.max(150 + (headerH - 76), Math.min(ch * 0.24 + headerH, 250 + (headerH - 76)));
       const avail = ch - band;
       // ×0.94 — воздух по краям и меньше апскейла (выше чёткость).
       // Без blur — он и давал лаги на ПК.
@@ -439,6 +485,9 @@ export default function GiftScene() {
           aria-hidden
         />
 
+        {/* вступление — правка «переместить текст» */}
+        <IntroLine progress={p} />
+
         {/* сторителлинг */}
         {storyLines.map((line, i) => (
           <StoryLine
@@ -518,7 +567,7 @@ function CardOut({
   return (
     <motion.div
       style={{ opacity: progress, y, rotate }}
-      className="w-full max-w-[300px] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(8,14,30,0.55)] backdrop-blur-md md:p-7"
+      className="w-full max-w-[18.75rem] rounded-2xl border border-gold/25 bg-night-deep/70 p-5 shadow-[0_20px_60px_rgba(8,14,30,0.55)] backdrop-blur-md md:p-7"
     >
       {children}
     </motion.div>

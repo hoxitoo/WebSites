@@ -54,7 +54,7 @@ export default function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-cream/10 bg-night-deep/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3 md:px-12">
+        <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-2 md:px-12">
           {/* «вывернутая» версия фирменного логотипа: кремово-золотая, без
               плашки — собирается из оригинала скриптом scripts/make-logo.mjs */}
           <a
@@ -67,7 +67,9 @@ export default function SiteHeader() {
               alt="Торговая компания «Колибри»"
               width={964}
               height={400}
-              className="h-9 w-auto sm:h-11 md:h-12"
+              // правка «увеличить максимально наш лого в шапке»: логотип почти
+              // во всю высоту шапки, поля сверху и снизу уменьшены до 8 px
+              className="h-11 w-auto sm:h-12 md:h-14 lg:h-16"
               draggable={false}
             />
           </a>

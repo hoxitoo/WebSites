@@ -76,7 +76,7 @@ export default function WhyBusiness() {
                 width={700}
                 height={1049}
                 loading="lazy"
-                className="mx-auto mb-5 h-[88px] w-[88px] rounded-full border-2 border-gold/35 object-cover"
+                className="mx-auto mb-5 h-[5.5rem] w-[5.5rem] rounded-full border-2 border-gold/35 object-cover"
                 draggable={false}
               />
               <h3 className="font-display text-xl text-gold">{c.title}</h3>

@@ -104,11 +104,13 @@ export default function KidsStrip() {
         </motion.h2>
         <motion.p
           {...reveal}
-          className="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-muted"
+          className="mx-auto mt-4 max-w-3xl text-center leading-relaxed text-muted"
         >
-          Настоящее чудо в кадре: дети держат подарки из нашего каталога.
-          Именно такую радость вы можете подарить семьям своих сотрудников.
-          И это только маленькая часть нашей коллекции 2027 года.
+          {/* правка «каждое предложение с новой строки» — пробелы в конце
+              нужны тексту страницы: без них поисковик склеивает предложения */}
+          <span className="block">Настоящее чудо в кадре: дети держат подарки из нашего каталога. </span>
+          <span className="block">Именно такую радость вы можете подарить семьям своих сотрудников. </span>
+          <span className="block">И это только маленькая часть нашей коллекции 2027 года.</span>
         </motion.p>
 
         <div className="mt-10 flex items-center justify-between">
@@ -153,13 +155,13 @@ export default function KidsStrip() {
               key={p.file}
               type="button"
               onClick={() => setShot({ src: asset(`/catalog/${p.file}`), alt: p.alt })}
-              className="group w-[210px] shrink-0 cursor-pointer snap-center overflow-hidden rounded-2xl border border-cream/10 bg-night-soft/40 transition-colors duration-300 hover:border-gold/45 md:w-[250px]"
+              className="group w-[13.125rem] shrink-0 cursor-pointer snap-center overflow-hidden rounded-2xl border border-cream/10 bg-night-soft/40 transition-colors duration-300 hover:border-gold/45 md:w-[15.625rem]"
             >
               <img
                 src={asset(`/catalog/${p.file}`)}
                 alt={p.alt}
                 loading="lazy"
-                className="h-[280px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05] md:h-[330px]"
+                className="h-[17.5rem] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05] md:h-[20.625rem]"
               />
             </button>
           ))}

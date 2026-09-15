@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Manrope } from "next/font/google";
+import { Playfair_Display, Manrope, Caveat } from "next/font/google";
 import CursorSnow from "@/components/CursorSnow";
 import "./globals.css";
 
@@ -13,6 +13,16 @@ const manrope = Manrope({
   subsets: ["cyrillic", "latin"],
   variable: "--font-manrope",
   display: "swap",
+});
+
+// Рукописный шрифт — только для подписи «С теплом, команда волшебников»
+// над сценой с коробкой (правка «переместить текст»: в её макете подпись
+// рукописная). Один начертание, кириллица.
+const caveat = Caveat({
+  subsets: ["cyrillic", "latin"],
+  variable: "--font-caveat",
+  display: "swap",
+  weight: ["500"],
 });
 
 // на GitHub Pages сайт живёт в подкаталоге /WebSites — OG-путь строим
@@ -40,7 +50,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru" className={`${playfair.variable} ${manrope.variable}`}>
+    <html lang="ru" className={`${playfair.variable} ${manrope.variable} ${caveat.variable}`}>
       <body className="antialiased">
         {children}
         <CursorSnow />

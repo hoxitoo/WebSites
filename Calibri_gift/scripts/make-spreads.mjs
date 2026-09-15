@@ -195,31 +195,34 @@ for (const file of files) {
     .png()
     .toBuffer();
 
-  // Обрезаем пустое поле макета, но не вплотную к книге: в поле лежит тень,
-  // благодаря которой разворот читается как бумага. Размеры полей — как
-  // в разворотах её макета (замерено по её файлам): по бокам ≈2,5% ширины
+  // ПО ОДНОЙ СТРАНИЦЕ. Правка заказчицы «сделать по 1 странице на картинке»:
+  // «у Клода по одной страничке, а не по две». Собранный разворот режем
+  // пополам — каждая страница отдельным файлом page-N.webp.
+  //
+  // Поля — как в её макете (замерено по её файлам): снаружи ≈2,5% ширины
   // книги, сверху ≈5% высоты, снизу ≈10% — там тень под книгой заметнее.
+  // Со стороны переплёта поле узкое (1% ширины страницы): видна только
+  // тень корешка, иначе в кадр попадал бы край соседней страницы.
   const frameW = fx1 - fx0;
   const mx = Math.round(frameW * 0.025);
+  const mi = Math.round(halfW * 0.01);
   const mt = Math.round(frameH * 0.048);
   const mb = Math.round(frameH * 0.1);
-  const cropLeft = Math.max(0, fx0 - mx);
-  const cropTop = Math.max(0, fy0 - mt);
-  const out = path.join(OUT, `spread-${leftPage}-${rightPage}.webp`);
-  const meta = await sharp(buf)
-    .extract({
-      left: cropLeft,
-      top: cropTop,
-      width: Math.min(W - cropLeft, frameW + mx * 2),
-      height: Math.min(Hs - cropTop, frameH + mt + mb),
-    })
-    .resize({ width: 1600, withoutEnlargement: true })
-    .webp({ quality: 86 })
-    .toFile(out);
+  const top = Math.max(0, fy0 - mt);
+  const height = Math.min(Hs - top, frameH + mt + mb);
 
-  console.log(
-    `spread-${leftPage}-${rightPage}.webp  ${meta.width}×${meta.height}  ` +
-      `замыто полос: ${left.bands + right.bands}`
-  );
+  const halves = [
+    { page: leftPage, left: Math.max(0, fx0 - mx), right: fx0 + halfW + mi, bands: left.bands },
+    { page: rightPage, left: fx0 + halfW - mi, right: Math.min(W, fx1 + mx), bands: right.bands },
+  ];
+  for (const h of halves) {
+    const out = path.join(OUT, `page-${h.page}.webp`);
+    const meta = await sharp(buf)
+      .extract({ left: h.left, top, width: h.right - h.left, height })
+      .resize({ width: 1100, withoutEnlargement: true })
+      .webp({ quality: 86 })
+      .toFile(out);
+    console.log(`page-${h.page}.webp  ${meta.width}×${meta.height}  замыто полос: ${h.bands}`);
+  }
 }
 console.log("готово:", OUT);

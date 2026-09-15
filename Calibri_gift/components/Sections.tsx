@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
+import { asset } from "@/lib/asset";
 
 /**
  * Блок «О компании» с цифрами доверия.
@@ -81,14 +82,26 @@ export function Numbers() {
     { to: 1000, suffix: "+", decimals: 0, label: "постоянных клиентов, 85% из них с нами больше 9 лет" },
   ];
   return (
-    <section id="about" className="warm-glow relative mx-auto max-w-6xl px-6 py-28 md:px-12">
-      {/* Финальные правки: надпись в общей плашке разделов и переливается —
-          «пусть слово тоже будет анимированным» */}
-      <motion.p {...reveal} className="mb-12 text-center">
-        <span className="eyebrow-pill">
-          <span className="candle-sweep">О компании</span>
-        </span>
-      </motion.p>
+    <section id="about" className="warm-glow relative mx-auto max-w-6xl px-6 pb-24 pt-16 md:px-12">
+      {/* Правка «заменить „О нас“ на логотип»: вместо надписи «О компании» —
+          фирменный логотип в родных цветах, «как Клод сделал», и цифры
+          начинаются сразу под ним. Тёмно-фиолетовая часть птицы на синем
+          фоне пропадала бы, поэтому вокруг — тонкий светлый контур и мягкое
+          свечение (как у неё в макете). Готовит scripts/make-logo-color.mjs. */}
+      <motion.img
+        {...reveal}
+        src={asset("/logo-kolibri-color.webp")}
+        alt="Торговая компания «Колибри»"
+        width={640}
+        height={557}
+        loading="lazy"
+        draggable={false}
+        className="mx-auto mb-6 w-[10rem] md:w-[12.5rem]"
+        style={{
+          filter:
+            "drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 16px rgba(255,255,255,0.3))",
+        }}
+      />
       <div className="grid gap-14 md:grid-cols-3">
         {items.map((it, i) => (
           <motion.div key={i} {...reveal} transition={{ ...reveal.transition, delay: i * 0.12 }} className="text-center">

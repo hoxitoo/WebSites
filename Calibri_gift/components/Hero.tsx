@@ -31,11 +31,16 @@ export default function Hero() {
             "radial-gradient(900px 500px at 30% 115%, rgba(60,104,168,0.32), transparent 60%)",
         }}
       />
-      {/* овечка с подарком — бледная подложка под текстом */}
+      {/* Овечка с подарком. Правка «сделать чуть более читаемой овцу»:
+          клиенты, которым показывали сайт, сказали, что герой едва виден —
+          «как будто это привидение». На компьютере овечка справа, текст
+          слева, поэтому она ярче в 2,5 раза, а под текстом слева лежит
+          отдельное затемнение — контраст текста не падает. На телефоне
+          овечка прямо под текстом, там она ярче совсем немного. */}
       <img
         src={asset("/hero-sheep.webp")}
         alt=""
-        className="pointer-events-none absolute inset-0 h-full w-full object-contain object-center opacity-[0.12] md:object-right"
+        className="pointer-events-none absolute inset-0 h-full w-full object-contain object-center opacity-[0.16] md:object-right md:opacity-[0.32]"
         draggable={false}
         aria-hidden
       />
@@ -43,7 +48,15 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(8,14,30,0.55) 0%, rgba(8,14,30,0.35) 55%, #0a1230 100%)",
+            "linear-gradient(to bottom, rgba(8,14,30,0.4) 0%, rgba(8,14,30,0.2) 55%, #0a1230 100%)",
+        }}
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 hidden md:block"
+        style={{
+          background:
+            "linear-gradient(to right, rgba(10,18,48,0.85) 0%, rgba(10,18,48,0.55) 40%, transparent 65%)",
         }}
         aria-hidden
       />

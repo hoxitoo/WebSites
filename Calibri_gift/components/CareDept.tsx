@@ -81,7 +81,7 @@ export default function CareDept() {
           whileInView={{ opacity: 1, y: 0, rotate: -4 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto w-[190px] drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)] sm:w-[220px] md:w-[250px]"
+          className="mx-auto w-[11.875rem] drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)] sm:w-[13.75rem] md:w-[15.625rem]"
         />
 
         <motion.p {...reveal} className="mt-6">

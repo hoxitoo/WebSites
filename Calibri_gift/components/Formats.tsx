@@ -33,19 +33,36 @@ import { asset } from "@/lib/asset";
  * заголовки карточек золотые, так они и работают подписями к кадрам.
  */
 
-// Развороты каталога. Готовит scripts/make-spreads.mjs — он же замывает
-// строки «Цена: …» и «Артикул: …»: прайс не должен попасть в открытый
-// доступ, рядом же написано, что каталог мы открыто не выкладываем.
-const SPREADS = [
-  ["spread-6-7.webp", "6–7", "Разворот каталога: подарки в наборах"],
-  ["spread-8-9.webp", "8–9", "Разворот каталога: подарки в наборах"],
-  ["spread-10-11.webp", "10–11", "Разворот каталога: подарки в наборах"],
-  ["spread-12-13.webp", "12–13", "Разворот каталога: подарки в наборах"],
-  ["spread-18-19.webp", "18–19", "Разворот каталога: подарки в картонной упаковке"],
-  ["spread-52-53.webp", "52–53", "Разворот каталога: подарки в текстильной упаковке"],
-  ["spread-68-69.webp", "68–69", "Разворот каталога: подарки в премиум-упаковке"],
-  ["spread-70-71.webp", "70–71", "Разворот каталога: подарки в премиум-упаковке"],
-] as const;
+// Страницы каталога — по одной на картинке. Правка «сделать по 1 странице
+// на картинке»: «у Клода по одной страничке, а не по две». Готовит
+// scripts/make-spreads.mjs (режет собранные развороты пополам) — он же
+// замывает строки «Цена: …» и «Артикул: …»: прайс не должен попасть
+// в открытый доступ, рядом же написано, что каталог мы открыто не выкладываем.
+//
+// Подпись под страницей — название набора, как у Клода. Названия взяты
+// из текстового слоя PDF-каталога; где на странице два набора — оба.
+const PAGES = [
+  { page: 6, name: "Посидим, поиграем", section: "подарки в наборах" },
+  { page: 7, name: "Тому, кто верит в чудеса!", section: "подарки в наборах" },
+  { page: 8, name: "Заснеженная", section: "подарки в наборах" },
+  { page: 9, name: "Кудряшки", section: "подарки в наборах" },
+  { page: 10, name: "Барашки наряжают ёлку", section: "подарки в наборах" },
+  { page: 11, name: "Милая моя ёлочка · Морозец", section: "подарки в наборах" },
+  { page: 12, name: "Творческие барашки · Кормушка своими руками", section: "подарки в наборах" },
+  { page: 13, name: "Поезд новогодних экспериментов", section: "подарки в наборах" },
+  { page: 18, name: "Окно в Новый год! · Тёплая мастерская", section: "картонная упаковка" },
+  { page: 19, name: "Банкомат подарков · Финансовая грамотность", section: "картонная упаковка" },
+  { page: 52, name: "Подушки в текстильной упаковке", section: "текстильная упаковка" },
+  { page: 53, name: "Подушки в текстильной упаковке", section: "текстильная упаковка" },
+  { page: 68, name: "Конверт малый · Матрёшка столичная", section: "премиум-упаковка" },
+  { page: 69, name: "Конверт средний · Матрёшка пряничная", section: "премиум-упаковка" },
+  { page: 70, name: "Коза в оренбургском платке · Кремлёвская звезда", section: "премиум-упаковка" },
+  { page: 71, name: "Крафт", section: "премиум-упаковка" },
+].map((p) => ({
+  ...p,
+  file: `page-${p.page}.webp`,
+  alt: `Страница ${p.page} каталога, ${p.section}: ${p.name}`,
+}));
 
 // Шесть форматов. Картинки — её «сайт разделы» без надписей,
 // готовит scripts/make-rework-assets.mjs.
@@ -118,9 +135,9 @@ const reveal = {
 
 function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
   const [index, setIndex] = useState(0);
-  const [file, pages, alt] = SPREADS[index];
+  const { file, name, alt } = PAGES[index];
   const step = (dir: 1 | -1) =>
-    setIndex((i) => (i + dir + SPREADS.length) % SPREADS.length);
+    setIndex((i) => (i + dir + PAGES.length) % PAGES.length);
 
   return (
     <div className="mt-20 text-center">
@@ -141,7 +158,7 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
         <button
           type="button"
           onClick={() => step(-1)}
-          aria-label="Предыдущий разворот"
+          aria-label="Предыдущая страница"
           className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-cream/25 text-cream transition-colors hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
         >
           ←
@@ -149,15 +166,13 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
 
         <button
           type="button"
-          onClick={() => onZoom({ src: asset(`/catalog/${file}`), alt, caption: `Стр. ${pages}` })}
-          // Правки заказчицы: «сжато по ширине и вытянуто вверх» и затем
-          // «растянуто опять — должно быть как в оригинале». Колонка — 920 px,
-          // как у неё. А главная причина была в самих файлах: шаблон макета
-          // вытягивал страницы по вертикали, книга выходила 2,34 : 1 вместо
-          // настоящих 2,70 : 1. scripts/make-spreads.mjs теперь собирает
-          // развороты в пропорциях PDF-каталога (книга 2,71 : 1), поля вокруг
-          // книги — как в её макете.
-          className="relative w-full max-w-[920px] cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
+          onClick={() => onZoom({ src: asset(`/catalog/${file}`), alt, caption: name })}
+          // Пропорции — как в настоящем каталоге: страница в PDF 765×567,
+          // make-spreads собирает её без растяжения (правки «сжато по ширине»,
+          // «растянуто опять»). Одна страница уже, чем разворот, поэтому
+          // колонка 42rem (~670 px): так страница по высоте примерно такая же,
+          // как был разворот, и мелкий текст на ней читается.
+          className="relative w-full max-w-[42rem] cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
         >
           {/* ключ по файлу — картинка проявляется, а не подменяется рывком */}
           <motion.img
@@ -167,43 +182,46 @@ function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
             transition={{ duration: 0.3 }}
             src={asset(`/catalog/${file}`)}
             alt={alt}
-            width={1600}
-            height={648}
+            width={1100}
+            height={882}
             className="block h-auto w-full"
             draggable={false}
           />
-          <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-night-deep/75 px-3 py-1.5 text-[0.72rem] font-semibold tracking-wide text-gold">
-            Стр. {pages}
+          {/* подпись — название набора, как у Клода, а не номер страницы:
+              номер и так напечатан в углу самой страницы */}
+          <span className="pointer-events-none absolute bottom-3 right-3 max-w-[80%] truncate rounded-full bg-night-deep/80 px-3 py-1.5 text-[0.72rem] font-semibold tracking-wide text-gold">
+            {name}
           </span>
         </button>
 
         <button
           type="button"
           onClick={() => step(1)}
-          aria-label="Следующий разворот"
+          aria-label="Следующая страница"
           className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-cream/25 text-cream transition-colors hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
         >
           →
         </button>
       </motion.div>
 
-      <div className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2.5">
-        {SPREADS.map(([thumb, p], i) => (
+      {/* шестнадцать миниатюр в пропорции страницы — два ряда по восемь */}
+      <div className="mx-auto mt-5 flex max-w-[30rem] flex-wrap justify-center gap-2">
+        {PAGES.map((p, i) => (
           <button
-            key={thumb}
+            key={p.file}
             type="button"
             onClick={() => setIndex(i)}
-            aria-label={`Страницы ${p}`}
+            aria-label={`Страница ${p.page}: ${p.name}`}
             aria-current={i === index}
             className={
-              "h-11 w-16 cursor-pointer overflow-hidden rounded-md border-2 transition-opacity " +
+              "h-12 w-[3.25rem] cursor-pointer overflow-hidden rounded-md border-2 transition-opacity " +
               (i === index
                 ? "border-gold opacity-100"
                 : "border-transparent opacity-55 hover:opacity-85")
             }
           >
             <img
-              src={asset(`/catalog/${thumb}`)}
+              src={asset(`/catalog/${p.file}`)}
               alt=""
               loading="lazy"
               className="h-full w-full object-cover"
@@ -255,7 +273,7 @@ export default function Formats() {
             height={704}
             loading="lazy"
             draggable={false}
-            className="w-[220px] shrink-0 -rotate-4 rounded-lg shadow-[0_18px_26px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:-rotate-1 group-hover:scale-[1.03] md:w-[260px]"
+            className="w-[13.75rem] shrink-0 -rotate-4 rounded-lg shadow-[0_18px_26px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:-rotate-1 group-hover:scale-[1.03] md:w-[16.25rem]"
           />
           <div>
             <h3 className="font-display text-2xl text-cream md:text-3xl">

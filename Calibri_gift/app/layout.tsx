@@ -26,7 +26,7 @@ const caveat = Caveat({
 });
 
 // на GitHub Pages сайт живёт в подкаталоге /WebSites — OG-путь строим
-// абсолютным от SITE, иначе "/gift/og.jpg" резолвится мимо подкаталога
+// абсолютным от SITE, иначе "/gift/og-2027.jpg" резолвится мимо подкаталога
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -40,7 +40,18 @@ export const metadata: Metadata = {
     title: "Колибри — вы дарите самое важное: заботу и внимание",
     description:
       "Корпоративные новогодние подарки для команд от 300 человек. 11 лет на рынке, 1000+ компаний.",
-    images: [{ url: `${SITE}/gift/og.jpg`, width: 1200, height: 630 }],
+    // Превью ссылки — обложка «Коллекция новогодних подарков 2027» (правка
+    // «заменить текущую коробку на картинку для шеринга»). Новое имя файла,
+    // а не старое og.jpg: мессенджеры кешируют превью по адресу картинки.
+    // Готовит scripts/make-og.mjs.
+    images: [
+      {
+        url: `${SITE}/gift/og-2027.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Коллекция новогодних подарков 2027 — торговая компания «Колибри»",
+      },
+    ],
     locale: "ru_RU",
     type: "website",
   },

@@ -3,9 +3,19 @@
  *
  * Заказчица прислала архив «правки сайт для листания каталога» — 8 макетов
  * раскрытого каталога (3000×2000, файлы названы по номерам страниц: 6-7,
- * 8-9 …). Ставить их на сайт как есть нельзя: на страницах видны цены
- * и артикулы, а в этом же блоке написано, что каталог мы в открытый доступ
- * не выкладываем. Поэтому строки «Цена: …» и «Артикул: …» замываем.
+ * 8-9 …).
+ *
+ * ЦЕНЫ ВИДНЫ. Раньше скрипт замывал строки «Цена: …» и «Артикул: …» — рядом
+ * в блоке написано, что каталог мы в открытый доступ не выкладываем. Правка
+ * заказчицы: «в „Полистайте наш каталог“ убрать замазку с цен, чтобы цены
+ * везде было видно». Замывание выключено по умолчанию; если решат снова
+ * скрыть цены — флаг --mask-prices, код остался.
+ *
+ * Важно: в PDF-каталоге вместо цен стоят заглушки «Цена: 00 ₽» — на всех
+ * страницах. Настоящие цены и артикулы есть только в её макетах из архива.
+ * Поэтому без --mask-prices страницы берутся прямо из макета (он лишь
+ * сжимается до настоящих пропорций), а страницы из PDF вклеиваются только
+ * при замывании — ради точных координат строк с ценой.
  *
  * Как это сделано. Замывать прямо в макете оказалось ненадёжно: страницы
  * в макете вытянуты по вертикали относительно PDF и слегка асимметричны
@@ -19,7 +29,8 @@
  *
  * Запуск (из папки Calibri_gift):
  *   node scripts/make-spreads.mjs <папка с макетами> <каталог.pdf>
- *   node scripts/make-spreads.mjs <папка> <pdf> --debug   — обвести замытое
+ *   node scripts/make-spreads.mjs <папка> <pdf> --mask-prices   — замыть цены
+ *   node scripts/make-spreads.mjs <папка> <pdf> --mask-prices --debug   — и обвести замытое
  */
 import * as mupdf from "mupdf";
 import sharp from "sharp";
@@ -33,6 +44,8 @@ if (!SRC || !PDF) {
   process.exit(1);
 }
 const DEBUG = process.argv.includes("--debug");
+// по умолчанию цены видны — правка «убрать замазку с цен»
+const MASK_PRICES = process.argv.includes("--mask-prices");
 
 const OUT = path.resolve("public/catalog");
 mkdirSync(OUT, { recursive: true });
@@ -90,7 +103,7 @@ async function cleanPage(pageNumber, targetW, targetH) {
   pix.destroy();
   const meta = await sharp(buf).metadata();
 
-  const bands = priceBands(pageNumber);
+  const bands = MASK_PRICES ? priceBands(pageNumber) : [];
   for (const band of bands) {
     const left = Math.max(0, Math.round(band.x0 * meta.width));
     const top = Math.max(0, Math.round(band.y0 * meta.height));
@@ -130,34 +143,47 @@ for (const file of files) {
   const src = path.join(SRC, file);
   const { width: W, height: H } = await sharp(src).metadata();
 
-  // ПРОПОРЦИИ. Правка заказчицы: «в „Полистайте наш каталог“ растянуто
-  // опять — должно быть как в оригинале». Место под разворот в её шаблоне
-  // вытянуто по вертикали: половина рамки 1257×1074 (1,17), а страница
-  // каталога в PDF — 765×567 (1,35). Раньше страницы вклеивались растяжением
-  // по этой рамке, и вся книга выходила выше настоящей на 15%: разворот
-  // 2,34 : 1 вместо 2,70 : 1. Прошлая правка лишь обрезала белые поля —
-  // причину она не трогала.
+  // ПРОПОРЦИИ. Правки заказчицы «сжато по ширине», «растянуто опять — должно
+  // быть как в оригинале». Страница каталога в PDF — 765×567 (1,35).
   //
-  // Теперь наоборот: сначала сам шаблон сжимается по вертикали ровно
-  // настолько, чтобы его рамка получила пропорцию страниц из PDF, и уже
-  // в неё страницы вклеиваются без растяжения. Текст на страницах не
-  // пересжимается дважды — он рисуется сразу нужного размера.
+  // Рамка FRAME, замеренная детектором границ, выше самой страницы в макете:
+  // половина рамки 1257×1074 (1,17), а напечатанная страница в макете —
+  // 1257×~931, то есть в правильной пропорции 1,35. Лишние ~13% снизу —
+  // толщина раскрытой книги и тень. Страницы из PDF раньше вклеивались
+  // растяжением по всей рамке и выходили выше настоящих на 15%.
+  //
+  // Поэтому две ветки:
+  //  • без замывания (по умолчанию) страницы — это сам макет, он и так
+  //    в верных пропорциях: ничего не сжимаем, высота страницы считается
+  //    по пропорции из PDF, и от неё же — поля кадра;
+  //  • с --mask-prices в макет вклеиваются очищенные страницы из PDF;
+  //    тогда шаблон сжимается по вертикали, чтобы рамка получила пропорцию
+  //    страницы, и страницы встают без растяжения.
+  //
+  // Проверено по фото мальчика на стр. 10: в PDF 295×445, в сжатом макете
+  // выходило 299×370 — то есть сжимать сам макет нельзя.
   const [, , pw, ph] = doc.loadPage(leftPage - 1).getBounds();
   const PAGE_ASPECT = pw / ph;
   const fx0 = Math.round(FRAME.x0 * W);
   const fx1 = Math.round(FRAME.x1 * W);
   const halfW = Math.round((fx1 - fx0) / 2);
   const rawFrameH = Math.round((FRAME.y1 - FRAME.y0) * H);
-  const K = halfW / rawFrameH / PAGE_ASPECT; // во сколько раз сжать по вертикали
+  const K = MASK_PRICES ? halfW / rawFrameH / PAGE_ASPECT : 1;
   const Hs = Math.round(H * K);
-  const mockup = await sharp(src).resize(W, Hs, { fit: "fill" }).png().toBuffer();
+  const mockup = MASK_PRICES
+    ? await sharp(src).resize(W, Hs, { fit: "fill" }).png().toBuffer()
+    : await sharp(src).png().toBuffer();
 
   const fy0 = Math.round(FRAME.y0 * Hs);
-  const fy1 = Math.round(FRAME.y1 * Hs);
-  const frameH = fy1 - fy0;
+  const frameH = MASK_PRICES
+    ? Math.round(FRAME.y1 * Hs) - fy0
+    : Math.round(halfW / PAGE_ASPECT);
 
-  const left = await cleanPage(leftPage, halfW, frameH);
-  const right = await cleanPage(rightPage, halfW, frameH);
+  // Страницы из PDF нужны только для замывания цен (там точные координаты
+  // текста). Без замывания страницы берём прямо из её макета: в PDF вместо
+  // цен заглушки «00 ₽», настоящие цены — только в макете.
+  const left = MASK_PRICES ? await cleanPage(leftPage, halfW, frameH) : null;
+  const right = MASK_PRICES ? await cleanPage(rightPage, halfW, frameH) : null;
 
   // Вклеенные страницы плоские, и разворот перестаёт читаться как книга,
   // поэтому возвращаем ему объём: тень в переплёте и лёгкое затемнение
@@ -185,15 +211,19 @@ for (const file of files) {
      </svg>`
   );
 
-  // вклеиваем в уже сжатый шаблон — его рамка совпадает со страницами
-  let buf = await sharp(mockup)
-    .composite([
-      { input: left.buf, left: fx0, top: fy0 },
-      { input: right.buf, left: fx0 + halfW, top: fy0 },
-      { input: shade, left: fx0, top: fy0, blend: "over" },
-    ])
-    .png()
-    .toBuffer();
+  // С замыванием — вклеиваем очищенные страницы в уже сжатый шаблон (его
+  // рамка совпадает со страницами) и возвращаем объём тенью. Без замывания —
+  // сам сжатый макет: у него своя тень в переплёте, добавлять её не нужно.
+  let buf = MASK_PRICES
+    ? await sharp(mockup)
+        .composite([
+          { input: left.buf, left: fx0, top: fy0 },
+          { input: right.buf, left: fx0 + halfW, top: fy0 },
+          { input: shade, left: fx0, top: fy0, blend: "over" },
+        ])
+        .png()
+        .toBuffer()
+    : mockup;
 
   // ПО ОДНОЙ СТРАНИЦЕ. Правка заказчицы «сделать по 1 странице на картинке»:
   // «у Клода по одной страничке, а не по две». Собранный разворот режем
@@ -212,8 +242,8 @@ for (const file of files) {
   const height = Math.min(Hs - top, frameH + mt + mb);
 
   const halves = [
-    { page: leftPage, left: Math.max(0, fx0 - mx), right: fx0 + halfW + mi, bands: left.bands },
-    { page: rightPage, left: fx0 + halfW - mi, right: Math.min(W, fx1 + mx), bands: right.bands },
+    { page: leftPage, left: Math.max(0, fx0 - mx), right: fx0 + halfW + mi, bands: left ? left.bands : 0 },
+    { page: rightPage, left: fx0 + halfW - mi, right: Math.min(W, fx1 + mx), bands: right ? right.bands : 0 },
   ];
   for (const h of halves) {
     const out = path.join(OUT, `page-${h.page}.webp`);
@@ -222,7 +252,10 @@ for (const file of files) {
       .resize({ width: 1100, withoutEnlargement: true })
       .webp({ quality: 86 })
       .toFile(out);
-    console.log(`page-${h.page}.webp  ${meta.width}×${meta.height}  замыто полос: ${h.bands}`);
+    console.log(
+      `page-${h.page}.webp  ${meta.width}×${meta.height}  ` +
+        (MASK_PRICES ? `замыто полос: ${h.bands}` : "цены видны")
+    );
   }
 }
 console.log("готово:", OUT);

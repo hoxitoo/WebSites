@@ -206,35 +206,40 @@ function StoryLine({
   );
 }
 
-// Вступление перед сценой. Правки: сначала «переместить текст» — поставить
-// его над коробкой; затем «привязать не к подарку, а просто между подарком
-// и прошлым блоком». Поэтому это обычный неподвижный блок перед сценой:
-// он прокручивается вместе со страницей и не гаснет от прокрутки сцены.
-function Intro() {
+// Заключительный текст. Правки шли так: «переместить текст» — над коробкой;
+// «привязать не к подарку, а просто между подарком и прошлым блоком»; и
+// последняя: «все таки давай после коробки в право поставим и центрируем по
+// правому краю». Поэтому это обычный неподвижный блок сразу после сцены,
+// перед подвалом, прижатый вправо и выровненный по правому краю.
+function Outro() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="relative mx-auto max-w-3xl px-6 pb-6 pt-16 text-center md:pt-20"
-    >
-      <span
-        aria-hidden
-        className="mx-auto mb-4 block h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent"
-      />
-      <p className="mx-auto max-w-2xl font-display text-xl italic leading-snug text-gold md:text-2xl">
-        Позвольте профессионалам позаботиться о вашем решении — и ваши коллеги
-        с благодарностью оценят результат
-      </p>
-      {/* подпись рукописным шрифтом, как у неё; пробел перед переносом —
-          чтобы в тексте страницы не склеилось «волшебниковООО» */}
-      <p className="mt-3 font-script text-xl leading-tight text-cream/80 md:text-2xl">
-        С теплом, команда волшебников{" "}
-        <br />
-        ООО ТК «Колибри»
-      </p>
-    </motion.div>
+    <div style={{ background: SCENE_BG }}>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative mx-auto max-w-6xl px-6 pt-12 text-right md:px-12 md:pt-16"
+      >
+        <div className="ml-auto max-w-xl">
+          <span
+            aria-hidden
+            className="mb-4 ml-auto block h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent"
+          />
+          <p className="font-display text-xl italic leading-snug text-gold md:text-2xl">
+            Позвольте профессионалам позаботиться о вашем решении — и ваши коллеги
+            с благодарностью оценят результат
+          </p>
+          {/* подпись рукописным шрифтом, как у неё; пробел перед переносом —
+              чтобы в тексте страницы не склеилось «волшебниковООО» */}
+          <p className="mt-3 font-script text-xl leading-tight text-cream/80 md:text-2xl">
+            С теплом, команда волшебников{" "}
+            <br />
+            ООО ТК «Колибри»
+          </p>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -417,8 +422,6 @@ export default function GiftScene() {
 
   return (
     <>
-      {/* текст «Позвольте профессионалам…» — между контактами и подарком */}
-      <Intro />
       {/* Подводка к сцене. У сцены непрозрачный фон #0a1230, а фон страницы
           в этом месте чуть светлее — на верхней кромке был виден шаг.
           Правка заказчицы: «все жёсткие переходы убрать, сделать размытые»,
@@ -533,6 +536,8 @@ export default function GiftScene() {
         </div>
       </div>
       </div>
+      {/* текст «Позвольте профессионалам…» — после коробки, справа */}
+      <Outro />
       {/* и такой же плавный выход из сцены — к подвалу */}
       <div
         aria-hidden

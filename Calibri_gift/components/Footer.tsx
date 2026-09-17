@@ -29,7 +29,7 @@ export default function Footer() {
             href="/merch"
             className="mt-2 inline-block text-xs text-muted/80 underline-offset-4 transition-colors hover:text-gold"
           >
-            Мерч и подарки к проф.праздникам — скоро
+            Мерч и подарки к профессиональным праздникам — скоро
           </Link>
         </div>
 

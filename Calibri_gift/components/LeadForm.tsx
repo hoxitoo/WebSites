@@ -33,7 +33,8 @@ const QUIZ: readonly Step[] = [
     // первым — именно детские подарки (компания заточена на них)
     key: "kids",
     type: "buttons",
-    title: "Какое примерное количество детских подарков планируете?",
+    // вычитка: «не хватает глагола-дополнения» — «вы планируете заказать»
+    title: "Какое примерное количество детских подарков вы планируете заказать?",
     options: [
       "до 100",
       "от 100 до 300",
@@ -217,6 +218,23 @@ export default function LeadForm() {
     // между QR-кодами «Отдела заботы» и этим заголовком было почти 300 px
     <section id="lead" className="section-vignette relative pb-28 pt-8 md:pt-10">
       <div className="mx-auto max-w-2xl px-6 md:px-12">
+        {/* Кружок с ребёнком над заголовком — финальные правки 3: «нужно
+            разбавить блок текстовой информации кружочком, или сверху или
+            под текст — клиенты сказали, тяжело читать». Сверху: так он ведёт
+            взгляд к заголовку и не разрывает заголовок с подводкой. */}
+        <motion.img
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6 }}
+          src={asset("/catalog/circle-girl.webp")}
+          alt="Девочка с новогодним подарком"
+          width={360}
+          height={360}
+          loading="lazy"
+          draggable={false}
+          className="mx-auto mb-6 h-24 w-24 rounded-full ring-2 ring-gold/40 ring-offset-4 ring-offset-night-deep md:h-28 md:w-28"
+        />
         <motion.h2
           initial={{ opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -251,11 +269,14 @@ export default function LeadForm() {
           Всего несколько коротких вопросов для нашего{" "}
           <span className="block">
             <span className="text-gold">Отдела заботы</span>, на которые мы
-            предлагаем Вам ответить, чтобы{" "}
+            предлагаем вам ответить, чтобы{" "}
             <span className="text-gold">получить каталог и</span>{" "}
           </span>
+          {/* Вычитка текста (финальные правки 3): капс «КОММЕРЧЕСКОЕ
+              ПРЕДЛОЖЕНИЕ» посреди предложения выбивался — на остальном сайте
+              пишется строчными; «Вам» — со строчной, как везде на сайте. */}
           <span className="block text-gold">
-            персональное <span className="uppercase">коммерческое предложение</span>.
+            персональное коммерческое предложение.
           </span>
         </motion.p>
 
@@ -445,12 +466,12 @@ export default function LeadForm() {
               >
                 <h3 className="font-display text-3xl text-cream">
                   Благодарю! <span className="glow-gold">Отдел заботы</span> уже
-                  собирает для Вас Индивидуальное предложение 🎄
+                  собирает для вас индивидуальное предложение 🎄
                 </h3>
                 <p className="mt-4 max-w-md text-muted">
                   В ближайшее время пришлём на почту каталог и персональное
                   коммерческое предложение под ваши ответы. Если появятся
-                  дополнительные вопросы — с Вами свяжется наш менеджер.
+                  дополнительные вопросы — с вами свяжется наш менеджер.
                 </p>
               </motion.div>
             )}

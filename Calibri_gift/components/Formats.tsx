@@ -7,6 +7,7 @@ import Disclosure from "./Disclosure";
 import CatalogRequest from "./CatalogRequest";
 import Magnetic from "./Magnetic";
 import Banner11 from "./Banner11";
+import CatalogBook from "./CatalogBook";
 import { asset } from "@/lib/asset";
 
 /**
@@ -16,9 +17,8 @@ import { asset } from "@/lib/asset";
  *
  * Что взято из её макета:
  *  • карточка «Коллекция — по личному запросу» с обложкой каталога;
- *  • «Полистайте наш каталог» листалкой: один большой разворот, стрелки
- *    и полоска миниатюр — «полистайте каталог как у меня». Раньше все
- *    восемь разворотов лежали внахлёст на странице сразу;
+ *  • «Полистайте наш каталог» — книга с эффектом перелистывания,
+ *    40 страниц (components/CatalogBook.tsx, финальные правки 3);
  *  • шесть карточек форматов;
  *  • таблица «Варианты брендирования готовых наборов» — «варианты
  *    брендирования как у меня» (раньше это был список тиражей внутри
@@ -32,37 +32,6 @@ import { asset } from "@/lib/asset";
  * дублируются». Она спрашивала, не подсветить ли подписи цветом — да,
  * заголовки карточек золотые, так они и работают подписями к кадрам.
  */
-
-// Страницы каталога — по одной на картинке. Правка «сделать по 1 странице
-// на картинке»: «у Клода по одной страничке, а не по две». Готовит
-// scripts/make-spreads.mjs (режет собранные развороты пополам). Цены на
-// страницах видны — правка «убрать замазку с цен, чтобы цены везде было
-// видно»; раньше скрипт их замывал.
-//
-// Подпись под страницей — название набора, как у Клода. Названия взяты
-// из текстового слоя PDF-каталога; где на странице два набора — оба.
-const PAGES = [
-  { page: 6, name: "Посидим, поиграем", section: "подарки в наборах" },
-  { page: 7, name: "Тому, кто верит в чудеса!", section: "подарки в наборах" },
-  { page: 8, name: "Заснеженная", section: "подарки в наборах" },
-  { page: 9, name: "Кудряшки", section: "подарки в наборах" },
-  { page: 10, name: "Барашки наряжают ёлку", section: "подарки в наборах" },
-  { page: 11, name: "Милая моя ёлочка · Морозец", section: "подарки в наборах" },
-  { page: 12, name: "Творческие барашки · Кормушка своими руками", section: "подарки в наборах" },
-  { page: 13, name: "Поезд новогодних экспериментов", section: "подарки в наборах" },
-  { page: 18, name: "Окно в Новый год! · Тёплая мастерская", section: "картонная упаковка" },
-  { page: 19, name: "Банкомат подарков · Финансовая грамотность", section: "картонная упаковка" },
-  { page: 52, name: "Подушки в текстильной упаковке", section: "текстильная упаковка" },
-  { page: 53, name: "Подушки в текстильной упаковке", section: "текстильная упаковка" },
-  { page: 68, name: "Конверт малый · Матрёшка столичная", section: "премиум-упаковка" },
-  { page: 69, name: "Конверт средний · Матрёшка пряничная", section: "премиум-упаковка" },
-  { page: 70, name: "Коза в оренбургском платке · Кремлёвская звезда", section: "премиум-упаковка" },
-  { page: 71, name: "Крафт", section: "премиум-упаковка" },
-].map((p) => ({
-  ...p,
-  file: `page-${p.page}.webp`,
-  alt: `Страница ${p.page} каталога, ${p.section}: ${p.name}`,
-}));
 
 // Шесть форматов. Картинки — её «сайт разделы» без надписей,
 // готовит scripts/make-rework-assets.mjs.
@@ -126,113 +95,25 @@ const BRANDING = [
   ["Новогодняя бирка", "от 100 шт.", "Подвесной элемент на подарок"],
 ];
 
+// Цены по форматам — финальные правки 3: «хотим написать цены — прям как
+// у Клода, добавить цена от и до и кнопочку „Оставить заявку“». Цифры —
+// с её скриншота версии Клода. Для брендирования цены нет: «цена
+// фиксируется в договоре».
+const PRICES: Record<string, string> = {
+  "format-nabory.webp": "от 1 310 до 4 220 рублей",
+  "format-karton.webp": "от 380 до 2 275 рублей",
+  "format-tekstil.webp": "от 915 до 3 820 рублей",
+  "format-kombi.webp": "от 990 до 2 190 рублей",
+  "format-premium.webp": "от 1 500 до 8 870 рублей",
+  "format-brand.webp": "Цена фиксируется в договоре",
+};
+
 const reveal = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, amount: 0.2 },
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
-
-function CatalogFlip({ onZoom }: { onZoom: (shot: Shot) => void }) {
-  const [index, setIndex] = useState(0);
-  const { file, name, alt } = PAGES[index];
-  const step = (dir: 1 | -1) =>
-    setIndex((i) => (i + dir + PAGES.length) % PAGES.length);
-
-  return (
-    <div className="mt-20 text-center">
-      <motion.p {...reveal}>
-        <span className="eyebrow-pill">Коллекция 2027</span>
-      </motion.p>
-      <motion.h3 {...reveal} className="mt-4 font-display text-2xl md:text-4xl">
-        Полистайте наш <span className="candle-sweep">каталог</span>
-      </motion.h3>
-      <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
-        {/* финальная правка: «а также составы подарков — убираем вообще» */}
-        Внутри — наборы, картонная, текстильная и премиум-упаковка.
-        <br className="hidden sm:block" /> Это лишь малая часть каталога —
-        остальное покажем по запросу.
-      </motion.p>
-
-      <motion.div {...reveal} className="mt-8 flex items-center justify-center gap-3 md:gap-4">
-        <button
-          type="button"
-          onClick={() => step(-1)}
-          aria-label="Предыдущая страница"
-          className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-cream/25 text-cream transition-colors hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
-        >
-          ←
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onZoom({ src: asset(`/catalog/${file}`), alt, caption: name })}
-          // Пропорции — как в настоящем каталоге: страница в PDF 765×567,
-          // make-spreads собирает её без растяжения (правки «сжато по ширине»,
-          // «растянуто опять»). Одна страница уже, чем разворот, поэтому
-          // колонка 42rem (~670 px): так страница по высоте примерно такая же,
-          // как был разворот, и мелкий текст на ней читается.
-          className="relative w-full max-w-[42rem] cursor-zoom-in overflow-hidden rounded-2xl bg-cream shadow-[0_24px_60px_rgba(8,14,30,0.55)]"
-        >
-          {/* ключ по файлу — картинка проявляется, а не подменяется рывком */}
-          <motion.img
-            key={file}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            src={asset(`/catalog/${file}`)}
-            alt={alt}
-            width={1100}
-            height={882}
-            className="block h-auto w-full"
-            draggable={false}
-          />
-          {/* подпись — название набора, как у Клода, а не номер страницы:
-              номер и так напечатан в углу самой страницы */}
-          <span className="pointer-events-none absolute bottom-3 right-3 max-w-[80%] truncate rounded-full bg-night-deep/80 px-3 py-1.5 text-[0.72rem] font-semibold tracking-wide text-gold">
-            {name}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => step(1)}
-          aria-label="Следующая страница"
-          className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full border border-cream/25 text-cream transition-colors hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
-        >
-          →
-        </button>
-      </motion.div>
-
-      {/* шестнадцать миниатюр в пропорции страницы — два ряда по восемь */}
-      <div className="mx-auto mt-5 flex max-w-[30rem] flex-wrap justify-center gap-2">
-        {PAGES.map((p, i) => (
-          <button
-            key={p.file}
-            type="button"
-            onClick={() => setIndex(i)}
-            aria-label={`Страница ${p.page}: ${p.name}`}
-            aria-current={i === index}
-            className={
-              "h-12 w-[3.25rem] cursor-pointer overflow-hidden rounded-md border-2 transition-opacity " +
-              (i === index
-                ? "border-gold opacity-100"
-                : "border-transparent opacity-55 hover:opacity-85")
-            }
-          >
-            <img
-              src={asset(`/catalog/${p.file}`)}
-              alt=""
-              loading="lazy"
-              className="h-full w-full object-cover"
-              draggable={false}
-            />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Formats() {
   const [shot, setShot] = useState<Shot | null>(null);
@@ -266,14 +147,16 @@ export default function Formats() {
           {...reveal}
           className="group mt-12 flex flex-col items-center gap-8 rounded-3xl border border-cream/10 bg-night-soft/45 p-7 text-center md:flex-row md:p-9 md:text-left"
         >
+          {/* «замена — файл от дизайнера на прозрачном фоне»: две книги
+              стопкой, уже с наклоном и тенью, — поэтому без рамки и поворота */}
           <img
-            src={asset("/catalog/cover-2027.webp")}
+            src={asset("/catalog/cover-2027-books.webp")}
             alt="Каталог «Коллекция новогодних подарков 2027»"
             width={1100}
-            height={704}
+            height={731}
             loading="lazy"
             draggable={false}
-            className="w-[13.75rem] shrink-0 -rotate-4 rounded-lg shadow-[0_18px_26px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:-rotate-1 group-hover:scale-[1.03] md:w-[16.25rem]"
+            className="w-[16rem] shrink-0 transition-transform duration-300 group-hover:scale-[1.03] md:w-[19rem]"
           />
           <div>
             <h3 className="font-display text-2xl text-cream md:text-3xl">
@@ -290,7 +173,23 @@ export default function Formats() {
           </div>
         </motion.div>
 
-        <CatalogFlip onZoom={setShot} />
+        <div className="mt-20 text-center">
+          <motion.p {...reveal}>
+            <span className="eyebrow-pill">Коллекция 2027</span>
+          </motion.p>
+          <motion.h3 {...reveal} className="mt-4 font-display text-2xl md:text-4xl">
+            Полистайте наш <span className="candle-sweep">каталог</span>
+          </motion.h3>
+          <motion.p {...reveal} className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
+            {/* финальная правка: «а также составы подарков — убираем вообще» */}
+            Внутри — наборы, картонная, текстильная и премиум-упаковка.
+            <br className="hidden sm:block" /> Это лишь малая часть каталога —
+            остальное покажем по запросу.
+          </motion.p>
+          <motion.div {...reveal} className="mt-8">
+            <CatalogBook onZoom={setShot} />
+          </motion.div>
+        </div>
 
         {/* Шесть форматов */}
         <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -300,13 +199,13 @@ export default function Formats() {
               {...reveal}
               transition={{ ...reveal.transition, delay: (i % 3) * 0.1 }}
               className={
-                "group overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-gold/40 " +
+                "group flex flex-col overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-gold/40 " +
                 (p.accent
                   ? "border-gold/25 bg-gradient-to-br from-bordeaux-deep to-bordeaux/70"
                   : "border-cream/10 bg-night-soft/50")
               }
             >
-              <span className="block aspect-[16/10] overflow-hidden">
+              <span className="relative block aspect-[16/10] overflow-hidden">
                 <img
                   src={asset(`/formats/${p.file}`)}
                   alt={p.alt}
@@ -316,10 +215,27 @@ export default function Formats() {
                   draggable={false}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                 />
+                {/* Кнопка на картинке, в правом нижнем углу — как у Клода.
+                    Позиция — у обёртки, а не у самой кнопки: .btn-ribbon задаёт
+                    position: relative (для бегущего блика), и это перебивало
+                    absolute — кнопка вставала под картинку и обрезалась. */}
+                <span className="absolute bottom-3 right-3">
+                  <a
+                    href="#lead"
+                    className="btn-ribbon inline-block rounded-full px-4 py-2 text-xs font-semibold"
+                  >
+                    Оставить заявку
+                  </a>
+                </span>
               </span>
-              <div className="p-6">
+              {/* flex-1 + mt-auto: цена прижата к низу, в ряду карточек
+                  цены стоят на одной линии при разной длине описания */}
+              <div className="flex flex-1 flex-col p-6">
                 <h3 className="font-display text-xl text-gold">{p.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{p.text}</p>
+                <p className="mt-auto pt-5 font-display text-base font-semibold text-gold">
+                  {PRICES[p.file]}
+                </p>
               </div>
             </motion.article>
           ))}

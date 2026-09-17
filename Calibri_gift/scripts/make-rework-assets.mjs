@@ -191,4 +191,113 @@ prov.galleryGirls = {
 };
 writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
 
+/* ————— 6. Пять дополнительных фото (финальные правки 3) ————— */
+// «новые фото — можно чуть сжать», «мальчиков разбавляем девочками».
+// Два исходника — 4912×7360 по 12 МБ; на выходе, как у всех кадров ленты,
+// 700×1049 и около 100 КБ. Место в ленте — в components/KidsStrip.tsx.
+const MORE = [
+  ["DSC_3263 красно-серые люксюокс.jpeg", "Девочка с ободком-мишками и подарочной коробкой с барашками в очках"],
+  ["DSC_3918 (1).jpg", "Девочка с сумкой-шопером с матрёшкой"],
+  ["DSC_3992.jpg", "Девочка в белом платье с подарочной коробкой с барашками"],
+  ["DSC_4332.jpg", "Девочка с мягкой игрушкой-овечкой на диване"],
+  ["DSC_6194-2.jpg", "Девочка в красном платье с подарочной сумкой «Заснеженная»"],
+];
+const moreFiles = [];
+for (let i = 0; i < MORE.length; i++) {
+  const [file, alt] = MORE[i];
+  const src = path.join(SRC, "gallery-more", file);
+  if (!existsSync(src)) {
+    console.error(`нет файла ${file} — распакуйте «дополнительные фото.zip» в design/rework-2026-09/gallery-more/`);
+    process.exit(1);
+  }
+  const name = `kid-${String(39 + i).padStart(2, "0")}.webp`;
+  const meta = await sharp(src)
+    .rotate() // у больших исходников есть EXIF-ориентация
+    .resize(700, 1049, { fit: "cover" })
+    .webp({ quality: 82 })
+    .toFile(path.join(KIDS_OUT, name));
+  moreFiles.push({ file: name, alt, source: `архив «дополнительные фото» (финальные правки 3): ${file}` });
+  console.log(`${name}  ${meta.width}×${meta.height}`);
+}
+prov.galleryMore = {
+  note: "Пять дополнительных фото (финальные правки 3). Оригиналы: design/rework-2026-09/gallery-more/",
+  files: moreFiles,
+};
+writeFileSync(provPath, JSON.stringify(prov, null, 2) + "\n");
+
+/* ————— 7. Кружки с детьми ————— */
+// «нужно разбавить блок текстовой информации кружочком» (над «Соберём подарок
+// под ваш запрос») и «тут тоже хочется кружочек с ребёнком — небольшого
+// размера» (у «Хотите посмотреть, как собирается уникальный подарок?»).
+// Исходники — круг на белом квадрате. Вырезаем сам круг: ищем его границы
+// по небелым пикселям и накладываем круглую маску — на тёмном фоне сайта
+// белых углов быть не должно.
+async function circle(file, out, size) {
+  const src = path.join(SRC, file);
+  const { data, info } = await sharp(src).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const W = info.width;
+  const H = info.height;
+  const nonWhite = (x, y) => {
+    const i = (y * W + x) * 3;
+    return data[i] + data[i + 1] + data[i + 2] < 720;
+  };
+  let l = W, r = 0, t = H, b = 0;
+  for (let y = 0; y < H; y += 2)
+    for (let x = 0; x < W; x += 2)
+      if (nonWhite(x, y)) {
+        if (x < l) l = x;
+        if (x > r) r = x;
+        if (y < t) t = y;
+        if (y > b) b = y;
+      }
+  // круг вписан в квадрат; берём сторону по меньшему размеру, чтобы не
+  // захватить белое поле, и чуть срезаем край — у круга мягкий ободок
+  const side = Math.min(r - l, b - t) - 8;
+  const cx = Math.round((l + r) / 2);
+  const cy = Math.round((t + b) / 2);
+  const left = Math.round(cx - side / 2);
+  const top = Math.round(cy - side / 2);
+  const mask = Buffer.from(
+    `<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="#fff"/></svg>`
+  );
+  const meta = await sharp(src)
+    .extract({ left, top, width: side, height: side })
+    .resize(size, size)
+    .composite([{ input: mask, blend: "dest-in" }])
+    .webp({ quality: 86, alphaQuality: 100 })
+    .toFile(path.resolve("public/catalog", out));
+  console.log(`${out}  ${meta.width}×${meta.height} (круг ${side} px из ${W}×${H})`);
+}
+await circle("кружок1.png", "circle-girl.webp", 360);
+await circle("кружок2.png", "circle-boy.webp", 240);
+
+/* ————— 8. Обложка каталога от дизайнера ————— */
+// «замена — файл от дизайнера на прозрачном фоне»: две книги каталога
+// стопкой. Прозрачные поля обрезаем, чтобы размер на сайте задавала сама
+// картинка, а не пустота вокруг неё.
+{
+  const src = path.join(SRC, "файл от дизайнера на прозрачном фоне.png");
+  // trim() тут не срабатывает: мягкая тень под книгами полупрозрачная и
+  // тянется до самого края. Поэтому границы считаем по альфе ≥ 10 —
+  // едва видимый хвост тени уходит, сами книги и тень под ними остаются.
+  const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  let l = info.width, r = 0, t = info.height, b = 0;
+  for (let y = 0; y < info.height; y++)
+    for (let x = 0; x < info.width; x++)
+      if (data[(y * info.width + x) * 4 + 3] >= 10) {
+        if (x < l) l = x;
+        if (x > r) r = x;
+        if (y < t) t = y;
+        if (y > b) b = y;
+      }
+  const trimmed = await sharp(src)
+    .extract({ left: l, top: t, width: r - l + 1, height: b - t + 1 })
+    .toBuffer();
+  const meta = await sharp(trimmed)
+    .resize({ width: 1100 })
+    .webp({ quality: 86, alphaQuality: 100 })
+    .toFile(path.resolve("public/catalog/cover-2027-books.webp"));
+  console.log(`cover-2027-books.webp  ${meta.width}×${meta.height}`);
+}
+
 console.log("готово");

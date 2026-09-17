@@ -23,12 +23,15 @@ export default function Disclosure({
   children,
   tone = "warm",
   full = false,
+  lead,
   className = "",
 }: {
   question: string;
   children: React.ReactNode;
   tone?: "warm" | "dark";
   full?: boolean;
+  /** картинка слева от вопроса — например, кружок с ребёнком */
+  lead?: React.ReactNode;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -50,13 +53,11 @@ export default function Disclosure({
             : "border-cream/15 bg-night-soft/50 hover:border-gold/45")
         }
       >
-        <span
-          className={
-            "font-display text-lg leading-snug md:text-2xl " +
-            "text-cream"
-          }
-        >
-          {question}
+        <span className="flex items-center gap-4">
+          {lead}
+          <span className="font-display text-lg leading-snug text-cream md:text-2xl">
+            {question}
+          </span>
         </span>
         {/* плюс превращается в минус — понятно, что блок раскрыт */}
         <span

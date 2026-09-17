@@ -144,7 +144,23 @@ export default function CareDept() {
             весь текст под + ». Тиражи брендирования отсюда уехали в раздел
             «Форматы новогодних подарков» — в её макете таблица стоит там. */}
         <motion.div {...reveal} className="mt-14">
-          <Disclosure question="Хотите посмотреть, как собирается уникальный подарок?">
+          <Disclosure
+            question="Хотите посмотреть, как собирается уникальный подарок?"
+            // финальные правки 3: «тут тоже хочется кружочек с ребёнком —
+            // небольшого размера»
+            lead={
+              <img
+                src={asset("/catalog/circle-boy.webp")}
+                alt=""
+                aria-hidden
+                width={240}
+                height={240}
+                loading="lazy"
+                draggable={false}
+                className="h-12 w-12 shrink-0 rounded-full ring-2 ring-gold/40 md:h-16 md:w-16"
+              />
+            }
+          >
             <div className="grid gap-x-8 gap-y-8 text-left sm:grid-cols-2 lg:grid-cols-3">
               {STEPS.map(([title, text], i) => (
                 <div key={title} className="border-t-2 border-gold/25 pt-4">

@@ -112,6 +112,21 @@ export default function Filling() {
   return (
     <section className="section-band relative py-28">
       <div className="mx-auto max-w-6xl px-6 text-center md:px-12">
+        {/* последние правки: «вот тут сверху кругляшок с детками» — над
+            плашкой, так же, как кружок над «Соберём подарок под ваш запрос» */}
+        <motion.img
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6 }}
+          src={asset("/catalog/circle-boy-box.webp")}
+          alt="Мальчик с новогодним подарком в коробке"
+          width={360}
+          height={360}
+          loading="lazy"
+          draggable={false}
+          className="mx-auto mb-6 h-24 w-24 rounded-full ring-2 ring-gold/40 ring-offset-4 ring-offset-night-deep md:h-28 md:w-28"
+        />
         <motion.p {...reveal}>
           <span className="eyebrow-pill">А внутри — только лучшее</span>
         </motion.p>

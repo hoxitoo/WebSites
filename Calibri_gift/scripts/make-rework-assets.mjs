@@ -270,6 +270,10 @@ async function circle(file, out, size) {
 }
 await circle("кружок1.png", "circle-girl.webp", 360);
 await circle("кружок2.png", "circle-boy.webp", 240);
+// последние правки: «вот тут сверху кругляшок с детками» (над «А внутри —
+// только лучшее») и кружок слева у «Варианты брендирования готовых наборов»
+await circle("кружок3.png", "circle-boy-box.webp", 360);
+await circle("кружок4.png", "circle-girl-headphones.webp", 240);
 
 /* ————— 8. Обложка каталога от дизайнера ————— */
 // «замена — файл от дизайнера на прозрачном фоне»: две книги каталога

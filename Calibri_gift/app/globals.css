@@ -309,6 +309,9 @@ body {
   animation-delay: 1.3s;
 }
 .btn-ribbon {
+  /* на узком экране длинная надпись переносится на две строки — без этого
+     вторая строка прижималась к левому краю кнопки */
+  text-align: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-ribbon:hover {

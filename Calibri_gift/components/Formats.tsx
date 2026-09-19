@@ -243,7 +243,24 @@ export default function Formats() {
 
         {/* Варианты брендирования — таблицей, как в её макете */}
         <motion.div {...reveal} className="mt-14">
-          <Disclosure question="Варианты брендирования готовых наборов" tone="dark">
+          <Disclosure
+            question="Варианты брендирования готовых наборов"
+            tone="dark"
+            // последние правки: кружок с ребёнком слева от вопроса — как у
+            // «Хотите посмотреть, как собирается уникальный подарок?»
+            lead={
+              <img
+                src={asset("/catalog/circle-girl-headphones.webp")}
+                alt=""
+                aria-hidden
+                width={240}
+                height={240}
+                loading="lazy"
+                draggable={false}
+                className="h-12 w-12 shrink-0 rounded-full ring-2 ring-gold/40 md:h-16 md:w-16"
+              />
+            }
+          >
             <div className="overflow-x-auto rounded-2xl border border-cream/10">
               <table className="w-full min-w-[520px] border-collapse bg-night-soft/40 text-left">
                 <thead>

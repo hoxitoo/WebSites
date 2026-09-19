@@ -13,7 +13,7 @@
  * Результат — папка out/: её СОДЕРЖИМОЕ заливается в корень сайта на хостинге.
  */
 import { execSync } from "node:child_process";
-import { existsSync, renameSync } from "node:fs";
+import { existsSync, renameSync, writeFileSync } from "node:fs";
 
 const [site, webhook] = process.argv.slice(2);
 if (!site || !/^https?:\/\/[^/]+$/.test(site) || !webhook) {
@@ -43,4 +43,24 @@ try {
 } finally {
   if (existsSync(API_OFF)) renameSync(API_OFF, API);
 }
+
+// Обычные российские хостинги (Beget, Timeweb, REG.RU) работают на Apache:
+// без .htaccess на неверный адрес покажется стандартная страница хостинга,
+// а не наша 404. Кэш: картинки и скрипты с хэшем в имени не меняются —
+// пусть браузер держит их долго, а сами страницы проверяет каждый раз.
+writeFileSync(
+  "out/.htaccess",
+  `ErrorDocument 404 /404.html
+AddType image/webp .webp
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+</IfModule>
+`
+);
 console.log("\nготово: залить содержимое папки out/ в корень сайта");
